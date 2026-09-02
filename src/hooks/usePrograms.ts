@@ -5,7 +5,9 @@ import { InstitutionProgram } from '@/types/api';
 export interface CreateProgramPayload {
   title: string;
   description: string;
-  asnaf_category: string;
+  primary_cluster?: string;
+  target_sdgs?: string[];
+  asnaf_category?: string;
   esg_pillar: string;
   target_beneficiaries: string;
 }
@@ -15,19 +17,23 @@ const mockProgramsData: InstitutionProgram[] = [
     id: 'prog_01_beasiswa',
     title: 'Beasiswa Vokasi Digital & Tahfidz Syariah',
     description: 'Program beasiswa penuh 3 tahun tingkat diploma vokasi TI, pengembangan perangkat lunak, dan pendampingan hafiz Quran bagi mahasiswa 3T.',
+    primary_cluster: 'Education & Literacy',
+    target_sdgs: ['SDG 4: Pendidikan Berkualitas', 'SDG 8: Pekerjaan Layak'],
     asnaf_category: 'Fisabilillah / Ibnu Sabil',
-    esg_pillar: 'Pendidikan Quality Education (SDG 4)',
+    esg_pillar: 'SOCIAL',
     target_beneficiaries: '500 Mahasiswa & Pelajar 3T',
     embedding_generated: true,
     created_at: '2026-08-01T00:00:00Z',
   },
   {
     id: 'prog_02_pesantren',
-    title: 'Program Digitalisasi & Elektrifikasi Pesantren 3T',
-    description: 'Instalasi panel surya mandiri, laboratorium komputer, dan koneksi internet pita lebar untuk 50 pesantren tradisional di pelosok daerah.',
+    title: 'Program Respon Tanggap Darurat Bencana & Sanitasi',
+    description: 'Instalasi posko kesehatan darurat, penjernihan air bersih, dan logistik bahan pangan untuk korban bencana alam di berbagai pelosok.',
+    primary_cluster: 'Disaster & Emergency',
+    target_sdgs: ['SDG 6: Air Bersih & Sanitasi', 'SDG 11: Komunitas Berkelanjutan'],
     asnaf_category: 'Fisabilillah',
-    esg_pillar: 'Infrastruktur & Komunitas Inklusif (SDG 9)',
-    target_beneficiaries: '50 Pesantren / 12.000 Santri',
+    esg_pillar: 'SOCIAL',
+    target_beneficiaries: '50 Lokasi Kebencanaan / 12.000 Jiwa',
     embedding_generated: true,
     created_at: '2026-08-05T00:00:00Z',
   },
@@ -35,21 +41,13 @@ const mockProgramsData: InstitutionProgram[] = [
     id: 'prog_04_modal_umkm',
     title: 'Bantuan Modal Usaha Bergulir Perempuan Dhuafa',
     description: 'Penyaluran modal usaha tanpa bunga (Qardhul Hasan), pendampingan literasi keuangan syariah, dan sertifikasi halal UMKM wirausaha ibu rumah tangga.',
+    primary_cluster: 'Economic Empowerment',
+    target_sdgs: ['SDG 1: Tanpa Kemiskinan', 'SDG 8: Pekerjaan Layak'],
     asnaf_category: 'Miskin / Gharimin',
-    esg_pillar: 'Pekerjaan Layak & Pertumbuhan Ekonomi (SDG 8)',
+    esg_pillar: 'SOCIAL',
     target_beneficiaries: '1.000 Pengusaha Perempuan',
     embedding_generated: true,
     created_at: '2026-08-10T00:00:00Z',
-  },
-  {
-    id: 'prog_03_anak_yatim',
-    title: 'Santunan & Pelatihan Keterampilan Anak Yatim Dhuafa',
-    description: 'Program jaminan pendidikan, nutrisi kesehatan, dan pelatihan keahlian praktis bagi anak-anak yatim dhuafa di panti asuhan binaan.',
-    asnaf_category: 'Fakir / Miskin',
-    esg_pillar: 'Tanpa Kemiskinan (SDG 1)',
-    target_beneficiaries: '750 Anak Yatim Dhuafa',
-    embedding_generated: true,
-    created_at: '2026-08-12T00:00:00Z',
   },
 ];
 
@@ -90,6 +88,8 @@ export function useCreateProgram() {
         id: `prog_${Date.now()}`,
         title: payload.title,
         description: payload.description,
+        primary_cluster: payload.primary_cluster || 'Community Development',
+        target_sdgs: payload.target_sdgs || [],
         asnaf_category: payload.asnaf_category,
         esg_pillar: payload.esg_pillar,
         target_beneficiaries: payload.target_beneficiaries,

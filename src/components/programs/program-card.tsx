@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { InstitutionProgram } from '@/types/api';
-import { BookOpen, Users, CheckCircle2, Calendar, Layers } from 'lucide-react';
+import { Users, CheckCircle2, Calendar, Layers, Globe } from 'lucide-react';
 
 interface ProgramCardProps {
   program: InstitutionProgram;
@@ -15,8 +15,8 @@ export default function ProgramCard({ program }: ProgramCardProps) {
         {/* Header: Title & AI Embedding Synced Badge */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="space-y-1">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-              Program Lembaga
+            <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block">
+              {program.primary_cluster || 'Program Intervensi'}
             </span>
             <h3 className="text-lg font-bold text-slate-900 group-hover:text-emerald-700 transition-colors leading-snug">
               {program.title}
@@ -29,16 +29,33 @@ export default function ProgramCard({ program }: ProgramCardProps) {
           </span>
         </div>
 
-        {/* Badges: Asnaf & ESG Pillar */}
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          <span className="px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-800 rounded-md border border-slate-200 flex items-center gap-1">
-            <Layers className="w-3 h-3 text-slate-500" />
-            <span>Asnaf: {program.asnaf_category}</span>
-          </span>
+        {/* Badges: Primary Cluster, Asnaf (if present), & SDGs */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+          {program.primary_cluster && (
+            <span className="px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-800 rounded-md border border-slate-200 flex items-center gap-1">
+              <Layers className="w-3 h-3 text-slate-500" />
+              <span>{program.primary_cluster}</span>
+            </span>
+          )}
 
-          <span className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-800 rounded-md border border-emerald-100">
-            {program.esg_pillar}
-          </span>
+          {program.asnaf_category && (
+            <span className="px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-800 rounded-md border border-amber-200">
+              Asnaf: {program.asnaf_category}
+            </span>
+          )}
+
+          {program.target_sdgs && program.target_sdgs.length > 0 ? (
+            program.target_sdgs.map((sdg) => (
+              <span key={sdg} className="px-2 py-0.5 text-[11px] font-semibold bg-emerald-50 text-emerald-800 rounded border border-emerald-200 flex items-center gap-1">
+                <Globe className="w-3 h-3 text-emerald-600" />
+                <span>{sdg}</span>
+              </span>
+            ))
+          ) : (
+            <span className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-800 rounded-md border border-emerald-100">
+              {program.esg_pillar}
+            </span>
+          )}
         </div>
 
         {/* Description */}

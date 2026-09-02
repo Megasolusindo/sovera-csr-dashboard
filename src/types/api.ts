@@ -1,5 +1,23 @@
 export type SignalSource = 'BEI_REPORT' | 'NEWS' | 'CSR_PDF' | 'SOCIAL';
 
+export type OrgType = 
+  | 'HUMANITARIAN_NGO'
+  | 'DISASTER_RELIEF'
+  | 'ENVIRONMENT_CONSERVATION'
+  | 'HEALTH_EDUCATION'
+  | 'ZAKAT_WAQF_INSTITUTION'
+  | 'UNIVERSITY_ENDOWMENT';
+
+export type PrimaryCluster = 
+  | 'Disaster & Emergency'
+  | 'Education & Literacy'
+  | 'Health & WASH'
+  | 'Economic Empowerment'
+  | 'Climate & Environment'
+  | 'Social Protection & Vulnerable Groups'
+  | 'Zakat & Wakaf Fiqh'
+  | 'Community Development';
+
 export type DealStage = 
   | 'DISCOVERED' 
   | 'RESEARCH' 
@@ -26,13 +44,15 @@ export interface CorporateSignal {
   created_at?: string;
 }
 
-// 2. Program Lembaga (Tenant Isolated)
+// 2. Program Lembaga (Tenant Isolated & Multi-Sector)
 export interface InstitutionProgram {
   id: string;
   org_id?: string;
   title: string;
   description: string;
-  asnaf_category: string;
+  primary_cluster?: PrimaryCluster | string;
+  target_sdgs?: string[];
+  asnaf_category?: string;
   esg_pillar: string;
   target_beneficiaries: string;
   embedding_generated?: boolean;
@@ -44,7 +64,8 @@ export interface InstitutionProgram {
 export interface MatchedProgram {
   program_id: string;
   title: string;
-  asnaf_category: string;
+  primary_cluster?: string;
+  asnaf_category?: string;
   esg_pillar: string;
   similarity_score: number;
 }

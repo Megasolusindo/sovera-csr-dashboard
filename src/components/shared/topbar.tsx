@@ -1,73 +1,87 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Building2, Bell, ChevronDown, ShieldCheck, HeartHandshake } from 'lucide-react';
-import { OrgType } from '@/types/api';
+import { useRouter } from 'next/navigation';
+import {
+  Building2,
+  Bell,
+  ChevronDown,
+  ShieldCheck,
+  UserCheck,
+  Briefcase,
+  Target,
+  LogOut,
+  Sparkles,
+  Lock,
+} from 'lucide-react';
+import { useAuth, SEED_ACCOUNTS } from '@/context/AuthContext';
+import { UserRole } from '@/types/api';
 
 export default function Topbar() {
-  const [currentOrgType, setCurrentOrgType] = useState<OrgType>('ZAKAT_WAQF_INSTITUTION');
-  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const { user, quickLogin, logout } = useAuth();
+  const [isOpenRoleMenu, setIsOpenRoleMenu] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
 
-  const orgPresets: { name: string; type: OrgType; label: string }[] = [
-    { name: 'LAZ Peduli Ummat', type: 'ZAKAT_WAQF_INSTITUTION', label: 'Zakat & Wakaf' },
-    { name: 'Yayasan Nusantara Kemanusiaan', type: 'HUMANITARIAN_NGO', label: 'NGO Kemanusiaan' },
-    { name: 'Aksi Tanggap Bencana ID', type: 'DISASTER_RELIEF', label: 'Tanggap Bencana' },
-    { name: 'Yayasan Konservasi Iklim', type: 'ENVIRONMENT_CONSERVATION', label: 'Lingkungan & Iklim' },
-  ];
+  const handleRoleSwitch = async (role: UserRole) => {
+    setIsSwitching(true);
+    try {
+      await quickLogin(role);
+      setIsOpenRoleMenu(false);
+      window.location.reload(); // Refresh page to ensure clean query state
+    } catch (e) {
+      console.error('Failed to switch role:', e);
+    } finally {
+      setIsSwitching(false);
+    }
+  };
 
-  const activeOrg = orgPresets.find((o) => o.type === currentOrgType) || orgPresets[0];
+  const roleBadges: Record<UserRole, { label: string; bg: string; text: string; border: string; icon: React.ReactNode }> = {
+    ORG_ADMIN: {
+      label: 'ORG_ADMIN',
+      bg: 'bg-emerald-50',
+      text: 'text-emerald-800',
+      border: 'border-emerald-200',
+      icon: <UserCheck className="w-3.5 h-3.5 text-emerald-600" />,
+    },
+    DIRECTOR: {
+      label: 'DIRECTOR',
+      bg: 'bg-teal-50',
+      text: 'text-teal-800',
+      border: 'border-teal-200',
+      icon: <Briefcase className="w-3.5 h-3.5 text-teal-600" />,
+    },
+    FUNDRAISER: {
+      label: 'FUNDRAISER',
+      bg: 'bg-cyan-50',
+      text: 'text-cyan-800',
+      border: 'border-cyan-200',
+      icon: <Target className="w-3.5 h-3.5 text-cyan-600" />,
+    },
+  };
+
+  const currentRole = user?.role || 'FUNDRAISER';
+  const badgeInfo = roleBadges[currentRole] || roleBadges.FUNDRAISER;
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-30">
-      {/* Left: Dynamic Multi-Sector Tenant Identity Selector */}
-      <div className="flex items-center gap-3 relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-sm text-slate-800 transition-colors"
-        >
+    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      {/* Left: Multi-Tenant RLS Status & Organization Identifier */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800">
           <Building2 className="w-4 h-4 text-emerald-700" />
-          <span className="font-semibold text-slate-900">{activeOrg.name}</span>
+          <span className="font-semibold text-slate-900">LAZ Peduli Ummat</span>
           <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded ml-1">
-            {activeOrg.label}
+            Zakat & Wakaf
           </span>
-          <ChevronDown className="w-4 h-4 text-slate-400 ml-1" />
-        </button>
-
-        {isOpen && (
-          <div className="absolute top-12 left-0 w-72 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50 space-y-1 animate-in fade-in">
-            <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-              Simulasi Profil Tenant (Multi-Sector)
-            </div>
-            {orgPresets.map((preset) => (
-              <button
-                key={preset.type}
-                onClick={() => {
-                  setCurrentOrgType(preset.type);
-                  localStorage.setItem('sovera_active_org_type', preset.type);
-                  setIsOpen(false);
-                }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition-colors ${
-                  currentOrgType === preset.type
-                    ? 'bg-emerald-50 text-emerald-900 font-bold'
-                    : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <span>{preset.name}</span>
-                <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
-                  {preset.label}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
+        </div>
 
         <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full border border-emerald-200">
           <ShieldCheck className="w-3.5 h-3.5" />
-          <span>Multi-Tenant RLS</span>
+          <span>Multi-Tenant RLS Isolated</span>
         </div>
       </div>
 
-      {/* Right: Notifications & User Profile */}
+      {/* Right: Notifications & Dynamic Role Switcher (RBAC Demo) */}
       <div className="flex items-center gap-4">
         <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors relative">
           <Bell className="w-5 h-5" />
@@ -76,14 +90,85 @@ export default function Topbar() {
 
         <div className="h-6 w-px bg-slate-200" />
 
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-            PU
-          </div>
-          <div className="hidden sm:block text-left">
-            <span className="text-sm font-semibold text-slate-900 block leading-tight">Ahmad Fauzi</span>
-            <span className="text-xs text-slate-500 block">Director of Partnerships</span>
-          </div>
+        {/* User Profile & Quick RBAC Role Switcher */}
+        <div className="relative">
+          <button
+            onClick={() => setIsOpenRoleMenu(!isOpenRoleMenu)}
+            className="flex items-center gap-3 p-1.5 hover:bg-slate-50 rounded-xl transition-colors text-left border border-transparent hover:border-slate-200"
+          >
+            <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+              {user?.full_name ? user.full_name.substring(0, 2).toUpperCase() : 'US'}
+            </div>
+            <div className="hidden sm:block">
+              <span className="text-xs font-bold text-slate-900 block leading-tight flex items-center gap-1">
+                {user?.full_name || 'Guest User'}
+              </span>
+              <div className="flex items-center gap-1 mt-0.5">
+                <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded border ${badgeInfo.bg} ${badgeInfo.text} ${badgeInfo.border}`}>
+                  {badgeInfo.label}
+                </span>
+              </div>
+            </div>
+            <ChevronDown className="w-4 h-4 text-slate-400" />
+          </button>
+
+          {/* Role Switcher Dropdown */}
+          {isOpenRoleMenu && (
+            <div className="absolute right-0 top-12 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 z-50 animate-in fade-in space-y-2">
+              <div className="px-2 py-1 flex items-center justify-between border-b border-slate-100 pb-2">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-emerald-600" />
+                  <span>Simulasi Role RBAC</span>
+                </div>
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">
+                  Live JWT
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                {(['ORG_ADMIN', 'DIRECTOR', 'FUNDRAISER'] as UserRole[]).map((r) => {
+                  const acc = SEED_ACCOUNTS[r];
+                  const isCurrent = user?.role === r;
+
+                  return (
+                    <button
+                      key={r}
+                      disabled={isSwitching}
+                      onClick={() => handleRoleSwitch(r)}
+                      className={`w-full text-left p-2.5 rounded-xl text-xs flex items-start gap-2.5 transition-all ${
+                        isCurrent
+                          ? 'bg-emerald-50 text-emerald-950 border border-emerald-200 font-semibold'
+                          : 'text-slate-700 hover:bg-slate-50 border border-transparent'
+                      }`}
+                    >
+                      <div className="mt-0.5">{roleBadges[r].icon}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold">{acc.roleName.split(' ')[0]}</span>
+                          {isCurrent && (
+                            <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.2 rounded-full">
+                              Aktif
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-500 truncate mt-0.5">{acc.label}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="pt-2 border-t border-slate-100">
+                <button
+                  onClick={logout}
+                  className="w-full px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-2 font-medium transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Keluar dari Akun</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

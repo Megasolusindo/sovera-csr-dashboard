@@ -99,3 +99,28 @@ export interface GeneratedPitchResponse {
   pitch_deck_outline: string[];
   proposal_markdown: string;
 }
+
+// 6. RBAC & Auth Types
+export type UserRole = 'ORG_ADMIN' | 'DIRECTOR' | 'FUNDRAISER';
+
+export interface User {
+  id: string;
+  org_id: string;
+  email: string;
+  full_name: string;
+  role: UserRole;
+  is_active?: boolean;
+  created_at?: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  token: string;
+  user: User;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+

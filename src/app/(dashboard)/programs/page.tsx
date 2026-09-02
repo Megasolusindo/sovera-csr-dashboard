@@ -2,18 +2,32 @@
 
 import React, { useState } from 'react';
 import { usePrograms, useCreateProgram } from '@/hooks/usePrograms';
+import { useAuth } from '@/context/AuthContext';
 import ProgramCard from '@/components/programs/program-card';
 import ProgramSkeleton from '@/components/programs/program-skeleton';
 import ProgramFormModal from '@/components/programs/program-form-modal';
-import { BookOpen, Plus, Search, Layers, ShieldCheck, Sparkles, Filter } from 'lucide-react';
+import { BookOpen, Plus, Search, Layers, Lock, ShieldAlert, Filter } from 'lucide-react';
 
 export default function ProgramsPage() {
+  const { user } = useAuth();
   const { data: programs, isLoading, isError } = usePrograms();
   const createProgramMutation = useCreateProgram();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCluster, setSelectedCluster] = useState<string>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [rbacError, setRbacError] = useState<string | null>(null);
+
+  const canCreateProgram = user?.role === 'ORG_ADMIN' || user?.role === 'DIRECTOR';
+
+  const handleOpenCreateModal = () => {
+    if (!canCreateProgram) {
+      setRbacError('Akses Dibatasi (RBAC): Peran FUNDRAISER hanya memiliki izin membaca portofolio. Pembuatan program memerlukan wewenang DIRECTOR atau ORG_ADMIN.');
+      return;
+    }
+    setRbacError(null);
+    setIsModalOpen(true);
+  };
 
   const filteredPrograms = programs?.filter((p) => {
     const matchesSearch =
@@ -45,14 +59,43 @@ export default function ProgramsPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg shadow-sm transition-all flex items-center justify-center gap-2 shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Tambah Program Unggulan</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {!canCreateProgram && (
+            <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg flex items-center gap-1">
+              <Lock className="w-3.5 h-3.5" />
+              <span>Read Only (FUNDRAISER)</span>
+            </span>
+          )}
+          <button
+            onClick={handleOpenCreateModal}
+            className={`px-4 py-2.5 text-xs font-bold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2 shrink-0 ${
+              canCreateProgram
+                ? 'text-white bg-emerald-700 hover:bg-emerald-800'
+                : 'text-slate-500 bg-slate-200 cursor-not-allowed opacity-80'
+            }`}
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah Program Unggulan</span>
+          </button>
+        </div>
       </div>
+
+      {/* RBAC Warning Banner */}
+      {rbacError && (
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center justify-between gap-3 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>{rbacError}</span>
+          </div>
+          <button
+            onClick={() => setRbacError(null)}
+            className="text-amber-700 hover:text-amber-900 text-xs font-bold underline shrink-0"
+          >
+            Tutup
+          </button>
+        </div>
+      )}
+
 
       {/* Filter & Search Bar */}
       <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">

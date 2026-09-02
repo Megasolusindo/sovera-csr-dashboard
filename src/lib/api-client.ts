@@ -14,7 +14,7 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('sovera_auth_token') || 'mock_jwt_token_demo';
+      const token = localStorage.getItem('sovera_auth_token');
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -29,11 +29,13 @@ apiClient.interceptors.response.use(
   (response) => response.data,
   (error: AxiosError<{ error: string; message: string }>) => {
     if (error.response?.status === 401) {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
         localStorage.removeItem('sovera_auth_token');
-        // redirect to login if required
+        localStorage.removeItem('sovera_auth_user');
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error.response?.data || error.message);
   }
 );
+

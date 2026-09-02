@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSettings, useUpdateSettings } from '@/hooks/useSettings';
-import { Settings, ShieldCheck, Globe, Key, Building, Mail, MapPin, Users, Save, CheckCircle2, Server } from 'lucide-react';
+import { Settings, ShieldCheck, Globe, Key, Building, Mail, MapPin, Users, Save, CheckCircle2, Server, Lock, AlertCircle } from 'lucide-react';
 
 export default function SettingsPage() {
   const { data: settings, isLoading } = useSettings();
@@ -69,7 +69,7 @@ export default function SettingsPage() {
             <span>Pengaturan Organisasi & Multi-Tenant RLS</span>
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Konfigurasi profil lembaga, kredensial integrasi scraper webhook, dan kontrol akses tim.
+            Kelola profil lembaga, kontrol akses pengguna internal, dan integrasi platform.
           </p>
         </div>
 
@@ -96,18 +96,6 @@ export default function SettingsPage() {
         </button>
 
         <button
-          onClick={() => setActiveTab('integration')}
-          className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
-            activeTab === 'integration'
-              ? 'border-emerald-700 text-emerald-700'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Server className="w-4 h-4" />
-          <span>2. Integrasi Scraper & Webhook</span>
-        </button>
-
-        <button
           onClick={() => setActiveTab('team')}
           className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
             activeTab === 'team'
@@ -116,7 +104,23 @@ export default function SettingsPage() {
           }`}
         >
           <ShieldCheck className="w-4 h-4" />
-          <span>3. Keamanan RLS & Akses Tim</span>
+          <span>2. Keamanan RLS & Akses Tim</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('integration')}
+          className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'integration'
+              ? 'border-emerald-700 text-emerald-700'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <Server className="w-4 h-4" />
+          <span>3. Integrasi Infrastructure</span>
+          <span className="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-100 text-amber-800 rounded border border-amber-200 flex items-center gap-0.5">
+            <Lock className="w-2.5 h-2.5" />
+            <span>Platform Admin</span>
+          </span>
         </button>
       </div>
 
@@ -189,57 +193,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Tab 2: Integrasi Scraper & Webhook */}
-          {activeTab === 'integration' && (
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-              <h3 className="text-base font-bold text-slate-900 mb-4">Konfigurasi Crawling Engine & Webhook Callbacks</h3>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                  <Globe className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Scraper Service URL (`SCRAPER_SERVICE_URL`) *</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={scraperServiceUrl}
-                  onChange={(e) => setScraperServiceUrl(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
-                />
-                <p className="text-[11px] text-slate-400 mt-1">Endpoint HTTP tempat Backend Orchestrator mengirimkan tugas scraping periodik.</p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                  <Server className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Webhook Callback URL (`WEBHOOK_URL`) *</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
-                />
-                <p className="text-[11px] text-slate-400 mt-1">Endpoint callback tempat Scraper Service mengirimkan sinyal hasil scraping PDF/laporan BEI.</p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                  <Key className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Secret API Key (`SOVERA_API_KEY`)</span>
-                </label>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Tab 3: Keamanan RLS & Akses Tim */}
+          {/* Tab 2: Keamanan RLS & Akses Tim */}
           {activeTab === 'team' && (
             <div className="space-y-6">
               {/* Tenant RLS Status Card */}
@@ -285,6 +239,67 @@ export default function SettingsPage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 3: Integrasi Infrastructure (SuperAdmin Only) */}
+          {activeTab === 'integration' && (
+            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+              {/* Notice Bar */}
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <h4 className="font-bold text-sm">Pengaturan Infrastruktur Sistem (Platform SuperAdmin)</h4>
+                  <p className="text-amber-800 leading-relaxed">
+                    Bagian ini mengonfigurasi Orkes Pendistribusian WebScraper Engine & Webhook Callback global. Pengaturan ini mempengaruhi seluruh pemindaian sinyal terpusat Sovera Core API.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <Globe className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Scraper Service URL (`SCRAPER_SERVICE_URL`) *</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={scraperServiceUrl}
+                    onChange={(e) => setScraperServiceUrl(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">Endpoint HTTP tempat Backend Orchestrator mengirimkan tugas pemindaian laporan BEI.</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <Server className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Webhook Ingestion URL (`WEBHOOK_URL`) *</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={webhookUrl}
+                    onChange={(e) => setWebhookUrl(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">Endpoint callback penerima payload sinyal PDF dari Scraper Engine.</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                    <Key className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Master API Secret Key (`SOVERA_API_KEY`)</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+                  />
                 </div>
               </div>
             </div>

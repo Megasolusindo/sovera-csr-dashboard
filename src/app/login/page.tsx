@@ -64,7 +64,7 @@ export default function LoginPage() {
       {/* Grid Overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
 
-      <div className="sm:mx-auto sm:w-full sm:max-max-w-md relative z-10 text-center">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-4 backdrop-blur-sm">
           <ShieldCheck className="w-4 h-4" />
           <span>Sovera Enterprise Multi-Tenant RBAC</span>

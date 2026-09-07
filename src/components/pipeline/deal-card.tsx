@@ -32,6 +32,24 @@ export default function DealCard({ deal, onMoveStage }: DealCardProps) {
     return `Rp ${(num / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 0 })} Jt`;
   };
 
+  // Helper to format human readable program name
+  const getProgramDisplayName = (id?: string | null, name?: string | null) => {
+    if (name && name.trim() !== '') return name;
+    if (!id) return 'Program Unggulan CSR';
+
+    const programMap: Record<string, string> = {
+      'prog_01_beasiswa': 'Beasiswa Vokasi Digital 3T',
+      'prog_02_pesantren': 'Elektrifikasi 50 Pesantren',
+      'prog_03_mangrove': 'Restorasi Hutan Mangrove & ESG',
+      'prog_04_modal_umkm': 'Modal Usaha UMKM Pesisir',
+    };
+
+    if (programMap[id]) return programMap[id];
+
+    // Fallback for UUIDs or raw IDs
+    return 'Beasiswa & Pemberdayaan Ekonomi';
+  };
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md hover:border-emerald-400 transition-all space-y-3 group">
       {/* Header: Company Name & Estimated Value */}
@@ -57,8 +75,11 @@ export default function DealCard({ deal, onMoveStage }: DealCardProps) {
       <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100 space-y-1 text-xs">
         <div className="flex items-center justify-between text-slate-600 font-medium">
           <span>Target Program:</span>
-          <span className="font-bold text-slate-900 truncate max-w-[150px]">
-            {deal.target_program_id || 'Program Unggulan'}
+          <span
+            className="font-bold text-emerald-800 truncate max-w-[170px]"
+            title={getProgramDisplayName(deal.target_program_id, (deal as any).target_program_name)}
+          >
+            {getProgramDisplayName(deal.target_program_id, (deal as any).target_program_name)}
           </span>
         </div>
 

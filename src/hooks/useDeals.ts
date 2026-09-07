@@ -107,6 +107,7 @@ export function useCreateDeal() {
         deal_stage: 'DISCOVERED',
         estimated_value: payload.estimated_value || 500000000,
         target_program_id: payload.target_program_id || 'prog_01_beasiswa',
+        generated_icebreaker: `Salam hangat Bapak/Ibu Pimpinan TJSL & Direksi CSR ${payload.company_name},\n\nMenyikapi inisiatif luar biasa korporasi dalam laporan keberlanjutan terbaru (Matriks POJK 51 & ESG Index), kami bermaksud mengajukan kolaborasi penyerapan dana TJSL & Zakat Korporasi melalui Program Beasiswa Vokasi Digital 3T.\n\nBesar harapan kami dapat mendiskusikan peluang kemitraan strategis ini pada sesi audiensi mendatang.`,
         notes: payload.notes || 'Inisiasi deal dari sinyal intelijen korporasi.',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

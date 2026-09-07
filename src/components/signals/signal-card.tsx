@@ -41,6 +41,31 @@ export default function SignalCard({ signal, onMatchClick }: SignalCardProps) {
     return `Rp ${(num / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} Jt`;
   };
 
+  const formatSourceBadge = (sourceType: string) => {
+    switch (sourceType) {
+      case 'CSR_OPPORTUNITY_SEARCH':
+      case 'GRANTS_PORTAL':
+        return { label: 'Peluang Hibah CSR', className: 'bg-purple-100 text-purple-800' };
+      case 'COMPANY_ENRICHMENT':
+        return { label: 'Profil ESG & Kontak', className: 'bg-sky-100 text-sky-800' };
+      case 'SEARCH_DISCOVERY':
+        return { label: 'Search Discovery', className: 'bg-indigo-100 text-indigo-800' };
+      case 'BEI_REPORT':
+      case 'PDF_DOCUMENT':
+      case 'CSR_PDF':
+        return { label: 'Laporan PDF / BEI', className: 'bg-slate-100 text-slate-700' };
+      default:
+        return { label: sourceType.replace(/_/g, ' '), className: 'bg-slate-100 text-slate-700' };
+    }
+  };
+
+  const sourceBadge = formatSourceBadge(signal.source_type);
+
+  const targetSourceUrl =
+    signal.source_url && signal.source_url.trim() !== '' && signal.source_url !== '#'
+      ? signal.source_url
+      : `https://www.google.com/search?q=${encodeURIComponent('Program CSR Kemitraan ' + signal.company_name)}`;
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between group">
       <div>
@@ -65,8 +90,8 @@ export default function SignalCard({ signal, onMatchClick }: SignalCardProps) {
 
         {/* Source Badge & Date */}
         <div className="flex items-center gap-3 text-xs text-slate-500 mb-4">
-          <span className="px-2 py-0.5 bg-slate-100 text-slate-700 font-semibold rounded uppercase">
-            {signal.source_type.replace('_', ' ')}
+          <span className={`px-2 py-0.5 font-semibold rounded uppercase ${sourceBadge.className}`}>
+            {sourceBadge.label}
           </span>
           <div className="flex items-center gap-1">
             <Calendar className="w-3.5 h-3.5 text-slate-400" />
@@ -111,10 +136,10 @@ export default function SignalCard({ signal, onMatchClick }: SignalCardProps) {
       {/* Footer Action Buttons */}
       <div className="flex items-center justify-between gap-3 pt-2">
         <a
-          href={signal.source_url}
+          href={targetSourceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs font-semibold text-slate-500 hover:text-slate-900 flex items-center gap-1 transition-colors"
+          className="text-xs font-semibold text-slate-500 hover:text-emerald-700 flex items-center gap-1 transition-colors"
         >
           <span>Dokumen Sumber</span>
           <ExternalLink className="w-3.5 h-3.5" />

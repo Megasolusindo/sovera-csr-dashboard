@@ -23,8 +23,14 @@ export default function DealStudioPage() {
 
   const [activeTab, setActiveTab] = useState<'icebreaker' | 'pitchdeck' | 'proposal'>('icebreaker');
   const [copied, setCopied] = useState(false);
+  const [customIcebreaker, setCustomIcebreaker] = useState<string | null>(null);
+  const [isGeneratingIcebreaker, setIsGeneratingIcebreaker] = useState(false);
 
   const estimatedValue = deal.estimated_value || 0;
+
+  const fallbackIcebreaker = `Salam hangat Bapak/Ibu Pimpinan TJSL & Direksi CSR ${deal.company_name},\n\nMenyikapi inisiatif luar biasa korporasi dalam laporan keberlanjutan terbaru (Matriks POJK 51 & ESG Index), kami bermaksud mengajukan kolaborasi penyerapan dana TJSL & Zakat Korporasi melalui ${deal.target_program_id || 'Program Beasiswa Vokasi Digital 3T'}.\n\nBesar harapan kami dapat mendiskusikan peluang kemitraan strategis ini pada sesi audiensi mendatang.`;
+
+  const activeIcebreaker = (customIcebreaker || deal.generated_icebreaker || fallbackIcebreaker).trim();
 
   const pitchDeckSlides = [
     {
@@ -55,9 +61,89 @@ export default function DealStudioPage() {
   ];
 
   const handleCopyIcebreaker = () => {
-    navigator.clipboard.writeText(deal.generated_icebreaker || '');
+    navigator.clipboard.writeText(activeIcebreaker);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleGenerateIcebreaker = async () => {
+    try {
+      setIsGeneratingIcebreaker(true);
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api/v1';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('sovera_auth_token') : null;
+
+      const res = await fetch(`${API_BASE_URL}/deals/${dealId}/generate-pitch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : 'Bearer dev-token',
+        },
+        body: JSON.stringify({
+          tone: 'ZAKAT_WAQF_INSTITUTION',
+          custom_notes: 'Penyesuaian respons cepat dengan matriks POJK 51 & ESG Index',
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.icebreaker) {
+          setCustomIcebreaker(data.icebreaker);
+        }
+      }
+    } catch (err) {
+      console.warn('AI generate icebreaker failed, generating client-side fallback:', err);
+      setCustomIcebreaker(
+        `Yth. Pimpinan TJSL & Direksi CSR ${deal.company_name},\n\nMenyikapi komitmen keberlanjutan korporasi dalam laporan tahunan terbaru, kami dari pengelola program mengajukan kemitraan strategis penyerapan alokasi CSR melalui ${deal.target_program_id || 'Program Beasiswa Vokasi Digital 3T'}.\n\nSalam hormat.`
+      );
+    } finally {
+      setIsGeneratingIcebreaker(false);
+    }
+  };
+
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async (format: 'docx' | 'pdf' | 'pptx') => {
+    try {
+      setIsExporting(true);
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api/v1';
+      const token = typeof window !== 'undefined' ? localStorage.getItem('sovera_auth_token') : null;
+
+      const response = await fetch(`${API_BASE_URL}/deals/${dealId}/export?format=${format}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : 'Bearer dev-token',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Export failed with status ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      const filePrefix = format === 'pptx' ? 'Pitch_Deck_CSR' : 'Proposal_CSR';
+      link.download = `${filePrefix}_${(deal.company_name || 'Korporat').replace(/[^a-zA-Z0-9]/g, '_')}.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      console.warn('Backend export fallback triggered:', err);
+      const proposalText = deal.generated_proposal || `# PROPOSAL KEMITRAAN STRATEGIS\n\n## Korporasi: ${deal.company_name}\n\nRingkasan draf proposal kemitraan institusional.`;
+      const blob = new Blob([proposalText], { type: 'text/markdown;charset=utf-8' });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `Proposal_CSR_${(deal.company_name || 'Korporat').replace(/[^a-zA-Z0-9]/g, '_')}.md`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -85,13 +171,32 @@ export default function DealStudioPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={() => alert('Proposal PDF berhasil di-export!')}
-            className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
+            disabled={isExporting}
+            onClick={() => handleExport('pptx')}
+            className="px-3.5 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-50 rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
           >
-            <Download className="w-3.5 h-3.5 text-slate-500" />
-            <span>Ekspor PDF / DOCX</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+            <span>{isExporting ? 'Downloading...' : 'Ekspor PPTX'}</span>
+          </button>
+
+          <button
+            disabled={isExporting}
+            onClick={() => handleExport('docx')}
+            className="px-3.5 py-2 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Ekspor DOCX</span>
+          </button>
+
+          <button
+            disabled={isExporting}
+            onClick={() => handleExport('pdf')}
+            className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
+          >
+            <FileText className="w-3.5 h-3.5 text-slate-500" />
+            <span>Ekspor PDF</span>
           </button>
         </div>
       </div>
@@ -135,23 +240,34 @@ export default function DealStudioPage() {
       {/* Tab Content 1: Ice-breaker */}
       {activeTab === 'icebreaker' && (
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-700" />
               <span>Naskah Pembuka (Ice-Breaker) Terpersonalisasi</span>
             </h3>
 
-            <button
-              onClick={handleCopyIcebreaker}
-              className="px-3 py-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors flex items-center gap-1.5"
-            >
-              {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? 'Tersalin!' : 'Salin Naskah'}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                disabled={isGeneratingIcebreaker}
+                onClick={handleGenerateIcebreaker}
+                className="px-3 py-1.5 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 rounded-lg shadow-sm transition-colors flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-emerald-200" />
+                <span>{isGeneratingIcebreaker ? 'Mengorientasi AI...' : 'Hasilkan Ulang (AI)'}</span>
+              </button>
+
+              <button
+                onClick={handleCopyIcebreaker}
+                className="px-3 py-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors flex items-center gap-1.5"
+              >
+                {copied ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copied ? 'Tersalin!' : 'Salin Naskah'}</span>
+              </button>
+            </div>
           </div>
 
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 leading-relaxed font-mono">
-            {deal.generated_icebreaker}
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 leading-relaxed font-mono whitespace-pre-wrap">
+            {activeIcebreaker}
           </div>
 
           <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 space-y-1">
@@ -166,11 +282,22 @@ export default function DealStudioPage() {
       {/* Tab Content 2: Pitch Deck Outline */}
       {activeTab === 'pitchdeck' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900">
-              Struktur Slide Presentasi (Pitch Deck 5 Slide)
-            </h3>
-            <span className="text-xs text-slate-500 font-medium">Auto-generated by Sovera AI</span>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 className="text-base font-bold text-slate-900">
+                Struktur Slide Presentasi (Pitch Deck 5 Slide)
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">Auto-generated by Sovera AI</p>
+            </div>
+
+            <button
+              disabled={isExporting}
+              onClick={() => handleExport('pptx')}
+              className="px-3.5 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 disabled:opacity-50 rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+              <span>Ekspor Presentasi PPTX (5 Slide)</span>
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

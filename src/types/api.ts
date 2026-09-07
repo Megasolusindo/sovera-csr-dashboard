@@ -1,4 +1,18 @@
-export type SignalSource = 'BEI_REPORT' | 'NEWS' | 'CSR_PDF' | 'SOCIAL';
+export type SignalSource = 
+  | 'BEI_REPORT' 
+  | 'NEWS' 
+  | 'CSR_PDF' 
+  | 'SOCIAL'
+  | 'PDF_DOCUMENT'
+  | 'NEWS_ARTICLE'
+  | 'NEWS_RSS'
+  | 'BUMN_PORTAL'
+  | 'GRANTS_PORTAL'
+  | 'CSR_OPPORTUNITY_SEARCH'
+  | 'COMPANY_ENRICHMENT'
+  | 'SEARCH_DISCOVERY'
+  | 'RAW_WEB'
+  | 'SOCIAL_POST';
 
 export type OrgType = 
   | 'HUMANITARIAN_NGO'
@@ -85,6 +99,7 @@ export interface DealPipelineItem {
   deal_stage: DealStage;
   estimated_value: number | null;
   target_program_id: string | null;
+  target_program_name?: string | null;
   generated_icebreaker?: string;
   generated_proposal?: string;
   notes?: string;
@@ -119,8 +134,23 @@ export interface AuthResponse {
   user: User;
 }
 
-export interface LoginPayload {
-  email: string;
-  password: string;
+export interface Company {
+  id: string;
+  name: string;
+  slug?: string;
+  ticker?: string;
+  industry_sector?: string;
+  website?: string | null;
+  hq_address?: string;
+  csr_pillar_focus?: string[];
+  annual_csr_budget_est?: number;
+  esg_rating?: string;
+  verification_status?: 'VERIFIED' | 'PENDING' | 'UNVERIFIED';
+  priority_tier?: 'TIER_1' | 'TIER_2' | 'TIER_3';
+  csr_category?: 'SANGAT_AKTIF' | 'AKTIF' | 'POTENSIAL';
+  partner_ngo?: string;
+  created_at?: string;
+  updated_at?: string;
 }
+
 

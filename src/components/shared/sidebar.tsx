@@ -3,10 +3,11 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Radio, FolderKanban, BookOpen, Settings, LogOut, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Building2, Radio, FolderKanban, BookOpen, Settings, LogOut, Sparkles } from 'lucide-react';
 
 const navItems = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Corporate Directory', href: '/corporates', icon: Building2 },
   { label: 'Corporate Feed', href: '/signals', icon: Radio },
   { label: 'Programs', href: '/programs', icon: BookOpen },
   { label: 'Deal Pipeline', href: '/pipeline', icon: FolderKanban },

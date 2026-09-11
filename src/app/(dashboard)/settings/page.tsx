@@ -15,7 +15,7 @@ export default function SettingsPage() {
   const uploadMutation = useUploadTemplate();
   const resetMutation = useResetTemplate();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'templates' | 'tokens' | 'team' | 'integration'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'templates' | 'team'>('profile');
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Form State
@@ -118,21 +118,6 @@ export default function SettingsPage() {
         </button>
 
         <button
-          onClick={() => setActiveTab('tokens')}
-          className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
-            activeTab === 'tokens'
-              ? 'border-emerald-700 text-emerald-700'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Cpu className="w-4 h-4" />
-          <span>3. Metering Token AI (Gemini)</span>
-          <span className="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-100 text-amber-800 rounded border border-amber-200 uppercase">
-            Realtime Cost
-          </span>
-        </button>
-
-        <button
           onClick={() => setActiveTab('team')}
           className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
             activeTab === 'team'
@@ -141,23 +126,7 @@ export default function SettingsPage() {
           }`}
         >
           <ShieldCheck className="w-4 h-4" />
-          <span>4. Keamanan RLS & Akses Tim</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('integration')}
-          className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
-            activeTab === 'integration'
-              ? 'border-emerald-700 text-emerald-700'
-              : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Server className="w-4 h-4" />
-          <span>5. Integrasi Infrastructure</span>
-          <span className="px-1.5 py-0.5 text-[9px] font-extrabold bg-amber-100 text-amber-800 rounded border border-amber-200 flex items-center gap-0.5">
-            <Lock className="w-2.5 h-2.5" />
-            <span>Platform Admin</span>
-          </span>
+          <span>3. Keamanan RLS & Akses Tim</span>
         </button>
       </div>
 
@@ -389,120 +358,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Tab 3: Metering Token AI (Gemini) */}
-          {activeTab === 'tokens' && (
-            <div className="space-y-6">
-              {/* Header Banner */}
-              <div className="bg-slate-900 text-white p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Cpu className="w-5 h-5 text-amber-400" />
-                    <span className="text-sm font-bold">AI Token Metering & Cost Tracking (Gemini API)</span>
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Pencatatan real-time penggunaan token prompt & completion serta estimasi biaya API Gemini per organisasi.
-                  </p>
-                </div>
 
-                <span className="px-3 py-1 text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-full whitespace-nowrap">
-                  Gemini 1.5 Flash Active
-                </span>
-              </div>
-
-              {/* Metric Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Metric 1: Total Tokens */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                  <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-bold uppercase tracking-wider">Total Token Digunakan</span>
-                    <Cpu className="w-4 h-4 text-emerald-600" />
-                  </div>
-                  <div className="text-2xl font-black text-slate-900">
-                    {(tokenUsage?.total_tokens || 0).toLocaleString('id-ID')} <span className="text-xs font-semibold text-slate-500">tokens</span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 pt-1">
-                    Prompt: {(tokenUsage?.total_prompt_tokens || 0).toLocaleString('id-ID')} | Completion: {(tokenUsage?.total_completion_tokens || 0).toLocaleString('id-ID')}
-                  </p>
-                </div>
-
-                {/* Metric 2: Estimated Cost USD */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                  <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-bold uppercase tracking-wider">Estimasi Biaya (USD)</span>
-                    <DollarSign className="w-4 h-4 text-amber-600" />
-                  </div>
-                  <div className="text-2xl font-black text-slate-900">
-                    ${(tokenUsage?.total_cost_usd || 0).toFixed(6)}
-                  </div>
-                  <p className="text-[11px] text-slate-500 pt-1">Tarif resmi Google Gemini API ($0.075 / 1M input)</p>
-                </div>
-
-                {/* Metric 3: Estimated Cost IDR */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                  <div className="flex items-center justify-between text-slate-500">
-                    <span className="text-xs font-bold uppercase tracking-wider">Estimasi Biaya (IDR)</span>
-                    <Activity className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div className="text-2xl font-black text-slate-900">
-                    Rp {(tokenUsage?.total_cost_idr || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </div>
-                  <p className="text-[11px] text-slate-500 pt-1">Konversi kurs Rp 16.000 / USD</p>
-                </div>
-              </div>
-
-              {/* Recent AI Token Log Table */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-emerald-700" />
-                    <span>Riwayat Log Penggunaan AI Token Terbaru</span>
-                  </h3>
-                  <span className="text-xs text-slate-500 font-medium">10 Aktivitas Terakhir</span>
-                </div>
-
-                {tokenUsage?.recent_logs && tokenUsage.recent_logs.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs border-collapse">
-                      <thead>
-                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase">
-                          <th className="p-3">Fitur AI</th>
-                          <th className="p-3">Model</th>
-                          <th className="p-3 text-right">Prompt Tokens</th>
-                          <th className="p-3 text-right">Completion Tokens</th>
-                          <th className="p-3 text-right">Total Tokens</th>
-                          <th className="p-3 text-right">Cost (USD)</th>
-                          <th className="p-3 text-right">Waktu</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 text-slate-700 font-mono">
-                        {tokenUsage.recent_logs.map((log) => (
-                          <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                            <td className="p-3 font-sans font-bold text-slate-900">
-                              <span className="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-100 text-emerald-800 rounded border border-emerald-200 uppercase">
-                                {log.feature_name}
-                              </span>
-                            </td>
-                            <td className="p-3 font-sans text-slate-600">{log.model_name}</td>
-                            <td className="p-3 text-right text-slate-600">{log.prompt_tokens}</td>
-                            <td className="p-3 text-right text-slate-600">{log.completion_tokens}</td>
-                            <td className="p-3 text-right font-bold text-slate-900">{log.total_tokens}</td>
-                            <td className="p-3 text-right text-emerald-700 font-bold">${log.estimated_cost_usd.toFixed(6)}</td>
-                            <td className="p-3 text-right font-sans text-slate-400 text-[11px]">
-                              {new Date(log.created_at).toLocaleString('id-ID')}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="p-8 text-center text-slate-500 text-xs">
-                    Belum ada log penggunaan token AI. Gunakan fitur AI Proposal Studio untuk memulai generasi teks.
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Tab 2: Keamanan RLS & Akses Tim */}
           {activeTab === 'team' && (
@@ -555,66 +411,6 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Tab 3: Integrasi Infrastructure (SuperAdmin Only) */}
-          {activeTab === 'integration' && (
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-              {/* Notice Bar */}
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <h4 className="font-bold text-sm">Pengaturan Infrastruktur Sistem (Platform SuperAdmin)</h4>
-                  <p className="text-amber-800 leading-relaxed">
-                    Bagian ini mengonfigurasi Orkes Pendistribusian WebScraper Engine & Webhook Callback global. Pengaturan ini mempengaruhi seluruh pemindaian sinyal terpusat Sovera Core API.
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-4 pt-2">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <Globe className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Scraper Service URL (`SCRAPER_SERVICE_URL`) *</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={scraperServiceUrl}
-                    onChange={(e) => setScraperServiceUrl(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
-                  />
-                  <p className="text-[11px] text-slate-400 mt-1">Endpoint HTTP tempat Backend Orchestrator mengirimkan tugas pemindaian laporan BEI.</p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <Server className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Webhook Ingestion URL (`WEBHOOK_URL`) *</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={webhookUrl}
-                    onChange={(e) => setWebhookUrl(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
-                  />
-                  <p className="text-[11px] text-slate-400 mt-1">Endpoint callback penerima payload sinyal PDF dari Scraper Engine.</p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                    <Key className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Master API Secret Key (`SOVERA_API_KEY`)</span>
-                  </label>
-                  <input
-                    type="password"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Submit Button Bar */}
           <div className="flex items-center justify-end pt-4 border-t border-slate-200">

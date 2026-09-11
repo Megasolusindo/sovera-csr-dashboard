@@ -25,10 +25,12 @@ interface CompanyTableProps {
   offset: number;
   search: string;
   sector: string;
+  companyCategory?: string;
   verificationFilter: 'ALL' | 'VERIFIED' | 'PENDING';
   loading: boolean;
   onSearchChange: (search: string) => void;
   onSectorChange: (sector: string) => void;
+  onCompanyCategoryChange?: (category: string) => void;
   onVerificationFilterChange: (filter: 'ALL' | 'VERIFIED' | 'PENDING') => void;
   onPageChange: (newOffset: number) => void;
   onSelectCompany: (company: Company) => void;
@@ -48,6 +50,14 @@ const SECTORS = [
   'Ritel & Perdagangan',
 ];
 
+const CATEGORIES = [
+  { label: 'Semua Kategori', value: '' },
+  { label: 'Emiten Tbk (Public)', value: 'SWASTA_TBK' },
+  { label: 'BUMN & Subsidiari', value: 'BUMN' },
+  { label: 'Swasta Nasional & MNC', value: 'SWASTA' },
+  { label: 'Korporasi Umum', value: 'CORPORATE' },
+];
+
 export default function CompanyTable({
   companies,
   total,
@@ -55,10 +65,12 @@ export default function CompanyTable({
   offset,
   search,
   sector,
+  companyCategory = '',
   verificationFilter,
   loading,
   onSearchChange,
   onSectorChange,
+  onCompanyCategoryChange,
   onVerificationFilterChange,
   onPageChange,
   onSelectCompany,
@@ -106,8 +118,25 @@ export default function CompanyTable({
 
         {/* Filters Group */}
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
+          {/* Category Select */}
+          <div className="relative flex items-center min-w-[180px]">
+            <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 pointer-events-none z-10" />
+            <select
+              value={companyCategory}
+              onChange={(e) => onCompanyCategoryChange && onCompanyCategoryChange(e.target.value)}
+              className="w-full pl-9 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all appearance-none cursor-pointer shadow-sm"
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 pointer-events-none" />
+          </div>
+
           {/* Sector Select */}
-          <div className="relative flex items-center min-w-[200px]">
+          <div className="relative flex items-center min-w-[180px]">
             <Filter className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 pointer-events-none z-10" />
             <select
               value={sector}

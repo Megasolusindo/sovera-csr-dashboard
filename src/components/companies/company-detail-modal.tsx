@@ -183,10 +183,11 @@ export default function CompanyDetailModal({
               <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800 truncate">
                 <Mail className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                 <span className="truncate">
-                  csr@
-                  {company.website
-                    ? company.website.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]
-                    : 'company.co.id'}
+                  {company.website && company.website.trim() !== '' ? (
+                    `csr@${company.website.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}`
+                  ) : (
+                    <span className="text-slate-400 font-normal italic">Belum Terdata</span>
+                  )}
                 </span>
               </div>
             </div>

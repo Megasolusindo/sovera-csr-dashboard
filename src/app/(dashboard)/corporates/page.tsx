@@ -27,10 +27,20 @@ export default function CompaniesPage() {
 
   // Filters & Pagination
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sector, setSector] = useState('');
+  const [companyCategory, setCompanyCategory] = useState('');
   const [verificationFilter, setVerificationFilter] = useState<'ALL' | 'VERIFIED' | 'PENDING'>('ALL');
   const [limit] = useState(20);
   const [offset, setOffset] = useState(0);
+
+  // Debounce search input by 300ms to avoid API race conditions
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Detail Modal State
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
@@ -51,18 +61,16 @@ export default function CompaniesPage() {
         params: {
           limit,
           offset,
-          search,
+          search: debouncedSearch,
           sector,
+          company_type: companyCategory,
           verification_status: verificationFilter,
         },
       });
 
       if (response) {
-        if (response.data) {
-          setCompanies(response.data);
-        }
-        const apiTotal = response.pagination?.total ?? response.stats?.total_count ?? 0;
-        setTotal(apiTotal);
+        setCompanies(Array.isArray(response.data) ? response.data : []);
+        setTotal(response.pagination?.total ?? 0);
         if (response.stats) {
           setDbStats({
             verified_count: response.stats.verified_count ?? 0,
@@ -75,7 +83,7 @@ export default function CompaniesPage() {
     } finally {
       setLoading(false);
     }
-  }, [limit, offset, search, sector, verificationFilter]);
+  }, [limit, offset, debouncedSearch, sector, companyCategory, verificationFilter]);
 
   useEffect(() => {
     fetchCompanies();
@@ -226,6 +234,7 @@ export default function CompaniesPage() {
         offset={offset}
         search={search}
         sector={sector}
+        companyCategory={companyCategory}
         verificationFilter={verificationFilter}
         loading={loading}
         onSearchChange={(val) => {
@@ -234,6 +243,10 @@ export default function CompaniesPage() {
         }}
         onSectorChange={(val) => {
           setSector(val);
+          setOffset(0);
+        }}
+        onCompanyCategoryChange={(val) => {
+          setCompanyCategory(val);
           setOffset(0);
         }}
         onVerificationFilterChange={(val) => {

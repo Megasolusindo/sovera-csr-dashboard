@@ -38,12 +38,21 @@ export const metadata: Metadata = {
     siteName: "CSRmatics",
     locale: "id_ID",
     type: "website",
+    images: [
+      {
+        url: "https://csrmatics.com/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "CSRmatics — Two-Sided CSR Intelligence & Partnership Platform",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "CSRmatics | Platform CSR & TJSL untuk Korporasi dan NGO",
     description:
       "Platform CSR dan TJSL dua arah yang mempertemukan perusahaan dengan NGO melalui corporate intelligence, AI matching, dan direktori program sosial terverifikasi.",
+    images: ["https://csrmatics.com/opengraph-image"],
   },
   robots: {
     index: true,

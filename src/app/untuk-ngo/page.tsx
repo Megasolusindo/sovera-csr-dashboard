@@ -32,6 +32,24 @@ export const metadata: Metadata = {
     description:
       'Hentikan cold proposal manual. Hubungkan program sosial yayasan Anda langsung dengan donor korporasi yang membuka alokasi CSR.',
     url: 'https://csrmatics.com/untuk-ngo',
+    siteName: 'CSRmatics',
+    locale: 'id_ID',
+    type: 'website',
+    images: [
+      {
+        url: 'https://csrmatics.com/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'CSRmatics — Platform CSR & Pendanaan Program Sosial NGO',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Platform CSR untuk NGO & Pendanaan Program Sosial | CSRmatics',
+    description:
+      'Hentikan cold proposal manual. Hubungkan program sosial yayasan Anda langsung dengan donor korporasi yang membuka alokasi CSR.',
+    images: ['https://csrmatics.com/opengraph-image'],
   },
 };
 

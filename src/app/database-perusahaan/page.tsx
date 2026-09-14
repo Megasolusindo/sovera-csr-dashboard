@@ -31,6 +31,24 @@ export const metadata: Metadata = {
     description:
       'Direktori publik 3.000+ profil korporasi BUMN, Tbk, Bank, dan Swasta yang aktif menyalurkan alokasi dana CSR & program sosial.',
     url: 'https://csrmatics.com/database-perusahaan',
+    siteName: 'CSRmatics',
+    locale: 'id_ID',
+    type: 'website',
+    images: [
+      {
+        url: 'https://csrmatics.com/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'CSRmatics — Database Perusahaan CSR & TJSL Indonesia',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Database Perusahaan CSR & TJSL Indonesia | CSRmatics',
+    description:
+      'Direktori publik 3.000+ profil korporasi BUMN, Tbk, Bank, dan Swasta yang aktif menyalurkan alokasi dana CSR & program sosial.',
+    images: ['https://csrmatics.com/opengraph-image'],
   },
 };
 

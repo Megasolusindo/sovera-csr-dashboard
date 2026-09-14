@@ -34,6 +34,24 @@ export const metadata: Metadata = {
     description:
       'Solusi intelijen CSR terpadu untuk tim TJSL, BUMN, Bank, dan Korporasi Tbk. Kurasi mitra NGO terverifikasi dan ukur dampak sosial secara presisi.',
     url: 'https://csrmatics.com/untuk-korporasi',
+    siteName: 'CSRmatics',
+    locale: 'id_ID',
+    type: 'website',
+    images: [
+      {
+        url: 'https://csrmatics.com/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'CSRmatics — Platform CSR Perusahaan & TJSL BUMN',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Platform CSR Perusahaan & Software Management TJSL | CSRmatics',
+    description:
+      'Solusi intelijen CSR terpadu untuk tim TJSL, BUMN, Bank, dan Korporasi Tbk. Kurasi mitra NGO terverifikasi dan ukur dampak sosial secara presisi.',
+    images: ['https://csrmatics.com/opengraph-image'],
   },
 };
 

@@ -10,6 +10,7 @@ import {
   ArrowRight,
   ShieldCheck,
   Check,
+  X,
   Loader2,
   Users,
   Search,
@@ -17,6 +18,9 @@ import {
   RefreshCw,
   Server,
   AlertCircle,
+  Mail,
+  HelpCircle,
+  FileCheck2,
 } from 'lucide-react';
 
 interface SubscriptionPlan {
@@ -33,7 +37,7 @@ interface SubscriptionPlan {
   is_active: boolean;
 }
 
-// Helper to determine Backend API Base URL dynamically (supports localhost & network IPs)
+// Helper to determine Backend API Base URL dynamically
 const getApiBaseUrl = () => {
   if (typeof window !== 'undefined') {
     const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -141,40 +145,44 @@ function PricingContent() {
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white relative overflow-x-hidden">
       {/* Background Ambient Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-emerald-600/15 via-indigo-900/10 to-transparent blur-3xl pointer-events-none -z-10" />
+      <div className="absolute top-96 left-10 w-[400px] h-[400px] bg-indigo-600/10 blur-3xl pointer-events-none -z-10" />
 
       {/* Header Navigation Bar */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-800/60">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center font-bold shadow-lg shadow-emerald-600/20 group-hover:scale-105 transition-transform">
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center font-bold shadow-lg shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
               <Sparkles className="w-5 h-5 text-emerald-200" />
             </div>
-            <div>
+            <div className="flex flex-col justify-center">
               <span className="font-extrabold text-xl tracking-tight text-white block leading-none">
                 CSRmatics
               </span>
-              <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-widest block mt-0.5">
-                Pricing Engine
+              <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-400 uppercase tracking-wider block mt-1 whitespace-nowrap">
+                Two-Sided CSR Platform
               </span>
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-            <Link href="/#features" className="hover:text-emerald-400 transition-colors">Fitur</Link>
-            <Link href="/corporates" className="hover:text-emerald-400 transition-colors">Corporate Directory</Link>
-            <Link href="/pricing" className="text-emerald-400 font-bold">Harga</Link>
+          <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
+            <Link href="/#features" className="hover:text-emerald-400 transition-colors">Platform</Link>
+            <Link href="/pricing?persona=corporate" className="hover:text-indigo-300 transition-colors">For Corporates</Link>
+            <Link href="/pricing?persona=ngo" className="hover:text-emerald-400 transition-colors">For NGOs</Link>
+            <Link href="/#opportunities" className="hover:text-emerald-400 transition-colors">Opportunities</Link>
+            <Link href="/#how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</Link>
+            <Link href="/pricing" className="text-emerald-400 font-bold">Pricing</Link>
           </nav>
 
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-transparent hover:border-slate-700"
+              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-transparent hover:border-slate-700"
             >
               Masuk Sesi
             </Link>
             <Link
               href="/login"
-              className="px-5 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-700/25 hover:shadow-emerald-600/40 transition-all"
+              className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-lg shadow-emerald-700/25 transition-all"
             >
               Daftar Sekarang
             </Link>
@@ -246,7 +254,7 @@ function PricingContent() {
           </h2>
           <p className="text-xs text-slate-400">
             {selectedPersona === 'NGO'
-              ? 'Self-serve subscription via Payment Gateway Faspay. Bebas pembatalan kapan saja.'
+              ? 'Self-serve subscription via Payment Gateway. Bebas pembatalan kapan saja.'
               : 'Solusi terpercaya bagi Unit CSR, Perusahaan Tbk, BUMN, dan Swasta untuk transparansi penyaluran.'}
           </p>
 
@@ -314,6 +322,7 @@ function PricingContent() {
         {!loading && !error && activePlans.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
             {activePlans.map((plan) => {
+              const isFree = plan.price_monthly === 0 || plan.code.includes('FREE');
               const isPopular = plan.code === 'PRO' || plan.code === 'CORPORATE_STARTER';
               const isEnterprise = plan.code === 'ENTERPRISE' || plan.code === 'CORPORATE_ENTERPRISE';
               const price = billingCycle === 'MONTHLY' ? plan.price_monthly : plan.price_yearly;
@@ -325,7 +334,7 @@ function PricingContent() {
                     isPopular
                       ? 'bg-slate-900/90 border-2 border-emerald-500 shadow-2xl shadow-emerald-900/30 scale-105'
                       : isEnterprise
-                      ? 'bg-slate-900/80 border-2 border-indigo-500/80 shadow-2xl shadow-indigo-900/20'
+                      ? 'bg-slate-900/90 border-2 border-indigo-500/80 shadow-2xl shadow-indigo-900/20'
                       : 'bg-slate-900/60 border border-slate-800 hover:border-slate-700'
                   }`}
                 >
@@ -348,7 +357,7 @@ function PricingContent() {
                           {plan.code}
                         </span>
                         <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 font-mono">
-                          API LIVE
+                          {isEnterprise ? 'BUMN / Tbk' : 'API LIVE'}
                         </span>
                       </div>
                       <h3 className="text-xl font-bold text-white mt-1">{plan.name}</h3>
@@ -358,82 +367,165 @@ function PricingContent() {
                     </div>
 
                     <div className="pt-2">
-                      <span className="text-3xl sm:text-4xl font-black text-white">
-                        {formatPrice(price)}
-                      </span>
-                      <span className="text-xs text-slate-400 font-medium ml-1">
-                        {price === 0 ? '/ selamanya' : billingCycle === 'MONTHLY' ? '/ bulan' : '/ tahun'}
-                      </span>
+                      {isEnterprise ? (
+                        <div>
+                          <span className="text-2xl sm:text-3xl font-black text-white">
+                            {formatPrice(price)}
+                          </span>
+                          <span className="text-xs text-slate-400 font-medium ml-1">/ bulan</span>
+                          <span className="text-[11px] text-indigo-300 block font-semibold mt-1">
+                            Custom Billing / Invoicing BUMN Available
+                          </span>
+                        </div>
+                      ) : (
+                        <div>
+                          <span className="text-3xl sm:text-4xl font-black text-white">
+                            {formatPrice(price)}
+                          </span>
+                          <span className="text-xs text-slate-400 font-medium ml-1">
+                            {price === 0 ? '/ selamanya' : billingCycle === 'MONTHLY' ? '/ bulan' : '/ tahun'}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Quota Specs Box */}
+                    {/* Quota Specs Box with Business Value Translations */}
                     <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-2 text-xs">
                       <div className="flex items-center justify-between text-slate-300">
                         <span className="flex items-center gap-1.5 text-slate-400">
-                          <Search className="w-3.5 h-3.5 text-emerald-400" /> Kuota Crawl & Signals:
+                          <Search className="w-3.5 h-3.5 text-emerald-400" /> Quota Crawl:
                         </span>
-                        <span className="font-bold text-white">
-                          {plan.crawl_quota >= 99999 ? 'Unlimited' : `${plan.crawl_quota.toLocaleString('id-ID')} / bln`}
-                        </span>
+                        <div className="text-right">
+                          <span className="font-bold text-white block">
+                            {plan.crawl_quota >= 99999 ? 'Unlimited' : `${plan.crawl_quota.toLocaleString('id-ID')} / bln`}
+                          </span>
+                          <span className="text-[10px] text-slate-500 block">
+                            {plan.crawl_quota >= 99999 ? 'Pantau Seluruh Database' : `≈ ~${Math.round(plan.crawl_quota / 4)} entitas/bln`}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between text-slate-300">
+
+                      <div className="flex items-center justify-between text-slate-300 border-t border-slate-900 pt-1.5">
                         <span className="flex items-center gap-1.5 text-slate-400">
-                          <Bot className="w-3.5 h-3.5 text-emerald-400" /> AI Matching Queries:
+                          <Bot className="w-3.5 h-3.5 text-emerald-400" /> AI Queries:
                         </span>
-                        <span className="font-bold text-white">
-                          {plan.ai_query_quota >= 99999 ? 'Unlimited' : `${plan.ai_query_quota.toLocaleString('id-ID')} / bln`}
-                        </span>
+                        <div className="text-right">
+                          <span className="font-bold text-white block">
+                            {plan.ai_query_quota >= 99999 ? 'Unlimited' : `${plan.ai_query_quota.toLocaleString('id-ID')} / bln`}
+                          </span>
+                          <span className="text-[10px] text-slate-500 block">
+                            {plan.ai_query_quota >= 99999 ? 'Rekomendasi Tanpa Batas' : `≈ ~${plan.ai_query_quota} proposal/bln`}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between text-slate-300">
+
+                      <div className="flex items-center justify-between text-slate-300 border-t border-slate-900 pt-1.5">
                         <span className="flex items-center gap-1.5 text-slate-400">
-                          <Users className="w-3.5 h-3.5 text-emerald-400" /> User Seats:
+                          <Users className="w-3.5 h-3.5 text-emerald-400" /> Multi Seats:
                         </span>
                         <span className="font-bold text-white">
-                          {plan.max_user_seats >= 999 ? 'Unlimited' : `${plan.max_user_seats} Seats`}
+                          {plan.max_user_seats >= 999 ? 'Unlimited Workspace' : `${plan.max_user_seats} Seats`}
                         </span>
                       </div>
                     </div>
 
-                    {/* Included Features List */}
+                    {/* Differentiated Value Ladder Features List */}
                     <div className="border-t border-slate-800/80 pt-4 space-y-3">
                       <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                        Fitur Utama:
+                        Kapabilitas Tier:
                       </span>
-                      <ul className="space-y-2.5 text-xs text-slate-300">
+                      <ul className="space-y-2 text-xs text-slate-300">
+                        
+                        {/* Bullet 1 */}
                         <li className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Full Directory & Intelligence Access</span>
+                          <span>Pencarian Direktori & Signal Feed</span>
                         </li>
+
+                        {/* Bullet 2 */}
                         <li className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>AI Vector Matchmaking Engine</span>
+                          <span>AI Vector Matchmaking & Fiqh Asnaf</span>
                         </li>
-                        <li className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Penyusunan & Pengajuan Proposal CSR</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>Faktur & Integrasi Payment Gateway (Faspay)</span>
-                        </li>
+
+                        {/* Bullet 3 (Differentiated) */}
+                        {isFree ? (
+                          <li className="flex items-center gap-2 text-slate-500">
+                            <X className="w-4 h-4 text-slate-600 shrink-0" />
+                            <span className="line-through">Draf Icebreaker Pitch Generator</span>
+                          </li>
+                        ) : (
+                          <li className="flex items-center gap-2">
+                            <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                            <span className="font-semibold text-emerald-300">Draf Icebreaker Pitch Generator</span>
+                          </li>
+                        )}
+
+                        {/* Bullet 4 (Differentiated) */}
+                        {isFree ? (
+                          <li className="flex items-center gap-2 text-slate-500">
+                            <X className="w-4 h-4 text-slate-600 shrink-0" />
+                            <span className="line-through">Kontak Direct PIC Corporate / NGO</span>
+                          </li>
+                        ) : (
+                          <li className="flex items-center gap-2">
+                            <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                            <span>Kontak Direct PIC Corporate / NGO</span>
+                          </li>
+                        )}
+
+                        {/* Bullet 5 (Enterprise Only) */}
+                        {isEnterprise ? (
+                          <>
+                            <li className="flex items-center gap-2">
+                              <Check className="w-4 h-4 text-indigo-400 shrink-0" />
+                              <span className="font-bold text-indigo-200">Dedicated Account Manager & SLA Procurement</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <Check className="w-4 h-4 text-indigo-400 shrink-0" />
+                              <span className="font-semibold text-indigo-300">Custom Integration API & White-Label Report</span>
+                            </li>
+                          </>
+                        ) : (
+                          <li className="flex items-center gap-2 text-slate-500">
+                            <X className="w-4 h-4 text-slate-600 shrink-0" />
+                            <span className="line-through">Dedicated Manager & Custom SLA Procurement</span>
+                          </li>
+                        )}
+
                       </ul>
                     </div>
                   </div>
 
-                  <div className="pt-6">
-                    <Link
-                      href={`/login?persona=${selectedPersona.toLowerCase()}&plan=${plan.code.toLowerCase()}`}
-                      className={`w-full py-3.5 px-4 rounded-xl font-extrabold text-xs transition-all flex items-center justify-center gap-2 shadow-lg ${
-                        isPopular
-                          ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-emerald-700/30'
-                          : isEnterprise
-                          ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-indigo-700/30'
-                          : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
-                      }`}
-                    >
-                      <span>{price === 0 ? 'Mulai Gratis Sekarang' : 'Berlangganan Sekarang'}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
+                  {/* CTAs */}
+                  <div className="pt-4 space-y-2">
+                    {isEnterprise ? (
+                      <div>
+                        <a
+                          href="mailto:sales@csrmatics.com?subject=Enterprise%20CSRmatics%20Inquiry"
+                          className="w-full py-3.5 px-4 rounded-xl font-extrabold text-xs transition-all flex items-center justify-center gap-2 shadow-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-indigo-700/30"
+                        >
+                          <Mail className="w-4 h-4" />
+                          <span>Hubungi Sales / Konsultasi</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </a>
+                        <p className="text-[10px] text-slate-500 text-center mt-2">
+                          *Mendukung proses pengadaan BUMN/Bank, kontrak khusus & invoicing manual.
+                        </p>
+                      </div>
+                    ) : (
+                      <Link
+                        href={`/login?persona=${selectedPersona.toLowerCase()}&plan=${plan.code.toLowerCase()}`}
+                        className={`w-full py-3.5 px-4 rounded-xl font-extrabold text-xs transition-all flex items-center justify-center gap-2 shadow-lg ${
+                          isPopular
+                            ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-emerald-700/30'
+                            : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
+                        }`}
+                      >
+                        <span>{isFree ? 'Mulai Gratis Sekarang' : 'Berlangganan Sekarang'}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    )}
                   </div>
                 </div>
               );
@@ -449,15 +541,15 @@ function PricingContent() {
           </div>
           <div className="space-y-4">
             <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
-              <h4 className="text-sm font-bold text-white">Bagaimana cara kerja pembayaran Faspay untuk paket langganan?</h4>
+              <h4 className="text-sm font-bold text-white">Bagaimana cara pembayaran untuk paket langganan?</h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Pembayaran diproses secara instan menggunakan Faspay SNAP BI Payment Gateway melalui Virtual Account (BCA, Mandiri, BRI, BNI) atau QRIS. Lisensi aktif secara otomatis.
+                Pembayaran dapat diproses secara otomatis via Payment Gateway (Virtual Account BCA, Mandiri, BRI, QRIS) untuk paket self-service, serta Invoice / Transfer Bank Manual khusus untuk paket Enterprise BUMN/Tbk.
               </p>
             </div>
             <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
-              <h4 className="text-sm font-bold text-white">Apakah perusahaan gratis mengklaim profil di CSRmatics?</h4>
+              <h4 className="text-sm font-bold text-white">Apakah lembaga sosial (NGO) gratis membuat akun?</h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Ya! Pendaftaran dan klaim profil perusahaan bersifat Rp0 (Gratis) melalui verifikasi domain email kerja atau pengunggahan dokumen resmi.
+                Ya! Pendaftaran dan klaim profil NGO bersifat Rp0 (Gratis) melalui verifikasi dokumen legalitas resmi (SK Kemenkumham / Izin Operasional).
               </p>
             </div>
           </div>
@@ -467,9 +559,24 @@ function PricingContent() {
   );
 }
 
+// Fallback Styled Skeleton Component for SSR / Hydration
+function PricingSkeleton() {
+  return (
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 space-y-4">
+      <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center animate-pulse">
+        <Sparkles className="w-6 h-6 text-emerald-400" />
+      </div>
+      <div className="text-center space-y-2 max-w-md">
+        <h2 className="text-lg font-bold text-white">CSRmatics Two-Sided Platform</h2>
+        <p className="text-xs text-slate-400">Memuat opsi investasi & paket harga terpercaya...</p>
+      </div>
+    </div>
+  );
+}
+
 export default function PricingPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">Memuat Halaman Harga...</div>}>
+    <Suspense fallback={<PricingSkeleton />}>
       <PricingContent />
     </Suspense>
   );

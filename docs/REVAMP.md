@@ -106,6 +106,35 @@ Platform | For Corporates | For NGOs | Opportunities | How It Works | Pricing
 
 ---
 
+## 9. Halaman Pricing (`/pricing?persona=corporate`)
+
+**Kondisi saat ini:** Struktur UI sudah solid — toggle persona (NGO/Corporate), toggle Bulanan/Tahunan (hemat 17%), 3 tier (Free, Starter Rp999rb, Enterprise Rp1,499jt). Tidak perlu revamp total, tapi logika value ladder dan kesesuaian dengan target market perlu diperbaiki.
+
+**Masalah yang ditemukan:**
+
+1. **Fitur utama identik di ketiga tier.** Free, Starter, dan Enterprise sama-sama punya 4 bullet fitur yang sama persis (Full Directory & Intelligence Access, AI Vector Matchmaking Engine, Penyusunan & Pengajuan Proposal CSR, Faktur & Integrasi Payment Gateway) — bedanya cuma angka kuota. Ini melemahkan alasan upgrade karena tidak ada kapabilitas baru yang didapat, cuma "lebih banyak angka".
+   - *Rekomendasi:* setiap tier naik harus menambah kapabilitas baru, bukan cuma kuota — misalnya dedicated account manager, custom integrasi, multi-workspace, priority support, white-label report.
+
+2. **Tier Free terlalu murah hati.** Rp0/selamanya sudah mendapat hampir semua kapabilitas inti (Full Directory, AI Matching, Proposal Generator, Payment Gateway) — berisiko kanibalisasi kalau kuota gratis (100 crawl/bln, 200 AI query/bln) sudah cukup untuk user kecil, sehingga mereka tidak pernah upgrade.
+   - *Rekomendasi:* batasi kapabilitas kunci di tier gratis (bukan cuma kuota), misalnya kunci fitur Proposal Generator atau Payment Gateway hanya untuk tier berbayar.
+
+3. **Tier "Enterprise" seharga Rp1.499.000/bulan self-checkout tidak sesuai cara beli target market.** Target market yang disebut (BUMN, Bank, Tbk) biasanya butuh proses procurement, kontrak custom, invoice manual, SLA — bukan langganan self-service. Harga ini juga jauh di bawah budget CSR BUMN/Bank pada umumnya, berisiko menurunkan persepsi value produk.
+   - *Rekomendasi:* tambahkan tier ke-4 "Enterprise Custom — Hubungi Sales" di atas tier ini, khusus BUMN/Bank dengan kontrak custom dan proses sales-assisted.
+
+4. **Inkonsistensi branding.** Halaman pricing memakai sub-brand "CSRmatics — Pricing Engine", sementara homepage memakai "CSRmatics FundIQ Enterprise". Dua nama produk berbeda di dua halaman bisa membingungkan dan terkesan belum matang secara brand.
+   - *Rekomendasi:* satukan sub-brand/tagline produk di seluruh halaman.
+
+5. **CTA tidak dibedakan antar tier.** "Berlangganan Sekarang" dipakai sama persis untuk Starter maupun Enterprise.
+   - *Rekomendasi:* untuk tier Enterprise (khususnya kalau jadi custom quote), gunakan CTA berbeda seperti "Hubungi Sales" alih-alih checkout langsung.
+
+6. **Kuota tidak diterjemahkan ke manfaat bisnis.** Angka seperti "2.000 Kuota Crawl & Signals/bln" abstrak bagi calon pembeli non-teknis (tim CSR/TJSL umumnya bukan orang teknis).
+   - *Rekomendasi:* tambahkan tooltip/kalimat kecil yang menerjemahkan kuota ke manfaat, misal "≈ setara memantau ~500 perusahaan aktif per bulan".
+
+7. **Isu teknis: halaman ini client-side rendered tanpa konten fallback.** Saat di-fetch tanpa eksekusi JavaScript, halaman hanya menampilkan teks "Memuat Halaman Harga..." — berisiko buruk untuk SEO dan untuk crawler/bot yang tidak menjalankan JS.
+   - *Rekomendasi:* pertimbangkan server-side rendering atau prerendering untuk halaman-halaman publik seperti pricing dan landing page.
+
+---
+
 ## Ringkasan Prioritas (Impact vs Effort)
 
 | Prioritas | Perubahan | Alasan |
@@ -116,6 +145,8 @@ Platform | For Corporates | For NGOs | Opportunities | How It Works | Pricing
 | 4 (Sedang) | Tambah fitur & statistik setara dari sisi NGO | Menghilangkan kesan produk hanya untuk riset Corporate |
 | 5 (Sedang) | Section "CSR Opportunities" (marketplace feed) | Mengubah persepsi dari database ke marketplace hidup |
 | 6 (Rendah) | Reorganisasi navbar & tambah "How It Works" | Penyempurnaan struktur, bisa menyusul setelah poin di atas |
+| 2 (Tinggi) | Bedakan fitur antar tier pricing (bukan cuma kuota) & pisahkan Enterprise jadi custom quote | Value ladder saat ini tidak memberi alasan upgrade, dan cara beli Enterprise tidak cocok untuk BUMN/Bank |
+| 5 (Sedang) | SSR/prerender untuk halaman pricing & landing page | Halaman saat ini kosong saat di-crawl tanpa JS — risiko SEO |
 
 ---
 

@@ -5,35 +5,34 @@ import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://csrmatics.com"),
-  title: "CSRmatics | Platform CSR & TJSL untuk Korporasi dan NGO",
+  title: {
+    default: "CSRmatics | Platform Kemitraan CSR & TJSL Berbasis AI",
+    template: "%s | CSRmatics",
+  },
   description:
-    "Platform CSR dan TJSL dua arah yang mempertemukan perusahaan dengan NGO melalui corporate intelligence, AI matching, dan direktori program sosial terverifikasi.",
+    "Hubungkan alokasi dana CSR korporasi BUMN & Tbk dengan program sosial NGO terverifikasi. Akselerasi kemitraan berdampak selaras ESG, SDGs, dan standar syariah.",
   keywords: [
-    "CSR",
-    "TJSL",
-    "ESG",
-    "SDGs",
-    "Platform CSR",
-    "Program CSR",
-    "Kemitraan CSR",
-    "Pendanaan NGO",
-    "CSR Intelligence",
-    "BUMN TJSL",
+    "CSR platform",
+    "TJSL BUMN",
+    "kemitraan NGO",
+    "dana CSR",
+    "ESG Indonesia",
+    "penyaluran zakat perusahaan",
+    "proposal CSR",
+    "CSR intelligence",
     "Yayasan",
     "Filantropi",
   ],
   authors: [{ name: "CSRmatics Team", url: "https://csrmatics.com" }],
   creator: "CSRmatics",
-  publisher: "CSRmatics Platform",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
+  publisher: "CSRmatics",
+  alternates: {
+    canonical: "/",
   },
   openGraph: {
-    title: "CSRmatics | Platform CSR & TJSL untuk Korporasi dan NGO",
+    title: "CSRmatics | Platform Kemitraan CSR & TJSL Berbasis AI",
     description:
-      "Platform CSR dan TJSL dua arah yang mempertemukan perusahaan dengan NGO melalui corporate intelligence, AI matching, dan direktori program sosial terverifikasi.",
+      "Platform dua arah yang mempertemukan korporasi dan NGO untuk merealisasikan program keberlanjutan secara presisi, terverifikasi, dan akuntabel.",
     url: "https://csrmatics.com",
     siteName: "CSRmatics",
     locale: "id_ID",
@@ -43,15 +42,15 @@ export const metadata: Metadata = {
         url: "https://csrmatics.com/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "CSRmatics — Two-Sided CSR Intelligence & Partnership Platform",
+        alt: "CSRmatics - 2-Sided CSR Partnership Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CSRmatics | Platform CSR & TJSL untuk Korporasi dan NGO",
+    title: "CSRmatics | Platform Kemitraan CSR & TJSL Berbasis AI",
     description:
-      "Platform CSR dan TJSL dua arah yang mempertemukan perusahaan dengan NGO melalui corporate intelligence, AI matching, dan direktori program sosial terverifikasi.",
+      "Akselerasi kemitraan CSR korporasi dan lembaga sosial berbasis AI dan verifikasi data.",
     images: ["https://csrmatics.com/opengraph-image"],
   },
   robots: {
@@ -76,12 +75,15 @@ const jsonLdSchemas = {
       "@id": "https://csrmatics.com/#organization",
       "name": "CSRmatics",
       "url": "https://csrmatics.com",
-      "logo": "https://csrmatics.com/icon.png",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://csrmatics.com/opengraph-image",
+      },
       "sameAs": [
         "https://www.linkedin.com/company/csrmatics",
         "https://twitter.com/csrmatics"
       ],
-      "description": "Enterprise B2B CSR Partnership & Intelligence Platform in Indonesia."
+      "description": "Platform intelijen dan kemitraan CSR dua arah berbasis AI untuk korporasi dan NGO."
     },
     {
       "@type": "WebSite",
@@ -97,13 +99,21 @@ const jsonLdSchemas = {
       "@type": "SoftwareApplication",
       "@id": "https://csrmatics.com/#software",
       "name": "CSRmatics Platform",
-      "operatingSystem": "All",
       "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All",
       "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "IDR"
-      }
+        "@type": "AggregateOffer",
+        "priceCurrency": "IDR",
+        "lowPrice": "0",
+        "offerCount": "3"
+      },
+      "featureList": [
+        "Real-Time Corporate Signal Feed",
+        "Verified NGO Program Catalog",
+        "AI Bidirectional Match Engine",
+        "Direktori 3.000+ Korporasi & 1.200+ NGO",
+        "ESG & Fiqh Asnaf Compliance Alignment"
+      ]
     }
   ]
 };

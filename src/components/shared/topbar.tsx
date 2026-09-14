@@ -58,6 +58,34 @@ export default function Topbar() {
       border: 'border-cyan-200',
       icon: <Target className="w-3.5 h-3.5 text-cyan-600" />,
     },
+    CORP_ADMIN: {
+      label: 'CORP_ADMIN',
+      bg: 'bg-indigo-50',
+      text: 'text-indigo-800',
+      border: 'border-indigo-200',
+      icon: <UserCheck className="w-3.5 h-3.5 text-indigo-600" />,
+    },
+    CSR_MANAGER: {
+      label: 'CSR_MANAGER',
+      bg: 'bg-blue-50',
+      text: 'text-blue-800',
+      border: 'border-blue-200',
+      icon: <Briefcase className="w-3.5 h-3.5 text-blue-600" />,
+    },
+    REVIEWER: {
+      label: 'REVIEWER',
+      bg: 'bg-slate-100',
+      text: 'text-slate-800',
+      border: 'border-slate-300',
+      icon: <UserCheck className="w-3.5 h-3.5 text-slate-600" />,
+    },
+    SUPERADMIN: {
+      label: 'SUPERADMIN',
+      bg: 'bg-purple-50',
+      text: 'text-purple-800',
+      border: 'border-purple-200',
+      icon: <UserCheck className="w-3.5 h-3.5 text-purple-600" />,
+    },
   };
 
   const currentRole = user?.role || 'FUNDRAISER';

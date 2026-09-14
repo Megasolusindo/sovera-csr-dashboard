@@ -116,14 +116,18 @@ export interface GeneratedPitchResponse {
 }
 
 // 6. RBAC & Auth Types
-export type UserRole = 'ORG_ADMIN' | 'DIRECTOR' | 'FUNDRAISER';
+export type TenantType = 'ORGANIZATION' | 'CORPORATE' | 'ADMIN';
+export type UserRole = 'ORG_ADMIN' | 'DIRECTOR' | 'FUNDRAISER' | 'CORP_ADMIN' | 'CSR_MANAGER' | 'REVIEWER' | 'SUPERADMIN';
 
 export interface User {
   id: string;
   org_id: string;
+  org_name?: string;
   email: string;
   full_name: string;
   role: UserRole;
+  tenant_type?: TenantType;
+  company_id?: string | null;
   is_active?: boolean;
   created_at?: string;
 }
@@ -141,6 +145,12 @@ export interface Company {
   ticker?: string;
   industry_sector?: string;
   website?: string | null;
+  linkedin_url?: string | null;
+  linkedin_status?: 'VALID' | 'INVALID' | 'UNVERIFIED' | string | null;
+  instagram_url?: string | null;
+  instagram_status?: 'VALID' | 'INVALID' | 'UNVERIFIED' | string | null;
+  facebook_url?: string | null;
+  youtube_url?: string | null;
   hq_address?: string;
   csr_pillar_focus?: string[];
   annual_csr_budget_est?: number;

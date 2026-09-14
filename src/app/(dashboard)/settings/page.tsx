@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useSettings, useUpdateSettings } from '@/hooks/useSettings';
 import { useTemplates, useUploadTemplate, useResetTemplate } from '@/hooks/useTemplates';
 import { useTokenUsage } from '@/hooks/useTokenUsage';
-import { Settings, ShieldCheck, Globe, Key, Building, Mail, MapPin, Users, Save, CheckCircle2, Server, Lock, AlertCircle, FileText, Upload, RefreshCw, FileSpreadsheet, Code, Cpu, DollarSign, Activity, Sparkles } from 'lucide-react';
+import { Settings, ShieldCheck, Globe, Key, Building, Mail, MapPin, Users, Save, CheckCircle2, Server, Lock, AlertCircle, FileText, Upload, RefreshCw, FileSpreadsheet, Code, Cpu, DollarSign, Activity, Sparkles, CreditCard, Zap } from 'lucide-react';
+import TenantSubscriptionPage from './subscription/page';
+import TenantBillingPage from './billing/page';
 
 export default function SettingsPage() {
   const { data: settings, isLoading } = useSettings();
@@ -15,7 +17,7 @@ export default function SettingsPage() {
   const uploadMutation = useUploadTemplate();
   const resetMutation = useResetTemplate();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'templates' | 'team'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'templates' | 'team' | 'subscription' | 'billing'>('profile');
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Form State
@@ -127,6 +129,30 @@ export default function SettingsPage() {
         >
           <ShieldCheck className="w-4 h-4" />
           <span>3. Keamanan RLS & Akses Tim</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('subscription')}
+          className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'subscription'
+              ? 'border-emerald-700 text-emerald-700'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <Zap className="w-4 h-4 text-emerald-700" />
+          <span>4. Paket Langganan</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('billing')}
+          className={`pb-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 ${
+            activeTab === 'billing'
+              ? 'border-emerald-700 text-emerald-700'
+              : 'border-transparent text-slate-500 hover:text-slate-900'
+          }`}
+        >
+          <CreditCard className="w-4 h-4" />
+          <span>5. Faktur & Riwayat Billing</span>
         </button>
       </div>
 
@@ -408,6 +434,20 @@ export default function SettingsPage() {
                   ))}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Tab 4: Subscription */}
+          {activeTab === 'subscription' && (
+            <div className="pt-2">
+              <TenantSubscriptionPage />
+            </div>
+          )}
+
+          {/* Tab 5: Billing */}
+          {activeTab === 'billing' && (
+            <div className="pt-2">
+              <TenantBillingPage />
             </div>
           )}
 

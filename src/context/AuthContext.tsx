@@ -35,6 +35,30 @@ export const SEED_ACCOUNTS: Record<UserRole, { email: string; pass: string; labe
     label: 'Account Executive',
     roleName: 'FUNDRAISER (Read Programs, Personal Deals)',
   },
+  CORP_ADMIN: {
+    email: 'csr.admin@pertamina.com',
+    pass: 'admin123',
+    label: 'Corporate Admin',
+    roleName: 'CORP_ADMIN (Full Corporate Access)',
+  },
+  CSR_MANAGER: {
+    email: 'csr.manager@pertamina.com',
+    pass: 'admin123',
+    label: 'CSR Manager',
+    roleName: 'CSR_MANAGER (Manage Opportunities & Review)',
+  },
+  REVIEWER: {
+    email: 'reviewer@pertamina.com',
+    pass: 'admin123',
+    label: 'Proposal Assessor',
+    roleName: 'REVIEWER (Read & Evaluate Proposals)',
+  },
+  SUPERADMIN: {
+    email: 'admin@sovera.id',
+    pass: 'admin123',
+    label: 'Platform Superadmin',
+    roleName: 'SUPERADMIN (System Operator)',
+  },
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

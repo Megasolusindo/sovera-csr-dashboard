@@ -4,8 +4,8 @@ import QueryProvider from "@/components/providers/query-provider";
 import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "Sovera - Enterprise B2B Fundraising Intelligence",
-  description: "B2B Fundraising Intelligence & Deal-Preparation Engine for Islamic Philanthropy",
+  title: "CSRmatics — CSR Intelligence & Partnership Platform",
+  description: "Two-Sided CSR Intelligence & Partnership Platform connecting humanitarian organizations with companies that create social impact.",
 };
 
 export default function RootLayout({

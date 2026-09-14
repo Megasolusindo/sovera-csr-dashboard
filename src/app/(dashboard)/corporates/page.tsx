@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Building2,
   Globe,
@@ -33,6 +33,18 @@ export default function CompaniesPage() {
   const [verificationFilter, setVerificationFilter] = useState<'ALL' | 'VERIFIED' | 'PENDING'>('ALL');
   const [limit] = useState(20);
   const [offset, setOffset] = useState(0);
+
+  // Sync searchParams from URL if present
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const s = params.get('search');
+      if (s) {
+        setSearch(s);
+        setDebouncedSearch(s);
+      }
+    }
+  }, []);
 
   // Debounce search input by 300ms to avoid API race conditions
   useEffect(() => {

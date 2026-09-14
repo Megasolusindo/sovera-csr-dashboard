@@ -67,10 +67,10 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-4 backdrop-blur-sm">
           <ShieldCheck className="w-4 h-4" />
-          <span>Sovera Enterprise Multi-Tenant RBAC</span>
+          <span>CSRmatics Enterprise Multi-Tenant RBAC</span>
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-emerald-400 bg-clip-text text-transparent">
-          Sovera Intelligence Platform
+          CSRmatics Intelligence Platform
         </h1>
         <p className="mt-2 text-sm text-slate-400">
           Masuk ke portal B2B Fundraising & CSR Matching Engine

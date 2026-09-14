@@ -29,6 +29,7 @@ import {
 export default function LandingPage() {
   const [demoQuery, setDemoQuery] = useState('PT Bank Central Asia Tbk');
   const [selectedTab, setSelectedTab] = useState<'match' | 'profile' | 'proposal'>('match');
+  const [pricingCycle, setPricingCycle] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white relative overflow-x-hidden">
@@ -43,29 +44,30 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           
           {/* Logo & Brand */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center font-bold shadow-lg shadow-emerald-600/20 group-hover:scale-105 transition-transform">
+          <Link href="/" className="flex items-center gap-3 group mr-8 lg:mr-12 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center font-bold shadow-lg shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
               <Sparkles className="w-5 h-5 text-emerald-200" />
             </div>
-            <div>
+            <div className="flex flex-col justify-center">
               <span className="font-extrabold text-xl tracking-tight text-white block leading-none">
-                SOVERA
+                CSRmatics
               </span>
-              <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-widest block mt-0.5">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-400 uppercase tracking-wider block mt-1 whitespace-nowrap">
                 FundIQ Enterprise
               </span>
             </div>
           </Link>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-            <a href="#features" className="hover:text-emerald-400 transition-colors">Fitur Platform</a>
-            <Link href="/corporates" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-slate-300">
+            <a href="#features" className="hover:text-emerald-400 transition-colors whitespace-nowrap">Fitur Platform</a>
+            <Link href="/corporates" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 whitespace-nowrap">
               <span>Corporate Directory</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">3.000+</span>
             </Link>
-            <a href="#demo" className="hover:text-emerald-400 transition-colors">Interactive Demo</a>
-            <a href="#sdgs" className="hover:text-emerald-400 transition-colors">SDG & Fiqh Alignment</a>
+            <a href="#demo" className="hover:text-emerald-400 transition-colors whitespace-nowrap">Interactive Demo</a>
+            <Link href="/pricing" className="hover:text-emerald-400 transition-colors whitespace-nowrap">Harga & Paket</Link>
+            <a href="#sdgs" className="hover:text-emerald-400 transition-colors whitespace-nowrap">SDG & Fiqh Alignment</a>
           </nav>
 
           {/* Action CTAs */}
@@ -94,46 +96,21 @@ export default function LandingPage() {
         {/* Release Pill Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-950/80 border border-emerald-700/40 text-emerald-300 text-xs font-semibold backdrop-blur-md shadow-inner">
           <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-          <span>Sovera FundIQ v2.0 — Enterprise B2B Fundraising & AI Deal Engine</span>
+          <span>✦ Next-Gen CSR Intelligence Platform</span>
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
         </div>
 
         {/* Hero Main Headline */}
         <div className="max-w-4xl mx-auto space-y-4">
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-[1.15]">
-            Temukan Perusahaan yang Tepat untuk{' '}
+            Akselerasi Kemitraan CSR{' '}
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">
-              Membiayai Program Anda
+              berbasis AI.
             </span>
           </h1>
           <p className="text-lg sm:text-xl text-slate-300 font-normal leading-relaxed max-w-3xl mx-auto">
-            AI membantu LAZ, yayasan, dan lembaga filantropi menemukan{' '}
-            <strong className="text-emerald-400 font-bold">perusahaan dengan prioritas CSR & ESG yang paling sesuai</strong>{' '}
-            dengan program Anda.
+            Dari riset program hingga penyaluran proposal: platform terpadu bagi Korporasi dan NGO untuk merealisasikan inisiatif keberlanjutan.
           </p>
-          <p className="text-base sm:text-lg text-slate-400 font-normal leading-relaxed max-w-2xl mx-auto">
-            Akses <strong className="text-white font-bold">3.000+ perusahaan di Indonesia</strong> dan ubah pencarian donor menjadi pipeline partnership yang terukur.
-          </p>
-        </div>
-
-        {/* Primary CTA Group */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <Link
-            href="/corporates"
-            className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-extrabold text-base shadow-xl shadow-emerald-700/30 hover:shadow-emerald-500/50 transition-all flex items-center justify-center gap-3 group"
-          >
-            <Building2 className="w-5 h-5 text-emerald-100 group-hover:scale-110 transition-transform" />
-            <span>Cari Mitra CSR</span>
-            <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
-          </Link>
-
-          <Link
-            href="/dashboard"
-            className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 font-semibold text-base border border-slate-700/80 hover:border-emerald-500/50 transition-all flex items-center justify-center gap-2 shadow-lg"
-          >
-            <BarChart3 className="w-5 h-5 text-emerald-400" />
-            <span>Masuk Dashboard SaaS</span>
-          </Link>
         </div>
 
         {/* Live Metrics Cards */}
@@ -173,6 +150,127 @@ export default function LandingPage() {
             </div>
             <span className="text-xs font-semibold text-slate-400 block">Vector Embedding</span>
             <p className="text-[11px] text-slate-500">Pencocokan Pilar & Fiqh Asnaf</p>
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* 2.5. Value Proposition / Problem-Solution Bridge Section (Side-by-Side Value) */}
+      <section className="py-20 px-6 max-w-7xl mx-auto border-t border-slate-800/60 space-y-12">
+        
+        {/* Section Header */}
+        <div className="text-center space-y-4 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 text-xs font-semibold">
+            <Zap className="w-3.5 h-3.5 text-amber-400" />
+            <span>Problem-Solution Bridge</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+            Dari Berbulan-bulan Riset Menjadi{' '}
+            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">
+              Kemitraan Nyata dalam Hitungan Hari
+            </span>
+          </h2>
+          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+            Proses kemitraan CSR tradisional sering terhambat proposal yang tidak sesuai fokus, verifikasi legalitas manual, dan riset kontak yang melelahkan. CSRmatics menghapus friksi tersebut dengan data intelijen dan pencocokan terverifikasi.
+          </p>
+        </div>
+
+        {/* Side-by-Side Comparison Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+          
+          {/* Card 1: Untuk Korporasi & TJSL */}
+          <div className="p-8 rounded-3xl bg-slate-900/60 border border-indigo-500/30 hover:border-indigo-500/60 transition-all space-y-6 backdrop-blur-md shadow-xl flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-bold">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-widest block">Untuk Korporasi & TJSL</span>
+                  <h3 className="text-xl font-extrabold text-white">Tepat Sasaran Tanpa Seleksi Manual</h3>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-800 pt-4 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">✓</div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-white">Kurasi Mitra Terverifikasi</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Temukan NGO yang sudah tervalidasi legalitas dan rekam jejak lapangannya secara komprehensif.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">✓</div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-white">Selaras Target ESG & SDGs</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Pencocokan otomatis memastikan dana CSR tersalur ke program yang sesuai pilar keberlanjutan perusahaan.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <Link
+                href="/pricing?persona=corporate"
+                className="w-full py-3 px-4 rounded-xl bg-indigo-600/90 hover:bg-indigo-500 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-700/20"
+              >
+                <span>Eksplor Solusi Korporasi</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 2: Untuk Lembaga Sosial & NGO */}
+          <div className="p-8 rounded-3xl bg-slate-900/60 border border-emerald-500/30 hover:border-emerald-500/60 transition-all space-y-6 backdrop-blur-md shadow-xl flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold">
+                  <Heart className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest block">Untuk Lembaga Sosial & NGO</span>
+                  <h3 className="text-xl font-extrabold text-white">Tembus Korporasi yang Tepat Sasaran</h3>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-800 pt-4 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">✓</div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-white">Hentikan &quot;Cold Proposal&quot;</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Kirim program ke perusahaan yang memang memiliki anggaran, fokus, dan lokasi yang selaras.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">✓</div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-white">Pantau Status Transparan</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Ketahui kapan proposal Anda dibaca dan diproses tanpa perlu follow-up manual berulang kali.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <Link
+                href="/pricing?persona=ngo"
+                className="w-full py-3 px-4 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/20"
+              >
+                <span>Eksplor Solusi NGO</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
 
         </div>
@@ -272,7 +370,7 @@ export default function LandingPage() {
             Interactive Product Preview
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Lihat Bagaimana Engine Sovera Bekerja
+            Lihat Bagaimana Engine CSRmatics Bekerja
           </h2>
           <p className="text-slate-400 text-sm">
             Uji pencarian kecerdasan CSR perusahaan di bawah ini secara langsung.
@@ -460,10 +558,10 @@ export default function LandingPage() {
               <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
                 <Sparkles className="w-4 h-4 text-emerald-200" />
               </div>
-              <span className="font-bold text-white text-lg">SOVERA FundIQ Enterprise</span>
+              <span className="font-bold text-white text-lg">CSRmatics FundIQ Enterprise</span>
             </div>
             <p className="text-xs text-slate-500">
-              © 2026 SOVERA. Enterprise B2B Philanthropy & CSR Match Engine.
+              © 2026 CSRmatics. Enterprise B2B Philanthropy & CSR Match Engine.
             </p>
           </div>
 

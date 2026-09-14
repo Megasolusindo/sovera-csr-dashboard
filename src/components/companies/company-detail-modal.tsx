@@ -19,6 +19,7 @@ import {
   ChevronDown,
   ChevronUp,
   Link2,
+  Share2,
 } from 'lucide-react';
 import { Company } from '@/types/api';
 
@@ -190,6 +191,95 @@ export default function CompanyDetailModal({
                   )}
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* Social Media Channels Section */}
+          <div className="space-y-2.5 p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <Share2 className="w-4 h-4 text-emerald-700" />
+              Saluran Media Sosial & Discovery Targets
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {/* LinkedIn */}
+              {company.linkedin_url && company.linkedin_status !== 'INVALID' && (
+                <a
+                  href={company.linkedin_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200/80 hover:bg-blue-50/50 hover:border-blue-300 transition-colors group"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs shrink-0">
+                      in
+                    </div>
+                    <span className="text-xs font-semibold text-slate-800 group-hover:text-blue-700 truncate">LinkedIn</span>
+                  </div>
+                  <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-blue-600 shrink-0" />
+                </a>
+              )}
+
+              {/* Instagram */}
+              {company.instagram_url && company.instagram_status === 'VALID' && (
+                <a
+                  href={company.instagram_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200/80 hover:bg-pink-50/50 hover:border-pink-300 transition-colors group"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-md bg-pink-100 text-pink-700 flex items-center justify-center font-bold text-xs shrink-0">
+                      ig
+                    </div>
+                    <span className="text-xs font-semibold text-slate-800 group-hover:text-pink-700 truncate">Instagram</span>
+                  </div>
+                  <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-pink-600 shrink-0" />
+                </a>
+              )}
+
+              {/* Facebook */}
+              {company.facebook_url && (
+                <a
+                  href={company.facebook_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200/80 hover:bg-indigo-50/50 hover:border-indigo-300 transition-colors group"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0">
+                      fb
+                    </div>
+                    <span className="text-xs font-semibold text-slate-800 group-hover:text-indigo-700 truncate">Facebook</span>
+                  </div>
+                  <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-indigo-600 shrink-0" />
+                </a>
+              )}
+
+              {/* YouTube */}
+              {company.youtube_url && (
+                <a
+                  href={company.youtube_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200/80 hover:bg-red-50/50 hover:border-red-300 transition-colors group"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-md bg-red-100 text-red-700 flex items-center justify-center font-bold text-xs shrink-0">
+                      yt
+                    </div>
+                    <span className="text-xs font-semibold text-slate-800 group-hover:text-red-700 truncate">YouTube</span>
+                  </div>
+                  <ExternalLink className="w-3 h-3 text-slate-400 group-hover:text-red-600 shrink-0" />
+                </a>
+              )}
+
+              {(!company.linkedin_url || company.linkedin_status !== 'VALID') &&
+               (!company.instagram_url || company.instagram_status !== 'VALID') &&
+               !company.facebook_url && !company.youtube_url && (
+                <div className="col-span-2 p-3 text-center rounded-lg bg-slate-100/70 border border-slate-200 text-slate-500 text-xs italic">
+                  Belum ada saluran media sosial terverifikasi.
+                </div>
+              )}
             </div>
           </div>
 

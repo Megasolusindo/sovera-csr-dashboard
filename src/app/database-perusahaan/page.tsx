@@ -13,6 +13,8 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Database Perusahaan CSR & TJSL Indonesia | CSRmatics',
   description:
@@ -267,7 +269,7 @@ export default function DatabasePerusahaanPage() {
               </div>
 
               <div className="pt-2 flex items-center justify-between text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition-transform">
-                <span>Lihat Profil CSR</span>
+                <span>Profil CSR {company.ticker}</span>
                 <ArrowRight className="w-4 h-4" />
               </div>
             </Link>

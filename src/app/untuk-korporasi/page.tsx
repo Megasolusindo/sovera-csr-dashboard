@@ -15,6 +15,8 @@ import {
   Users,
 } from 'lucide-react';
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Platform CSR Perusahaan & Software Management TJSL | CSRmatics',
   description:
@@ -93,13 +95,13 @@ export default function UntukKorporasiPage() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/login?persona=corporate"
+              href="/login"
               className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700"
             >
               Masuk Sesi
             </Link>
             <Link
-              href="/pricing?persona=corporate"
+              href="/pricing"
               className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30"
             >
               Coba Solusi Korporasi
@@ -125,7 +127,7 @@ export default function UntukKorporasiPage() {
           </p>
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/pricing?persona=corporate"
+              href="/pricing"
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2"
             >
               <span>Jadwalkan Konsultasi Korporasi</span>

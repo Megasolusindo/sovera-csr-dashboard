@@ -166,8 +166,8 @@ function PricingContent() {
 
           <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
             <Link href="/#features" className="hover:text-emerald-400 transition-colors">Platform</Link>
-            <Link href="/pricing?persona=corporate" className="hover:text-indigo-300 transition-colors">For Corporates</Link>
-            <Link href="/pricing?persona=ngo" className="hover:text-emerald-400 transition-colors">For NGOs</Link>
+            <Link href="/untuk-korporasi" className="hover:text-indigo-300 transition-colors">For Corporates</Link>
+            <Link href="/untuk-ngo" className="hover:text-emerald-400 transition-colors">For NGOs</Link>
             <Link href="/#opportunities" className="hover:text-emerald-400 transition-colors">Opportunities</Link>
             <Link href="/#how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</Link>
             <Link href="/blog" className="hover:text-emerald-400 transition-colors">Blog</Link>
@@ -516,7 +516,7 @@ function PricingContent() {
                       </div>
                     ) : (
                       <Link
-                        href={`/login?persona=${selectedPersona.toLowerCase()}&plan=${plan.code.toLowerCase()}`}
+                        href="/login"
                         className={`w-full py-3.5 px-4 rounded-xl font-extrabold text-xs transition-all flex items-center justify-center gap-2 shadow-lg ${
                           isPopular
                             ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-emerald-700/30'

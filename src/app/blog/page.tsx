@@ -13,7 +13,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Blog & Panduan Kemitraan CSR | CSRmatics',
@@ -71,13 +71,13 @@ export default function BlogPage() {
             <Link href="/" className="hover:text-emerald-400 transition-colors whitespace-nowrap">
               Beranda
             </Link>
-            <Link href="/pricing?persona=corporate" className="hover:text-indigo-300 flex items-center gap-1.5 whitespace-nowrap">
+            <Link href="/untuk-korporasi" className="hover:text-indigo-300 flex items-center gap-1.5 whitespace-nowrap">
               <span>For Corporates</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                 3.000+
               </span>
             </Link>
-            <Link href="/pricing?persona=ngo" className="hover:text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
+            <Link href="/untuk-ngo" className="hover:text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
               <span>For NGOs</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                 1.200+
@@ -104,7 +104,7 @@ export default function BlogPage() {
               Masuk
             </Link>
             <Link
-              href="/pricing?persona=corporate"
+              href="/untuk-korporasi"
               className="hidden sm:flex px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-950/80 hover:bg-indigo-900/80 text-indigo-200 border border-indigo-700/50 transition-all items-center gap-1.5"
             >
               <Building2 className="w-3.5 h-3.5 text-indigo-400" />
@@ -210,9 +210,10 @@ export default function BlogPage() {
                   </div>
                   <Link
                     href={`/blog/${article.slug}`}
+                    aria-label={`Baca artikel: ${article.title}`}
                     className="inline-flex items-center gap-1 font-semibold text-emerald-400 hover:text-emerald-300 transition-colors group/link"
                   >
-                    <span>Baca</span>
+                    <span>Baca Panduan</span>
                     <ChevronRight className="w-4 h-4 group-hover/link:translate-x-0.5 transition-transform" />
                   </Link>
                 </div>
@@ -234,14 +235,14 @@ export default function BlogPage() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link
-              href="/pricing?persona=corporate"
+              href="/untuk-korporasi"
               className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition-all shadow-lg shadow-emerald-500/25 flex items-center gap-2"
             >
               <span>Join Sebagai Korporasi</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/pricing?persona=ngo"
+              href="/untuk-ngo"
               className="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700 transition-all flex items-center gap-2"
             >
               <span>Daftarkan Lembaga / NGO</span>

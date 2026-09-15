@@ -14,6 +14,8 @@ import {
   Users,
 } from 'lucide-react';
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: 'Platform CSR untuk NGO & Pendanaan Program Sosial | CSRmatics',
   description:
@@ -91,13 +93,13 @@ export default function UntukNgoPage() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/login?persona=ngo"
+              href="/login"
               className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700"
             >
               Masuk Sesi
             </Link>
             <Link
-              href="/pricing?persona=ngo"
+              href="/pricing"
               className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-700/25"
             >
               Daftar NGO Sekarang
@@ -123,7 +125,7 @@ export default function UntukNgoPage() {
           </p>
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/pricing?persona=ngo"
+              href="/pricing"
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-sm shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2"
             >
               <span>Daftarkan Program NGO (Gratis)</span>

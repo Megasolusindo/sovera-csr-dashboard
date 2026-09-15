@@ -268,7 +268,7 @@ export default function CompanyDetailPage({ params }: { params: { slug: string }
               Masuk
             </Link>
             <Link
-              href="/pricing?persona=ngo"
+              href="/pricing"
               className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg"
             >
               Ajukan Kemitraan
@@ -388,7 +388,7 @@ export default function CompanyDetailPage({ params }: { params: { slug: string }
           </p>
           <div className="pt-2">
             <Link
-              href={`/pricing?persona=ngo&target=${company.slug}`}
+              href="/pricing"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow"
             >
               <span>Ajukan Proposal via CSRmatics</span>

@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/components/providers/query-provider";
 import { AuthProvider } from "@/context/AuthContext";
 
+const fontSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-plus-jakarta",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://csrmatics.com"),
+  alternates: {
+    canonical: "https://csrmatics.com",
+  },
   title: {
     default: "CSRmatics | Platform Kemitraan CSR & TJSL Berbasis AI",
     template: "%s | CSRmatics",
@@ -60,6 +70,16 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
 
@@ -128,7 +148,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchemas) }}
         />
       </head>
-      <body className="bg-slate-950 text-slate-100 antialiased min-h-screen">
+      <body className={`${fontSans.className} bg-slate-950 text-slate-100 antialiased min-h-screen`}>
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
         </QueryProvider>

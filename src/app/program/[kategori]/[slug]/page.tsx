@@ -253,7 +253,7 @@ export default function NgoProgramDetailPage({ params }: { params: { kategori: s
               Masuk
             </Link>
             <Link
-              href="/pricing?persona=corporate"
+              href="/pricing"
               className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg"
             >
               Mulai Pendanaan CSR
@@ -340,7 +340,7 @@ export default function NgoProgramDetailPage({ params }: { params: { kategori: s
           </p>
           <div className="pt-2">
             <Link
-              href={`/pricing?persona=corporate&program=${prog.slug}`}
+              href="/pricing"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow"
             >
               <span>Mulai Kemitraan CSR untuk Program Ini</span>

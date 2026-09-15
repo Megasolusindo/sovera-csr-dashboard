@@ -17,7 +17,7 @@ import {
 export const metadata: Metadata = {
   title: 'Platform CSR untuk NGO & Pendanaan Program Sosial | CSRmatics',
   description:
-    'Platform kemitraan CSR terbaik untuk Lembaga Sosial, LAZ, dan Yayasan. Temukan perusahaan yang sedang membuka alokasi CSR, ajukan proposal terstruktur, dan dapatkan pendanaan berkelanjutan.',
+    'Platform kemitraan CSR untuk NGO, LAZ & Yayasan. Temukan alokasi CSR perusahaan, ajukan proposal terstruktur, dan dapatkan dana hibah.',
   alternates: {
     canonical: 'https://csrmatics.com/untuk-ngo',
   },

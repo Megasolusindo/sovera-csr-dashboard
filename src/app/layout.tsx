@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: "%s | CSRmatics",
   },
   description:
-    "Hubungkan alokasi dana CSR korporasi BUMN & Tbk dengan program sosial NGO terverifikasi. Akselerasi kemitraan berdampak selaras ESG, SDGs, dan standar syariah.",
+    "Hubungkan dana CSR korporasi BUMN & Tbk dengan NGO terverifikasi. Akselerasi kemitraan berdampak selaras ESG, SDGs, dan standar syariah.",
   keywords: [
     "CSR platform",
     "TJSL BUMN",

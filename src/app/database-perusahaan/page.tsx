@@ -16,7 +16,7 @@ import {
 export const metadata: Metadata = {
   title: 'Database Perusahaan CSR & TJSL Indonesia | CSRmatics',
   description:
-    'Direktori publik perusahaan aktif penyalur CSR, BUMN, Bank, Emiten Tbk, dan Swasta di Indonesia. Filter pilar ESG, lokasi wilayah, dan riwayat program keberlanjutan.',
+    'Direktori perusahaan aktif penyalur CSR & BUMN di Indonesia. Filter pilar ESG, lokasi wilayah, dan riwayat program keberlanjutan.',
   alternates: {
     canonical: 'https://csrmatics.com/database-perusahaan',
   },

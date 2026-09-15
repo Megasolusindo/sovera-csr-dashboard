@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { getAllArticles } from '@/lib/mdx';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://csrmatics.com';
@@ -55,6 +56,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
+  const articles = getAllArticles();
+  const blogArticleUrls = articles.map((article) => ({
+    url: `${baseUrl}/blog/${article.slug}`,
+    lastModified: new Date(article.updated || article.date),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }));
+
   return [
     {
       url: baseUrl,
@@ -81,6 +90,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/pricing`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
@@ -90,5 +105,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...companyDbUrls,
     ...programUrls,
     ...regulasiUrls,
+    ...blogArticleUrls,
   ];
 }
+

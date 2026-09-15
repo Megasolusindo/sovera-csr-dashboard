@@ -170,6 +170,7 @@ function PricingContent() {
             <Link href="/pricing?persona=ngo" className="hover:text-emerald-400 transition-colors">For NGOs</Link>
             <Link href="/#opportunities" className="hover:text-emerald-400 transition-colors">Opportunities</Link>
             <Link href="/#how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</Link>
+            <Link href="/blog" className="hover:text-emerald-400 transition-colors">Blog</Link>
             <Link href="/pricing" className="text-emerald-400 font-bold">Pricing</Link>
           </nav>
 

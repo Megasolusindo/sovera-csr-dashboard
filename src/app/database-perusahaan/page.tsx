@@ -164,6 +164,7 @@ export default function DatabasePerusahaanPage() {
             <Link href="/untuk-korporasi" className="hover:text-emerald-400">For Corporates</Link>
             <Link href="/untuk-ngo" className="hover:text-emerald-400">For NGOs</Link>
             <Link href="/database-perusahaan" className="text-emerald-400 font-bold">Corporate Directory</Link>
+            <Link href="/blog" className="hover:text-emerald-400">Blog</Link>
             <Link href="/pricing" className="hover:text-emerald-400">Pricing</Link>
           </nav>
 

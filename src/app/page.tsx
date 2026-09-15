@@ -79,6 +79,7 @@ export default function LandingPage() {
               </span>
             </a>
             <a href="#how-it-works" className="hover:text-emerald-400 transition-colors whitespace-nowrap">How It Works</a>
+            <Link href="/blog" className="hover:text-emerald-400 transition-colors whitespace-nowrap">Blog</Link>
             <Link href="/pricing" className="hover:text-emerald-400 transition-colors whitespace-nowrap">Pricing</Link>
           </nav>
 

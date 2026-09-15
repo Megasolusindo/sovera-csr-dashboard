@@ -84,6 +84,7 @@ export default function UntukKorporasiPage() {
             <Link href="/untuk-korporasi" className="text-indigo-400 font-bold">For Corporates</Link>
             <Link href="/untuk-ngo" className="hover:text-emerald-400">For NGOs</Link>
             <Link href="/database-perusahaan" className="hover:text-emerald-400">Corporate Directory</Link>
+            <Link href="/blog" className="hover:text-emerald-400">Blog</Link>
             <Link href="/pricing" className="hover:text-emerald-400">Pricing</Link>
           </nav>
 

@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Middleware for 301 Permanent Subdomain & Protocol Redirects:
+ * Middleware for 301 Permanent Subdomain/Protocol Redirects & HTTP Canonical Headers:
  * - Intercepts any request with a 'www.' subdomain (e.g. www.csrmatics.com or x-forwarded-host: www.csrmatics.com)
  *   and issues an HTTP 301 Permanent Redirect to the non-www canonical domain (https://csrmatics.com).
  * - Enforces HTTPS in production environments via 301 redirect.
+ * - Injects 'Link: <https://csrmatics.com/...>; rel="canonical"' HTTP response headers across all routes.
  */
 export function middleware(request: NextRequest) {
   const rawHost = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
@@ -31,7 +32,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(targetUrl, 301);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  // 3. HTTP Response Canonical Header Injection: Link: <https://csrmatics.com/...>; rel="canonical"
+  const canonicalUrl = `https://csrmatics.com${request.nextUrl.pathname}${request.nextUrl.search}`;
+  response.headers.set("Link", `<${canonicalUrl}>; rel="canonical"`);
+
+  return response;
 }
 
 export const config = {

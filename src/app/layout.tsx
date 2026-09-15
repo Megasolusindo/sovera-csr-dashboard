@@ -13,7 +13,7 @@ const fontSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL("https://csrmatics.com"),
   alternates: {
-    canonical: "https://csrmatics.com",
+    canonical: "./",
   },
   title: {
     default: "CSRmatics | Platform Kemitraan CSR & TJSL Berbasis AI",

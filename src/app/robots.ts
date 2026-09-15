@@ -13,6 +13,9 @@ export default function robots(): MetadataRoute.Robots {
           '/untuk-ngo',
           '/database-perusahaan',
           '/database-perusahaan/*',
+          '/perusahaan/*',
+          '/program/*',
+          '/regulasi/*',
           '/pricing',
         ],
         disallow: [

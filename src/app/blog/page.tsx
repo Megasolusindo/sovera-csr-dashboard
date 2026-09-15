@@ -13,6 +13,8 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Blog & Panduan Kemitraan CSR | CSRmatics',
   description:

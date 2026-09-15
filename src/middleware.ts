@@ -2,31 +2,33 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * Middleware for 301 Permanent Redirects:
- * - Redirects www subdomain (www.csrmatics.com) to non-www canonical domain (csrmatics.com) with 301 Permanent Redirect status.
- * - Redirects HTTP requests to HTTPS in production environments.
+ * Middleware for 301 Permanent Subdomain & Protocol Redirects:
+ * - Intercepts any request with a 'www.' subdomain (e.g. www.csrmatics.com or x-forwarded-host: www.csrmatics.com)
+ *   and issues an HTTP 301 Permanent Redirect to the non-www canonical domain (https://csrmatics.com).
+ * - Enforces HTTPS in production environments via 301 redirect.
  */
 export function middleware(request: NextRequest) {
-  const host = request.headers.get("host") || "";
+  const rawHost = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
+  const hostNoPort = rawHost.split(":")[0].toLowerCase();
   const proto = request.headers.get("x-forwarded-proto");
-  const url = request.nextUrl.clone();
 
-  let shouldRedirect = false;
-
-  // 1. Subdomain 301 Redirect: www.csrmatics.com -> csrmatics.com
-  if (host.startsWith("www.csrmatics.com")) {
-    url.hostname = "csrmatics.com";
-    shouldRedirect = true;
+  // 1. WWW to Non-WWW 301 Subdomain Redirect
+  if (hostNoPort.startsWith("www.")) {
+    const canonicalHost = hostNoPort.replace(/^www\./, "");
+    const targetUrl = new URL(
+      request.nextUrl.pathname + request.nextUrl.search,
+      `https://${canonicalHost}`
+    );
+    return NextResponse.redirect(targetUrl, 301);
   }
 
-  // 2. Protocol 301 Redirect: HTTP -> HTTPS in production
+  // 2. HTTP to HTTPS 301 Protocol Redirect (Production)
   if (proto === "http" && process.env.NODE_ENV === "production") {
-    url.protocol = "https:";
-    shouldRedirect = true;
-  }
-
-  if (shouldRedirect) {
-    return NextResponse.redirect(url, 301);
+    const targetUrl = new URL(
+      request.nextUrl.pathname + request.nextUrl.search,
+      `https://${hostNoPort}`
+    );
+    return NextResponse.redirect(targetUrl, 301);
   }
 
   return NextResponse.next();
@@ -35,7 +37,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for:
+     * Match all request paths except:
      * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)

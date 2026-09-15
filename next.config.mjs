@@ -66,6 +66,18 @@ const nextConfig = {
         destination: 'https://csrmatics.com/:path*',
         permanent: true, // 301 Permanent Redirect
       },
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'header',
+            key: 'x-forwarded-host',
+            value: 'www.csrmatics.com',
+          },
+        ],
+        destination: 'https://csrmatics.com/:path*',
+        permanent: true, // 301 Permanent Redirect
+      },
     ];
   },
   experimental: {

@@ -26,9 +26,6 @@ export const metadata: Metadata = {
   authors: [{ name: "CSRmatics Team", url: "https://csrmatics.com" }],
   creator: "CSRmatics",
   publisher: "CSRmatics",
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     title: "CSRmatics | Platform Kemitraan CSR & TJSL Berbasis AI",
     description:

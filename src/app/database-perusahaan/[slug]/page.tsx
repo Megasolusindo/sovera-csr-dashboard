@@ -145,6 +145,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   return {
     title: `CSR & TJSL ${company.name} | Profil & Peluang Kemitraan CSRmatics`,
     description: `Informasi lengkap alokasi dana CSR, pilar TJSL, program sosial aktif, dan tata cara pengajuan proposal kemitraan CSR ke ${company.name}.`,
+    alternates: {
+      canonical: `https://csrmatics.com/database-perusahaan/${company.slug}`,
+    },
     keywords: [
       `CSR ${company.name}`,
       `program CSR ${company.name}`,

@@ -42,9 +42,9 @@ export default function MatchDrawer({
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-lg bg-white shadow-2xl flex flex-col border-l border-slate-200 animate-in slide-in-from-right duration-300">
           {/* Header */}
-          <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
+          <div className="p-6 bg-emerald-900 text-white flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-emerald-400" />
+              <Sparkles className="w-5 h-5 text-emerald-300" />
               <h2 className="text-lg font-bold">Rekomendasi Match Program AI</h2>
             </div>
             <button

@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   title: 'Platform CSR Perusahaan & Software Management TJSL | CSRmatics',
   description:
     'Aplikasi & platform intelijen CSR perusahaan terbaik di Indonesia. Verifikasi mitra NGO, otomatisasi matching AI, dan audit penyaluran dana TJSL selaras ESG & SDGs.',
+  alternates: {
+    canonical: 'https://csrmatics.com/untuk-korporasi',
+  },
   keywords: [
     'platform CSR perusahaan',
     'software CSR',

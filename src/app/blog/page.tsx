@@ -13,7 +13,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Blog & Panduan Kemitraan CSR | CSRmatics',

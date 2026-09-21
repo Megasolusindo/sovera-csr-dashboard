@@ -197,7 +197,7 @@ function getBreadcrumbSchema(article: any, slug: string) {
   };
 }
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;

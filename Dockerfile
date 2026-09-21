@@ -38,6 +38,7 @@ RUN adduser --system --uid 1001 nextjs
 
 # Set correct permissions for static files
 COPY --from=builder /app/public* ./public/
+COPY --from=builder --chown=nextjs:nodejs /app/content ./content
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

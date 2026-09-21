@@ -33,7 +33,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      router.push('/signals');
+      router.push('/dashboard');
     } catch (err: any) {
       setErrorMsg(err.message || 'Gagal masuk. Silakan coba lagi.');
     } finally {
@@ -46,7 +46,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await quickLogin(role);
-      router.push('/signals');
+      router.push('/dashboard');
     } catch (err: any) {
       setErrorMsg(err.message || 'Quick login gagal.');
     } finally {
@@ -90,7 +90,7 @@ export default function LoginPage() {
               <span className="text-[10px] text-slate-500">Seed Accounts</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
               {/* ORG_ADMIN */}
               <button
                 type="button"
@@ -147,6 +147,26 @@ export default function LoginPage() {
                 </div>
                 <div className="text-[10px] text-cyan-500/80 font-mono mt-2 flex items-center justify-between">
                   <span>fundraiser@laz.id</span>
+                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </button>
+
+              {/* CORP_ADMIN */}
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => handleQuickLogin('CORP_ADMIN')}
+                className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-blue-950/40 hover:border-blue-500/40 text-left transition-all flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-blue-400">
+                    <Building2 className="w-3.5 h-3.5 text-blue-500" />
+                    <span>CORP_ADMIN</span>
+                  </div>
+                  <div className="text-[11px] text-slate-400 mt-1">Corporate Demo</div>
+                </div>
+                <div className="text-[10px] text-blue-500/80 font-mono mt-2 flex items-center justify-between">
+                  <span>admin@corporate.com</span>
                   <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </button>

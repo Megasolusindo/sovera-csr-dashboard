@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, Building2, Radio, FolderKanban, BookOpen, 
-  Settings, LogOut, Sparkles, Megaphone, Inbox, Search, Building, Handshake, Send 
+  Settings, LogOut, Sparkles, Megaphone, Inbox, Search, Building, Handshake, Send,
+  ChevronDown, ChevronRight, FileSpreadsheet, ShieldCheck, Zap, CreditCard
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -18,26 +19,49 @@ const ngoNavItems = [
   { label: 'Programs', href: '/programs', icon: BookOpen },
   { label: 'Deal Pipeline', href: '/pipeline', icon: FolderKanban },
   { label: 'Proposal Terkirim', href: '/proposals/sent', icon: Send },
-  { label: 'Settings', href: '/settings', icon: Settings },
 ];
 
 // Navigation Items for Corporate / TJSL / ESG Units
 const corporateNavItems = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'CSR Opportunities', href: '/opportunities', icon: Megaphone },
+  { label: 'AI Chat Assistant', href: '/chat', icon: Sparkles },
+  { label: 'Organization Directory', href: '/ngos', icon: Building2 },
+  { label: 'CSR Intelligence', href: '/intelligence', icon: Zap },
+  { label: 'CSR Feed', href: '/signals', icon: Radio },
+  { label: 'Programs', href: '/programs', icon: BookOpen },
+  { label: 'Partnership Pipeline', href: '/pipeline', icon: FolderKanban },
   { label: 'Proposal Masuk', href: '/proposals/inbox', icon: Inbox },
-  { label: 'Cari Verified NGO', href: '/ngos', icon: Search },
-  { label: 'Profil Perusahaan', href: '/corporate/profile', icon: Building },
-  { label: 'Kemitraan Aktif', href: '/partnerships', icon: Handshake },
-  { label: 'Settings', href: '/settings', icon: Settings },
+];
+
+// Settings Sub-Menu Navigation Items
+const settingsSubItems = [
+  { label: 'Profil Lembaga', href: '/settings/profile', icon: Building },
+  { label: 'Master Template S3', href: '/settings/templates', icon: FileSpreadsheet },
+  { label: 'Akses Tim & RLS', href: '/settings/team', icon: ShieldCheck },
+  { label: 'Langganan Enterprise', href: '/settings/subscription', icon: Zap },
+  { label: 'Riwayat Invoicing', href: '/settings/billing', icon: CreditCard },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
-  const isCorporate = user?.tenant_type === 'CORPORATE';
+  const isCorporate =
+    user?.tenant_type === 'CORPORATE' ||
+    user?.role === 'CORP_ADMIN' ||
+    user?.role === 'CSR_MANAGER' ||
+    user?.role === 'REVIEWER';
+
   const navItems = isCorporate ? corporateNavItems : ngoNavItems;
+
+  const isSettingsActive = pathname.startsWith('/settings');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(isSettingsActive);
+
+  useEffect(() => {
+    if (pathname.startsWith('/settings')) {
+      setIsSettingsOpen(true);
+    }
+  }, [pathname]);
 
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 min-h-screen">
@@ -88,6 +112,60 @@ export default function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Settings Parent Menu & Sub-Menu */}
+        <div className="pt-1">
+          <button
+            type="button"
+            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all duration-150 ${
+              isSettingsActive
+                ? isCorporate
+                  ? 'bg-indigo-50 text-indigo-700 font-semibold'
+                  : 'bg-emerald-50 text-emerald-700 font-semibold'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Settings className={`w-5 h-5 ${isSettingsActive ? (isCorporate ? 'text-indigo-700' : 'text-emerald-700') : 'text-slate-400'}`} />
+              <span>Settings</span>
+            </div>
+            {isSettingsOpen ? (
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            )}
+          </button>
+
+          {/* Sub-menu Items */}
+          {isSettingsOpen && (
+            <div className="ml-4 pl-3 my-1 border-l-2 border-slate-200 space-y-1 transition-all">
+              {settingsSubItems.map((sub) => {
+                const SubIcon = sub.icon;
+                const isSubActive =
+                  pathname === sub.href ||
+                  (sub.href === '/settings/profile' && pathname === '/settings');
+
+                return (
+                  <Link
+                    key={sub.href}
+                    href={sub.href}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-xs transition-all duration-150 ${
+                      isSubActive
+                        ? isCorporate
+                          ? 'bg-indigo-100/70 text-indigo-800 font-bold'
+                          : 'bg-emerald-100/70 text-emerald-800 font-bold'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium'
+                    }`}
+                  >
+                    <SubIcon className={`w-4 h-4 ${isSubActive ? (isCorporate ? 'text-indigo-700' : 'text-emerald-700') : 'text-slate-400'}`} />
+                    <span>{sub.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </nav>
 
       {/* Footer / Logout */}

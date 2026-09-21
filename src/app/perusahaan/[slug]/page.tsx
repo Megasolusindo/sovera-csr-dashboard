@@ -99,6 +99,27 @@ const COMPANY_DATABASE: Record<string, CompanyData> = {
     lastUpdated: '15 September 2026',
     sources: ['Sustainability Report Bank Mandiri 2025'],
   },
+  'corporate-demo': {
+    slug: 'corporate-demo',
+    name: 'Corporate (demo)',
+    ticker: 'DEMO',
+    sector: 'Teknologi & Multi-Industri',
+    province: 'DKI Jakarta',
+    address: 'Corporate Tower, Pacific Place Lt. 18, Jakarta Selatan',
+    website: 'https://www.corporate.com',
+    csrEmail: 'csr@corporate.com',
+    description: 'Corporate (demo) mengintegrasikan program Tanggung Jawab Sosial dan Lingkungan (TJSL) selaras pilar ESG & SDGs melalui verifikasi AI CSRmatics.',
+    tjslFocus: 'Pendidikan Berkualitas, Pelestarian Lingkungan, & Pemberdayaan Ekonomi Kerakyatan.',
+    csrPillars: [
+      { title: 'Corporate Education & Tech', desc: 'Beasiswa koding & pelatihan keterampilan digital.', asnaf: 'Fisabilillah' },
+      { title: 'Corporate Green Action', desc: 'Konservasi lingkungan & penanaman pohon.', asnaf: 'Maslahat Umum' },
+    ],
+    activePrograms: [
+      { title: 'Inkubasi Bisnis UMKM & Beasiswa Digital', budget: 'Rp 2.5 Miliar', location: 'Nasional & Wilayah Operasional' },
+    ],
+    lastUpdated: '15 September 2026',
+    sources: ['Portal Corporate (demo) 2026', 'CSRmatics Verified System'],
+  },
   pertamina: {
     slug: 'pertamina',
     name: 'PT Pertamina (Persero)',

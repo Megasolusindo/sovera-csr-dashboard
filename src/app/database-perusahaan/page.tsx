@@ -89,6 +89,16 @@ const SAMPLE_COMPANIES = [
     verified: true,
   },
   {
+    slug: 'corporate-demo',
+    name: 'Corporate (demo)',
+    ticker: 'DEMO',
+    sector: 'Teknologi & Multi-Industri',
+    province: 'DKI Jakarta',
+    website: 'https://www.corporate.com',
+    csrPillars: ['Pendidikan & Beasiswa', 'Pelestarian Lingkungan', 'Pemberdayaan UMKM'],
+    verified: true,
+  },
+  {
     slug: 'pertamina',
     name: 'PT Pertamina (Persero)',
     ticker: 'BUMN',

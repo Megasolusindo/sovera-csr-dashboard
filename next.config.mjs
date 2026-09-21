@@ -83,41 +83,6 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@tanstack/react-query', 'framer-motion', 'date-fns'],
   },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        maxInitialRequests: 3,
-        minSize: 20000,
-        cacheGroups: {
-          default: false,
-          vendors: false,
-          framework: {
-            name: 'framework',
-            test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
-            priority: 40,
-            chunks: 'all',
-            enforce: true,
-          },
-          lib: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendor',
-            priority: 30,
-            chunks: 'all',
-            enforce: true,
-          },
-          commons: {
-            name: 'commons',
-            minChunks: 2,
-            priority: 20,
-            chunks: 'all',
-            enforce: true,
-          },
-        },
-      };
-    }
-    return config;
-  },
 };
 
 export default nextConfig;

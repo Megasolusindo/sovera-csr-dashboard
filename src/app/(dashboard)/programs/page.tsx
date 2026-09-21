@@ -6,10 +6,22 @@ import { useAuth } from '@/context/AuthContext';
 import ProgramCard from '@/components/programs/program-card';
 import ProgramSkeleton from '@/components/programs/program-skeleton';
 import ProgramFormModal from '@/components/programs/program-form-modal';
+import CorporateProgramPortfolioView from '@/components/programs/corporate-program-view';
 import { BookOpen, Plus, Search, Layers, Lock, ShieldAlert, Filter } from 'lucide-react';
 
 export default function ProgramsPage() {
   const { user } = useAuth();
+
+  const isCorporate =
+    user?.tenant_type === 'CORPORATE' ||
+    user?.role === 'CORP_ADMIN' ||
+    user?.role === 'CSR_MANAGER' ||
+    user?.role === 'REVIEWER';
+
+  if (isCorporate) {
+    return <CorporateProgramPortfolioView />;
+  }
+
   const { data: programs, isLoading, isError } = usePrograms();
   const createProgramMutation = useCreateProgram();
 

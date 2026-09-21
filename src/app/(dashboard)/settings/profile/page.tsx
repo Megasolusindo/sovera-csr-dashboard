@@ -2,6 +2,6 @@
 
 import ProfileSettingsForm from '@/components/settings/profile-settings-form';
 
-export default function SettingsPage() {
+export default function ProfileSettingsPage() {
   return <ProfileSettingsForm />;
 }

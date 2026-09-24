@@ -28,6 +28,10 @@ export default function PipelinePage() {
     }
   };
 
+  const handleDirectUpdateStage = (dealId: string, targetStage: DealStage) => {
+    updateStageMutation.mutate({ dealId, stage: targetStage });
+  };
+
   const filteredDeals = deals?.filter((d) => {
     if (!searchQuery) return true;
     return (
@@ -126,7 +130,7 @@ export default function PipelinePage() {
           Gagal memuat data pipeline.
         </div>
       ) : (
-        <KanbanBoard deals={filteredDeals} onMoveStage={handleMoveStage} />
+        <KanbanBoard deals={filteredDeals} onMoveStage={handleMoveStage} onUpdateStage={handleDirectUpdateStage} />
       )}
     </div>
   );

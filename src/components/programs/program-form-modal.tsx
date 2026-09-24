@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Plus, BookOpen, Layers, Users, FileText, Globe } from 'lucide-react';
+import { X, Sparkles, Plus, BookOpen, Layers, Users, FileText, Globe, Pencil } from 'lucide-react';
 import { CreateProgramPayload } from '@/hooks/usePrograms';
-import { OrgType, PrimaryCluster } from '@/types/api';
+import { InstitutionProgram, OrgType, PrimaryCluster } from '@/types/api';
 
 interface ProgramFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (payload: CreateProgramPayload) => void;
   isLoading: boolean;
+  initialData?: InstitutionProgram | null;
+  mode?: 'create' | 'edit';
 }
 
 const primaryClusters: PrimaryCluster[] = [
@@ -53,6 +55,8 @@ export default function ProgramFormModal({
   onClose,
   onSubmit,
   isLoading,
+  initialData,
+  mode = 'create',
 }: ProgramFormModalProps) {
   const [orgType, setOrgType] = useState<OrgType>('ZAKAT_WAQF_INSTITUTION');
   const [title, setTitle] = useState('');
@@ -69,6 +73,28 @@ export default function ProgramFormModal({
       setOrgType(savedType);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData && mode === 'edit') {
+        setTitle(initialData.title || '');
+        setDescription(initialData.description || '');
+        setPrimaryCluster((initialData.primary_cluster as PrimaryCluster) || 'Education & Literacy');
+        setSelectedSDGs(initialData.target_sdgs && initialData.target_sdgs.length > 0 ? initialData.target_sdgs : ['SDG 4: Pendidikan Berkualitas']);
+        setAsnafCategory(initialData.asnaf_category || asnafCategories[0]);
+        setEsgPillar(initialData.esg_pillar || 'SOCIAL');
+        setTargetBeneficiaries(initialData.target_beneficiaries || '');
+      } else {
+        setTitle('');
+        setDescription('');
+        setPrimaryCluster('Education & Literacy');
+        setSelectedSDGs(['SDG 4: Pendidikan Berkualitas']);
+        setAsnafCategory(asnafCategories[0]);
+        setEsgPillar('SOCIAL');
+        setTargetBeneficiaries('');
+      }
+    }
+  }, [isOpen, initialData, mode]);
 
   if (!isOpen) return null;
 
@@ -91,14 +117,10 @@ export default function ProgramFormModal({
       esg_pillar: esgPillar.trim() || 'SOCIAL',
       target_beneficiaries: targetBeneficiaries.trim() || 'Penerima Manfaat Lembaga',
     });
-
-    // Reset form
-    setTitle('');
-    setDescription('');
-    setTargetBeneficiaries('');
   };
 
   const isZakatOrg = orgType === 'ZAKAT_WAQF_INSTITUTION';
+  const isEdit = mode === 'edit';
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -115,10 +137,12 @@ export default function ProgramFormModal({
           <div className="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center font-bold">
-                <Plus className="w-4 h-4 text-white" />
+                {isEdit ? <Pencil className="w-4 h-4 text-white" /> : <Plus className="w-4 h-4 text-white" />}
               </div>
               <div>
-                <h3 className="text-base font-bold">Tambah Program Lembaga / NGO Baru</h3>
+                <h3 className="text-base font-bold">
+                  {isEdit ? 'Edit Program Lembaga / NGO' : 'Tambah Program Lembaga / NGO Baru'}
+                </h3>
                 <p className="text-xs text-slate-400">
                   Mode Adaptif Multi-Sektor ({isZakatOrg ? 'Zakat & Wakaf' : 'Kemanusiaan / NGO'})
                 </p>
@@ -131,6 +155,7 @@ export default function ProgramFormModal({
               <X className="w-5 h-5" />
             </button>
           </div>
+
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
@@ -278,7 +303,7 @@ export default function ProgramFormModal({
                 className="px-5 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-lg shadow-sm transition-all disabled:opacity-50 flex items-center gap-2"
               >
                 {isLoading && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-                <span>{isLoading ? 'Menyimpan & Vectorizing...' : 'Simpan & Sync AI'}</span>
+                <span>{isLoading ? 'Menyimpan & Vectorizing...' : isEdit ? 'Perbarui & Sync AI' : 'Simpan & Sync AI'}</span>
               </button>
             </div>
           </form>

@@ -1,33 +1,88 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { InstitutionProgram } from '@/types/api';
-import { Users, CheckCircle2, Calendar, Layers, Globe } from 'lucide-react';
+import { Users, CheckCircle2, Calendar, Layers, Globe, Pencil, Trash2, XCircle } from 'lucide-react';
 
 interface ProgramCardProps {
   program: InstitutionProgram;
+  onEdit?: (program: InstitutionProgram) => void;
+  onDelete?: (programId: string) => void;
+  canManage?: boolean;
 }
 
-export default function ProgramCard({ program }: ProgramCardProps) {
-  return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between group">
-      <div>
-        {/* Header: Title & AI Embedding Synced Badge */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="space-y-1">
-            <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block">
-              {program.primary_cluster || 'Program Intervensi'}
-            </span>
-            <h3 className="text-lg font-bold text-slate-900 group-hover:text-emerald-700 transition-colors leading-snug">
-              {program.title}
-            </h3>
-          </div>
+export default function ProgramCard({ program, onEdit, onDelete, canManage = true }: ProgramCardProps) {
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-          <span className="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full shrink-0 flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Vector Synced</span>
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between group relative">
+      <div>
+        {/* Header: Cluster Category & Top Action Controls / AI Badge */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block truncate">
+            {program.primary_cluster || 'Program Intervensi'}
           </span>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {canManage && (
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => onEdit?.(program)}
+                  title="Edit Program"
+                  className="p-1.5 text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsConfirmingDelete(true)}
+                  title="Hapus Program"
+                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            <span className="px-2.5 py-0.5 text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Vector Synced</span>
+            </span>
+          </div>
         </div>
+
+        {/* Full-width Program Title */}
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-emerald-700 transition-colors leading-snug mb-3">
+          {program.title}
+        </h3>
+
+        {/* Inline Delete Confirmation Overlay */}
+        {isConfirmingDelete && (
+          <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between gap-2 text-xs text-red-900 animate-in fade-in">
+            <span className="font-semibold">Hapus program ini secara permanen?</span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  onDelete?.(program.id);
+                  setIsConfirmingDelete(false);
+                }}
+                className="px-2.5 py-1 font-bold text-white bg-red-600 hover:bg-red-700 rounded transition-all"
+              >
+                Ya, Hapus
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsConfirmingDelete(false)}
+                className="px-2 py-1 font-semibold text-slate-600 hover:bg-slate-200 rounded transition-all"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Badges: Primary Cluster, Asnaf (if present), & SDGs */}
         <div className="flex flex-wrap items-center gap-1.5 mb-3">
@@ -81,3 +136,4 @@ export default function ProgramCard({ program }: ProgramCardProps) {
     </div>
   );
 }
+

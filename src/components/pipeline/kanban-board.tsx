@@ -7,6 +7,7 @@ import KanbanColumn from './kanban-column';
 interface KanbanBoardProps {
   deals: DealPipelineItem[];
   onMoveStage: (dealId: string, currentStage: DealStage, direction: 'prev' | 'next') => void;
+  onUpdateStage?: (dealId: string, targetStage: DealStage) => void;
 }
 
 const columnsConfig: { stage: DealStage; label: string; description: string }[] = [
@@ -42,7 +43,7 @@ const columnsConfig: { stage: DealStage; label: string; description: string }[] 
   },
 ];
 
-export default function KanbanBoard({ deals, onMoveStage }: KanbanBoardProps) {
+export default function KanbanBoard({ deals, onMoveStage, onUpdateStage }: KanbanBoardProps) {
   const stageOrder: DealStage[] = [
     'DISCOVERED',
     'RESEARCH',
@@ -77,6 +78,7 @@ export default function KanbanBoard({ deals, onMoveStage }: KanbanBoardProps) {
             description={col.description}
             deals={colDeals}
             onMoveStage={handleStageTransition}
+            onUpdateStage={onUpdateStage}
           />
         );
       })}

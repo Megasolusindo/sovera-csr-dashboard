@@ -10,6 +10,7 @@ interface KanbanColumnProps {
   description: string;
   deals: DealPipelineItem[];
   onMoveStage: (dealId: string, currentStage: DealStage, direction: 'prev' | 'next') => void;
+  onUpdateStage?: (dealId: string, targetStage: DealStage) => void;
 }
 
 const stageHeaderStyles: Record<DealStage, { bg: string; text: string; border: string }> = {
@@ -27,6 +28,7 @@ export default function KanbanColumn({
   description,
   deals,
   onMoveStage,
+  onUpdateStage,
 }: KanbanColumnProps) {
   const styles = stageHeaderStyles[stage];
   const totalValue = deals.reduce((sum, d) => sum + (d.estimated_value || 0), 0);
@@ -61,7 +63,7 @@ export default function KanbanColumn({
       <div className="flex-1 overflow-y-auto space-y-3 pr-1">
         {deals.length > 0 ? (
           deals.map((deal) => (
-            <DealCard key={deal.id} deal={deal} onMoveStage={onMoveStage} />
+            <DealCard key={deal.id} deal={deal} onMoveStage={onMoveStage} onUpdateStage={onUpdateStage} />
           ))
         ) : (
           <div className="p-6 text-center border-2 border-dashed border-slate-200 rounded-xl text-xs text-slate-400">

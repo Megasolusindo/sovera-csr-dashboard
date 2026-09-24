@@ -55,6 +55,7 @@ export interface CorporateSignal {
   intent_score: number;
   content_hash?: string;
   published_date: string;
+  verification_status?: 'VERIFIED' | 'PARTIALLY_VERIFIED' | 'UNVERIFIED' | 'RETRACTED' | 'REJECTED';
   created_at?: string;
 }
 
@@ -162,5 +163,25 @@ export interface Company {
   created_at?: string;
   updated_at?: string;
 }
+
+// 7. Corporate Program & Visibility Types
+export type CorporateProgramVisibility = 'PUBLIC' | 'CURATED' | 'PRIVATE';
+
+export interface CorporateProgram {
+  id: string;
+  name: string;
+  companyName: string;
+  pillar: string;
+  status: 'ACTIVE' | 'PLANNED' | 'COMPLETED';
+  budgetAmount: string;
+  impactSummary: string;
+  startDate: string;
+  endDate: string;
+  partnerNGO: string;
+  visibility: CorporateProgramVisibility;
+  curatedRequirements?: string;
+  created_at?: string;
+}
+
 
 

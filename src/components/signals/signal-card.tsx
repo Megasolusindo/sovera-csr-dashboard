@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 import { CorporateSignal } from '@/types/api';
-import { Sparkles, Calendar, ExternalLink, MapPin, DollarSign, ArrowRight } from 'lucide-react';
+import { Sparkles, Calendar, ExternalLink, MapPin, DollarSign, ArrowRight, ShieldCheck, ShieldAlert, AlertTriangle, XCircle } from 'lucide-react';
 
 interface SignalCardProps {
   signal: CorporateSignal;
@@ -31,6 +32,45 @@ export default function SignalCard({ signal, onMatchClick }: SignalCardProps) {
   };
 
   const intentBadge = getIntentBadge(signal.intent_score);
+
+  // Verification Status Badge styling (§5.2 & §6.2)
+  const getVerificationBadge = (status?: string) => {
+    switch (status) {
+      case 'VERIFIED':
+        return {
+          label: 'Terverifikasi (Tier A/B)',
+          icon: ShieldCheck,
+          className: 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold',
+        };
+      case 'PARTIALLY_VERIFIED':
+        return {
+          label: 'Verifikasi Parsial',
+          icon: ShieldAlert,
+          className: 'bg-amber-50 text-amber-700 border-amber-200 font-semibold',
+        };
+      case 'RETRACTED':
+        return {
+          label: 'Ditarik / Retraksi Data',
+          icon: XCircle,
+          className: 'bg-rose-100 text-rose-800 border-rose-300 font-bold',
+        };
+      case 'REJECTED':
+        return {
+          label: 'Ditolak',
+          icon: XCircle,
+          className: 'bg-slate-200 text-slate-700 border-slate-300 font-medium',
+        };
+      default:
+        return {
+          label: 'Belum Terverifikasi',
+          icon: AlertTriangle,
+          className: 'bg-slate-50 text-slate-600 border-slate-200 font-medium',
+        };
+    }
+  };
+
+  const verificationBadge = getVerificationBadge(signal.verification_status);
+  const VerificationIcon = verificationBadge.icon;
 
   // Format currency
   const formatIDR = (num: number | null) => {
@@ -66,6 +106,9 @@ export default function SignalCard({ signal, onMatchClick }: SignalCardProps) {
       ? signal.source_url
       : `https://www.google.com/search?q=${encodeURIComponent('Program CSR Kemitraan ' + signal.company_name)}`;
 
+  // DOMPurify XSS Sanitization Shield (§2.3)
+  const sanitizedSummary = DOMPurify.sanitize(signal.summary || '');
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between group">
       <div>
@@ -88,21 +131,28 @@ export default function SignalCard({ signal, onMatchClick }: SignalCardProps) {
           </span>
         </div>
 
-        {/* Source Badge & Date */}
-        <div className="flex items-center gap-3 text-xs text-slate-500 mb-4">
+        {/* Source Badge, Verification Badge & Date */}
+        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mb-4">
           <span className={`px-2 py-0.5 font-semibold rounded uppercase ${sourceBadge.className}`}>
             {sourceBadge.label}
           </span>
-          <div className="flex items-center gap-1">
+
+          <span className={`px-2 py-0.5 text-[11px] rounded border flex items-center gap-1 ${verificationBadge.className}`}>
+            <VerificationIcon className="w-3 h-3" />
+            <span>{verificationBadge.label}</span>
+          </span>
+
+          <div className="flex items-center gap-1 ml-auto">
             <Calendar className="w-3.5 h-3.5 text-slate-400" />
             <span>{new Date(signal.published_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
           </div>
         </div>
 
-        {/* Summary Description */}
-        <p className="text-sm text-slate-600 line-clamp-3 mb-4 leading-relaxed">
-          {signal.summary}
-        </p>
+        {/* Summary Description with DOMPurify XSS Shield */}
+        <div
+          className="text-sm text-slate-600 line-clamp-3 mb-4 leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: sanitizedSummary }}
+        />
 
         {/* Key Signal Attributes */}
         <div className="space-y-2 border-t border-b border-slate-100 py-3 mb-4 text-xs">

@@ -14,6 +14,7 @@ export default function SignalsPage() {
   // Filter States
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState('ALL');
+  const [selectedStatus, setSelectedStatus] = useState('ALL');
   const [minIntent, setMinIntent] = useState(0);
 
   // Drawer States
@@ -46,8 +47,15 @@ export default function SignalsPage() {
   const handleResetFilters = () => {
     setSearchQuery('');
     setSelectedIndustry('ALL');
+    setSelectedStatus('ALL');
     setMinIntent(0);
   };
+
+  // Filter signals by selectedStatus client-side
+  const filteredSignals = (data?.data || []).filter((sig) => {
+    if (selectedStatus === 'ALL') return true;
+    return sig.verification_status === selectedStatus;
+  });
 
   return (
     <div className="space-y-6">
@@ -78,6 +86,8 @@ export default function SignalsPage() {
         onSearchChange={setSearchQuery}
         selectedIndustry={selectedIndustry}
         onIndustryChange={setSelectedIndustry}
+        selectedStatus={selectedStatus}
+        onStatusChange={setSelectedStatus}
         minIntent={minIntent}
         onMinIntentChange={setMinIntent}
         onReset={handleResetFilters}
@@ -101,15 +111,15 @@ export default function SignalsPage() {
             Coba Lagi
           </button>
         </div>
-      ) : data && data.data && data.data.length > 0 ? (
+      ) : filteredSignals.length > 0 ? (
         <div className="space-y-4">
           <div className="flex justify-between items-center text-xs text-slate-500 px-1">
-            <span>Menampilkan <strong>{data.data.length}</strong> sinyal terkurasi</span>
+            <span>Menampilkan <strong>{filteredSignals.length}</strong> sinyal terkurasi</span>
             <span>Urutkan: Sinyal Terbaru</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.data.map((signal) => (
+            {filteredSignals.map((signal) => (
               <SignalCard key={signal.id} signal={signal} onMatchClick={handleMatchClick} />
             ))}
           </div>

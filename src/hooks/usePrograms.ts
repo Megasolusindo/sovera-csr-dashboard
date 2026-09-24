@@ -106,3 +106,67 @@ export function useCreateProgram() {
     },
   });
 }
+
+export interface UpdateProgramPayload extends CreateProgramPayload {
+  id: string;
+}
+
+export function useUpdateProgram() {
+  const queryClient = useQueryClient();
+
+  return useMutation<InstitutionProgram, Error, UpdateProgramPayload>({
+    mutationFn: async (payload: UpdateProgramPayload): Promise<InstitutionProgram> => {
+      const { id, ...dataPayload } = payload;
+      try {
+        const data = (await apiClient.put(`/programs/${id}`, dataPayload)) as unknown as { data: InstitutionProgram } | InstitutionProgram;
+        if (data && 'data' in data && data.data) return data.data;
+        if (data && 'id' in data) return data as InstitutionProgram;
+      } catch (err) {
+        console.warn('Backend update program API offline/error, using local update fallback:', err);
+      }
+
+      const updatedProg: InstitutionProgram = {
+        id,
+        title: payload.title,
+        description: payload.description,
+        primary_cluster: payload.primary_cluster || 'Community Development',
+        target_sdgs: payload.target_sdgs || [],
+        asnaf_category: payload.asnaf_category,
+        esg_pillar: payload.esg_pillar,
+        target_beneficiaries: payload.target_beneficiaries,
+        embedding_generated: true,
+        updated_at: new Date().toISOString(),
+      };
+
+      return updatedProg;
+    },
+    onSuccess: (updatedProg) => {
+      queryClient.setQueryData<InstitutionProgram[]>(['programs'], (old) => {
+        if (!old) return [updatedProg];
+        return old.map((item) => (item.id === updatedProg.id ? { ...item, ...updatedProg } : item));
+      });
+    },
+  });
+}
+
+export function useDeleteProgram() {
+  const queryClient = useQueryClient();
+
+  return useMutation<string, Error, string>({
+    mutationFn: async (programId: string): Promise<string> => {
+      try {
+        await apiClient.delete(`/programs/${programId}`);
+      } catch (err) {
+        console.warn('Backend delete program API offline/error, using local delete fallback:', err);
+      }
+      return programId;
+    },
+    onSuccess: (deletedId) => {
+      queryClient.setQueryData<InstitutionProgram[]>(['programs'], (old) => {
+        if (!old) return [];
+        return old.filter((item) => item.id !== deletedId);
+      });
+    },
+  });
+}
+

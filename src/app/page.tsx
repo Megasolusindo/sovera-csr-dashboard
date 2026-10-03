@@ -30,7 +30,41 @@ export const metadata: Metadata = {
   },
 };
 
-export default function LandingPage() {
+// Server-side base URL for SSR fetches (falls back to the public env var, then localhost).
+const API_BASE_URL =
+  process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api/v1';
+
+type PublicStats = { companies: number; organizations: number; programs: number };
+
+// Format like 4.923 -> "4.900+" (round down to a trust-building round number).
+function roundDown(n: number): string {
+  if (n <= 0) return '0';
+  if (n < 100) return `${n}`;
+  if (n < 1000) return `${Math.floor(n / 100) * 100}+`;
+  return `${(Math.floor(n / 100) * 100).toLocaleString('id-ID')}+`;
+}
+
+async function getPublicStats(): Promise<PublicStats | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/public/stats`, { next: { revalidate: 3600 } });
+    if (!res.ok) return null;
+    const d = await res.json();
+    return {
+      companies: Number(d.total_companies) || 0,
+      organizations: Number(d.total_organizations) || 0,
+      programs: Number(d.total_programs) || 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export default async function LandingPage() {
+  const stats = await getPublicStats();
+  // Labels fall back to neutral copy if the API is unreachable, never to invented numbers.
+  const companiesLabel = stats ? roundDown(stats.companies) : 'Ribuan';
+  const orgsLabel = stats ? roundDown(stats.organizations) : 'Ratusan';
+  const programsLabel = stats ? roundDown(stats.programs) : 'Puluhan';
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500 selection:text-white relative overflow-x-hidden">
@@ -64,11 +98,11 @@ export default function LandingPage() {
             <a href="#features" className="hover:text-emerald-400 transition-colors whitespace-nowrap">Platform</a>
             <Link href="/untuk-korporasi" className="hover:text-indigo-300 flex items-center gap-1.5 whitespace-nowrap">
               <span>For Corporates</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">3.000+</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">{companiesLabel}</span>
             </Link>
             <Link href="/untuk-ngo" className="hover:text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
               <span>For NGOs</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">1.200+</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{orgsLabel}</span>
             </Link>
             <a href="#opportunities" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 whitespace-nowrap">
               <span>Opportunities</span>
@@ -158,7 +192,7 @@ export default function LandingPage() {
           
           <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md space-y-1 hover:border-indigo-500/30 transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-2xl font-black text-white">3.000+</span>
+              <span className="text-2xl font-black text-white">{companiesLabel}</span>
               <Building2 className="w-5 h-5 text-indigo-400" />
             </div>
             <span className="text-xs font-semibold text-slate-400 block">Perusahaan Verified</span>
@@ -167,7 +201,7 @@ export default function LandingPage() {
 
           <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md space-y-1 hover:border-emerald-500/30 transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-2xl font-black text-white">1.200+</span>
+              <span className="text-2xl font-black text-white">{orgsLabel}</span>
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
             </div>
             <span className="text-xs font-semibold text-slate-400 block">NGO Terverifikasi</span>
@@ -176,7 +210,7 @@ export default function LandingPage() {
 
           <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md space-y-1 hover:border-teal-500/30 transition-all">
             <div className="flex items-center justify-between">
-              <span className="text-2xl font-black text-white">850+</span>
+              <span className="text-2xl font-black text-white">{programsLabel}</span>
               <Heart className="w-5 h-5 text-teal-400" />
             </div>
             <span className="text-xs font-semibold text-slate-400 block">Program Sosial Aktif</span>
@@ -439,7 +473,7 @@ export default function LandingPage() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20 inline-block">
               Data & Direktori
             </span>
-            <p className="text-xl font-bold text-white">4. Direktori 3.000+ Korporasi & 1.200+ NGO</p>
+            <p className="text-xl font-bold text-white">4. Direktori {companiesLabel} Korporasi & {orgsLabel} NGO</p>
             <p className="text-xs text-slate-400 leading-relaxed">
               Database terverifikasi lengkap dengan kontak penanggung jawab, situs resmi aktif (HTTP 200 OK), serta data historis penyaluran CSR.
             </p>

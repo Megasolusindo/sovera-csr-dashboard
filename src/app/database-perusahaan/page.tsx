@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Database Perusahaan CSR & TJSL Indonesia | CSRmatics',
     description:
-      'Direktori publik 3.000+ profil korporasi BUMN, Tbk, Bank, dan Swasta yang aktif menyalurkan alokasi dana CSR & program sosial.',
+      'Direktori publik ribuan profil korporasi BUMN, Tbk, Bank, dan Swasta yang aktif menyalurkan alokasi dana CSR & program sosial.',
     url: 'https://csrmatics.com/database-perusahaan',
     siteName: 'CSRmatics',
     locale: 'id_ID',
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Database Perusahaan CSR & TJSL Indonesia | CSRmatics',
     description:
-      'Direktori publik 3.000+ profil korporasi BUMN, Tbk, Bank, dan Swasta yang aktif menyalurkan alokasi dana CSR & program sosial.',
+      'Direktori publik ribuan profil korporasi BUMN, Tbk, Bank, dan Swasta yang aktif menyalurkan alokasi dana CSR & program sosial.',
     images: ['https://csrmatics.com/opengraph-image'],
   },
 };
@@ -150,7 +150,49 @@ const SAMPLE_COMPANIES = [
   },
 ];
 
-export default function DatabasePerusahaanPage() {
+// Server-side base URL for SSR fetches.
+const API_BASE_URL =
+  process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api/v1';
+
+type DirectoryCompany = {
+  slug: string;
+  name: string;
+  ticker: string;
+  sector: string;
+  province: string;
+  website: string;
+  csrPillars: string[];
+  verified: boolean;
+};
+
+// Fetch real companies from the public API, mapping to the shape the UI renders.
+// Falls back to the curated SAMPLE_COMPANIES if the API is unreachable.
+async function getCompanies(): Promise<{ companies: DirectoryCompany[]; total: number }> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/companies?limit=60&offset=0`, { next: { revalidate: 3600 } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const rows: any[] = Array.isArray(json.data) ? json.data : [];
+    const total: number = json?.pagination?.total ?? rows.length;
+    const companies: DirectoryCompany[] = rows.map((r) => ({
+      slug: r.slug || r.id,
+      name: r.name || r.legal_name || '—',
+      ticker: r.ticker || (r.company_type || 'CORP'),
+      sector: r.industry_sector || r.csr_category || 'Multi-Industri',
+      province: r.headquarters || '',
+      website: r.website || '',
+      csrPillars: r.csr_category ? [r.csr_category] : [],
+      verified: r.website_status === 'VALID' || r.is_claimed === true,
+    }));
+    if (companies.length === 0) return { companies: SAMPLE_COMPANIES, total: SAMPLE_COMPANIES.length };
+    return { companies, total };
+  } catch {
+    return { companies: SAMPLE_COMPANIES, total: SAMPLE_COMPANIES.length };
+  }
+}
+
+export default async function DatabasePerusahaanPage() {
+  const { companies, total } = await getCompanies();
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans relative overflow-x-hidden">
       
@@ -207,7 +249,7 @@ export default function DatabasePerusahaanPage() {
         <div className="text-center space-y-4 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-emerald-400 text-xs font-semibold">
             <Building2 className="w-3.5 h-3.5" />
-            <span>Directory Terverifikasi 3.000+ Perusahaan</span>
+            <span>Directory Terverifikasi {total.toLocaleString('id-ID')}+ Perusahaan</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight">
             Database Perusahaan CSR & TJSL Indonesia
@@ -241,7 +283,7 @@ export default function DatabasePerusahaanPage() {
 
         {/* Company Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {SAMPLE_COMPANIES.map((company) => (
+          {companies.map((company) => (
             <Link
               key={company.slug}
               href={`/database-perusahaan/${company.slug}`}

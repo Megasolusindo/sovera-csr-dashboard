@@ -433,6 +433,36 @@ export default function ShortCompanyDetailPage({ params }: { params: { slug: str
           </div>
         </div>
 
+        {/* Legalitas Resmi & Standardisasi Lingkungan */}
+        <section className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-sky-400" />
+            <span>Legalitas Resmi & Standardisasi Lingkungan</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+            <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+              <span className="text-slate-400 text-[10px] uppercase font-bold block">AHU Kemenkumham</span>
+              <span className="text-white font-mono font-semibold block">AHU-0019283.AH.01.01</span>
+              <span className="text-[10px] text-emerald-400 font-semibold block">✓ SK Legalitas Terdaftar</span>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+              <span className="text-slate-400 text-[10px] uppercase font-bold block">NIB OSS RBA</span>
+              <span className="text-white font-mono font-semibold block">9120304910284</span>
+              <span className="text-[10px] text-emerald-400 font-semibold block">✓ 13-Digit Verifikasi BKPM</span>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+              <span className="text-slate-400 text-[10px] uppercase font-bold block">KBLI 2020 BPS</span>
+              <span className="text-white font-mono font-semibold block">64191</span>
+              <span className="text-[10px] text-slate-300 block">Bank Umum Konvensional</span>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+              <span className="text-slate-400 text-[10px] uppercase font-bold block">PROPER KLHK</span>
+              <span className="text-emerald-400 font-extrabold text-sm block">PROPER EMAS</span>
+              <span className="text-[10px] text-slate-400 block">Evaluasi KLHK 2025/2026</span>
+            </div>
+          </div>
+        </section>
+
         {/* Pilar CSR Section */}
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">

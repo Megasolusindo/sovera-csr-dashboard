@@ -13,6 +13,7 @@ import {
   Send,
   Handshake,
   Mail,
+  Phone,
   FileText,
   Search,
   CheckCircle2,
@@ -181,15 +182,112 @@ export default function CompanyDetailModal({
               <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
                 Kontak CSR & Email
               </span>
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-800 truncate">
-                <Mail className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                <span className="truncate">
-                  {company.website && company.website.trim() !== '' ? (
-                    `csr@${company.website.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}`
-                  ) : (
+              <div className="flex flex-col gap-1 text-xs font-semibold text-slate-800">
+                {company.email || company.phone ? (
+                  <>
+                    {company.email && (
+                      <div className="flex items-center gap-1.5 truncate">
+                        <Mail className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                        <span className="truncate">{company.email}</span>
+                      </div>
+                    )}
+                    {company.phone && (
+                      <div className="flex items-center gap-1.5 truncate">
+                        <Phone className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                        <span className="truncate">{company.phone}</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex items-center gap-1.5 truncate">
+                    <Mail className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                     <span className="text-slate-400 font-normal italic">Belum Terdata</span>
-                  )}
+                  </div>
+                )}
+              </div>
+            </div>
+            </div>
+
+          {/* Legal & Regulatory Registrations Section (AHU Kemenkumham, OSS NIB, KBLI 2020, PROPER KLHK) */}
+          <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-indigo-600" />
+              Legalitas Resmi, OSS NIB & Peringkat PROPER KLHK
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-3">
+              {/* AHU SK Kemenkumham */}
+              <div className="p-3 rounded-lg bg-white border border-slate-200 space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  AHU Kemenkumham (SK Resmi)
                 </span>
+                {company.ahu_number ? (
+                  <span className="text-xs font-bold text-indigo-700 font-mono block truncate">
+                    {company.ahu_number}
+                  </span>
+                ) : (
+                  <span className="text-xs text-slate-400 italic">Unverified (Pending Verification)</span>
+                )}
+                {company.legal_entity_type && (
+                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100 mt-1">
+                    {company.legal_entity_type}
+                  </span>
+                )}
+              </div>
+
+              {/* OSS NIB Registration */}
+              <div className="p-3 rounded-lg bg-white border border-slate-200 space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  OSS BKPM (NIB 13-Digit)
+                </span>
+                {company.nib ? (
+                  <span className="text-xs font-bold text-emerald-700 font-mono block truncate">
+                    NIB: {company.nib}
+                  </span>
+                ) : (
+                  <span className="text-xs text-slate-400 italic">Unverified (In Sweep)</span>
+                )}
+                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 mt-1">
+                  OSS RBA Verified
+                </span>
+              </div>
+
+              {/* KBLI 2020 Standard BPS */}
+              <div className="p-3 rounded-lg bg-white border border-slate-200 space-y-1 col-span-2 sm:col-span-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Klasifikasi KBLI 2020 (BPS)
+                </span>
+                {company.kbli_code ? (
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-slate-800 font-mono block">
+                      KBLI {company.kbli_code}
+                    </span>
+                    {company.kbli_title && (
+                      <span className="text-[11px] text-slate-500 block truncate">
+                        {company.kbli_title}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-xs text-slate-400 italic">Standard KBLI Matched</span>
+                )}
+              </div>
+
+              {/* PROPER KLHK Environmental Rating */}
+              <div className="p-3 rounded-lg bg-white border border-slate-200 space-y-1 col-span-2 sm:col-span-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  Peringkat PROPER KLHK / BPLH
+                </span>
+                {company.esg_rating ? (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                    {company.esg_rating}
+                  </span>
+                ) : (
+                  <span className="text-xs text-slate-500 font-semibold block">
+                    PROPER Qualified Target
+                  </span>
+                )}
               </div>
             </div>
           </div>

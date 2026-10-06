@@ -8,9 +8,10 @@ import { Sparkles, Calendar, ExternalLink, MapPin, DollarSign, ArrowRight, Shiel
 interface SignalCardProps {
   signal: CorporateSignal;
   onMatchClick: (signal: CorporateSignal) => void;
+  onCompanyClick?: (signal: CorporateSignal) => void;
 }
 
-export default function SignalCard({ signal, onMatchClick }: SignalCardProps) {
+export default function SignalCard({ signal, onMatchClick, onCompanyClick }: SignalCardProps) {
   // Intent Score Badge styling
   const getIntentBadge = (score: number) => {
     if (score >= 80) {
@@ -112,28 +113,32 @@ export default function SignalCard({ signal, onMatchClick }: SignalCardProps) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between group">
       <div>
-        {/* Header: Company Name & Intent Badge */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div>
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-              {signal.industry_sector}
-            </span>
-            <h3 className="text-lg font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-              {signal.company_name}
-            </h3>
-          </div>
+        {/* Top Meta Bar: Industry Sector & Intent Badge */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider truncate">
+            {signal.industry_sector || 'INDUSTRI KORPORAT'}
+          </span>
 
           <span
-            className={`px-2.5 py-1 text-xs rounded-full border shrink-0 flex items-center gap-1 ${intentBadge.className}`}
+            className={`px-2.5 py-0.5 text-[11px] rounded-full border shrink-0 flex items-center gap-1 ${intentBadge.className}`}
           >
             <Sparkles className="w-3 h-3" />
             <span>{intentBadge.label}</span>
           </span>
         </div>
 
+        {/* Company Name: Full width with 2-line clamp & tooltip */}
+        <button
+          onClick={() => onCompanyClick && onCompanyClick(signal)}
+          className={`text-base font-bold text-left transition-colors line-clamp-2 leading-snug mb-3 min-h-[2.5rem] flex items-center w-full ${onCompanyClick ? 'text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer' : 'text-slate-900 group-hover:text-emerald-700'}`}
+          title={signal.company_name}
+        >
+          {signal.company_name}
+        </button>
+
         {/* Source Badge, Verification Badge & Date */}
-        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mb-4">
-          <span className={`px-2 py-0.5 font-semibold rounded uppercase ${sourceBadge.className}`}>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 mb-3.5">
+          <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${sourceBadge.className}`}>
             {sourceBadge.label}
           </span>
 
@@ -142,7 +147,7 @@ export default function SignalCard({ signal, onMatchClick }: SignalCardProps) {
             <span>{verificationBadge.label}</span>
           </span>
 
-          <div className="flex items-center gap-1 ml-auto">
+          <div className="flex items-center gap-1 ml-auto text-[11px] text-slate-400">
             <Calendar className="w-3.5 h-3.5 text-slate-400" />
             <span>{new Date(signal.published_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
           </div>

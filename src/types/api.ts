@@ -142,16 +142,24 @@ export interface AuthResponse {
 export interface Company {
   id: string;
   name: string;
+  legal_name?: string | null;
   slug?: string;
   ticker?: string;
   industry_sector?: string;
+  company_type?: string;
   website?: string | null;
+  website_status?: string | null;
+  website_verified_at?: string | null;
+  website_last_error?: string | null;
+  phone?: string | null;
+  email?: string | null;
   linkedin_url?: string | null;
   linkedin_status?: 'VALID' | 'INVALID' | 'UNVERIFIED' | string | null;
   instagram_url?: string | null;
   instagram_status?: 'VALID' | 'INVALID' | 'UNVERIFIED' | string | null;
   facebook_url?: string | null;
   youtube_url?: string | null;
+  headquarters?: string | null;
   hq_address?: string;
   csr_pillar_focus?: string[];
   annual_csr_budget_est?: number;
@@ -160,8 +168,82 @@ export interface Company {
   priority_tier?: 'TIER_1' | 'TIER_2' | 'TIER_3';
   csr_category?: 'SANGAT_AKTIF' | 'AKTIF' | 'POTENSIAL';
   partner_ngo?: string;
+  ahu_number?: string | null;
+  nib?: string | null;
+  kbli_code?: string | null;
+  kbli_title?: string | null;
+  legal_entity_type?: string | null;
+  parent_company_id?: string | null;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface AHURegistration {
+  id: string;
+  company_id?: string | null;
+  company_name: string;
+  legal_name: string;
+  ahu_number: string;
+  legal_entity_type: string;
+  deed_number?: string | null;
+  deed_date?: string | null;
+  notary_name?: string | null;
+  status: string;
+  headquarters?: string | null;
+  capital_amount?: number | null;
+  verified_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OSSNIBRegistration {
+  id: string;
+  company_id?: string | null;
+  nib: string;
+  business_name: string;
+  legal_entity_type: string;
+  kbli_code?: string | null;
+  kbli_title?: string | null;
+  risk_level: string;
+  investment_status: string;
+  province?: string | null;
+  regency_city?: string | null;
+  district?: string | null;
+  address?: string | null;
+  license_status: string;
+  issued_date?: string | null;
+  verified_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KBLIReference {
+  code: string;
+  title: string;
+  category_code: string;
+  category_title: string;
+  csr_relevance_default: 'HIGH' | 'MEDIUM' | 'LOW' | string;
+  risk_level: string;
+  description?: string | null;
+  company_count?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CorporateHierarchy {
+  parent?: Company | null;
+  company: Company;
+  subsidiaries: Company[];
+  total_subsidiaries: number;
+}
+
+export interface AHUEntityResolutionResult {
+  canonical_name: string;
+  legal_name: string;
+  ahu_number: string;
+  company_id?: string | null;
+  match_score: number;
+  is_matched: boolean;
 }
 
 // 7. Corporate Program & Visibility Types

@@ -236,7 +236,7 @@ export default function CompanyTable({
                       className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
                       onClick={() => onSelectCompany(comp)}
                     >
-                      {/* Name & Ticker */}
+                      {/* Name & Ticker & Legal Badges */}
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3.5">
                           <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-800 font-bold text-sm flex items-center justify-center shrink-0 border border-emerald-200/70 group-hover:scale-105 transition-transform shadow-xs">
@@ -258,9 +258,28 @@ export default function CompanyTable({
                                 </span>
                               )}
                             </div>
-                            <span className="text-[11px] text-slate-400 font-normal block truncate">
-                              ID: {comp.id.slice(0, 8)}
-                            </span>
+                            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                              {comp.legal_entity_type && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+                                  {comp.legal_entity_type}
+                                </span>
+                              )}
+                              {comp.ahu_number && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-sky-50 text-sky-700 border border-sky-200 shrink-0" title={`AHU Kemenkumham: ${comp.ahu_number}`}>
+                                  ✓ AHU
+                                </span>
+                              )}
+                              {comp.nib && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0" title={`NIB OSS RBA: ${comp.nib}`}>
+                                  ✓ NIB
+                                </span>
+                              )}
+                              {comp.kbli_code && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-violet-50 text-violet-700 border border-violet-200 shrink-0" title={`KBLI 2020 BPS: ${comp.kbli_code} ${comp.kbli_title || ''}`}>
+                                  KBLI {comp.kbli_code}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </td>

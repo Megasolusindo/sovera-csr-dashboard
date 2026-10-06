@@ -5,9 +5,10 @@ import SignalFilterBar from '@/components/signals/signal-filter-bar';
 import SignalCard from '@/components/signals/signal-card';
 import SignalSkeleton from '@/components/signals/signal-skeleton';
 import MatchDrawer from '@/components/signals/match-drawer';
+import CompanyDetailModal from '@/components/companies/company-detail-modal';
 import { useSignals } from '@/hooks/useSignals';
 import { useMatchPrograms } from '@/hooks/useMatchPrograms';
-import { CorporateSignal, SignalMatchResponse } from '@/types/api';
+import { CorporateSignal, SignalMatchResponse, Company } from '@/types/api';
 import { Radio, RefreshCw } from 'lucide-react';
 
 export default function SignalsPage() {
@@ -21,6 +22,10 @@ export default function SignalsPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedSignal, setSelectedSignal] = useState<CorporateSignal | null>(null);
   const [matchData, setMatchData] = useState<SignalMatchResponse | null>(null);
+
+  // Company Modal State
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   // Data Fetching Hooks
   const { data, isLoading, isError, refetch } = useSignals({
@@ -42,6 +47,16 @@ export default function SignalsPage() {
         setMatchData(resData);
       },
     });
+  };
+
+  const handleCompanyClick = (signal: CorporateSignal) => {
+    const partialCompany: Company = {
+      id: `mock-${signal.id}`,
+      name: signal.company_name,
+      industry_sector: signal.industry_sector,
+    } as Company;
+    setSelectedCompany(partialCompany);
+    setIsCompanyModalOpen(true);
   };
 
   const handleResetFilters = () => {
@@ -120,7 +135,7 @@ export default function SignalsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSignals.map((signal) => (
-              <SignalCard key={signal.id} signal={signal} onMatchClick={handleMatchClick} />
+              <SignalCard key={signal.id} signal={signal} onMatchClick={handleMatchClick} onCompanyClick={handleCompanyClick} />
             ))}
           </div>
         </div>
@@ -147,6 +162,13 @@ export default function SignalsPage() {
         signal={selectedSignal}
         matchData={matchData}
         isLoading={matchMutation.isPending}
+      />
+
+      {/* Company Detail Modal */}
+      <CompanyDetailModal
+        isOpen={isCompanyModalOpen}
+        onClose={() => setIsCompanyModalOpen(false)}
+        company={selectedCompany}
       />
     </div>
   );

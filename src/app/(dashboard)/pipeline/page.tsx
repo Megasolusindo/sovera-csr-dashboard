@@ -1,15 +1,50 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import KanbanBoard from '@/components/pipeline/kanban-board';
-import { useDeals, useUpdateDealStage } from '@/hooks/useDeals';
+import { useDeals, useUpdateDealStage, useCreateDeal } from '@/hooks/useDeals';
 import { DealStage } from '@/types/api';
 import { Layers, Plus, Search, DollarSign, TrendingUp, CheckCircle2, RefreshCw } from 'lucide-react';
 
 export default function PipelinePage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const { data: deals, isLoading, isError, refetch } = useDeals();
   const updateStageMutation = useUpdateDealStage();
+  const createDealMutation = useCreateDeal();
+  const isCreating = useRef(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !isCreating.current) {
+      const params = new URLSearchParams(window.location.search);
+      const action = params.get('action');
+      const signalId = params.get('signal_id');
+      const programId = params.get('program_id');
+      const companyName = params.get('company');
+
+      if (action === 'create' && signalId && programId && companyName) {
+        isCreating.current = true;
+        createDealMutation.mutate(
+          {
+            company_name: companyName,
+            target_program_id: programId,
+            signal_id: signalId,
+            estimated_value: 500000000,
+          },
+          {
+            onSuccess: () => {
+              // Remove query params to prevent duplicate creation on refresh
+              router.replace('/pipeline');
+            },
+            onError: () => {
+              isCreating.current = false;
+            }
+          }
+        );
+      }
+    }
+  }, [router, createDealMutation]);
 
   const handleMoveStage = (dealId: string, currentStage: DealStage, direction: 'prev' | 'next') => {
     const stageOrder: DealStage[] = [
@@ -41,7 +76,9 @@ export default function PipelinePage() {
   }) || [];
 
   // Metrics
-  const totalValue = filteredDeals.reduce((sum, d) => sum + (d.estimated_value || 0), 0);
+  const activeDeals = filteredDeals.filter((d) => d.deal_stage !== 'CLOSED_WON' && d.deal_stage !== 'CLOSED_LOST');
+  const activeValue = activeDeals.reduce((sum, d) => sum + (d.estimated_value || 0), 0);
+  
   const closedWonDeals = filteredDeals.filter((d) => d.deal_stage === 'CLOSED_WON');
   const closedWonValue = closedWonDeals.reduce((sum, d) => sum + (d.estimated_value || 0), 0);
 
@@ -83,7 +120,7 @@ export default function PipelinePage() {
           </div>
           <div>
             <span className="text-xs font-semibold text-slate-500 block">Total Nilai Pipeline</span>
-            <span className="text-lg font-bold text-slate-900">{formatIDR(totalValue)}</span>
+            <span className="text-lg font-bold text-slate-900">{formatIDR(activeValue)}</span>
           </div>
         </div>
 
@@ -93,7 +130,7 @@ export default function PipelinePage() {
           </div>
           <div>
             <span className="text-xs font-semibold text-slate-500 block">Deals Aktif Dalam Proses</span>
-            <span className="text-lg font-bold text-slate-900">{filteredDeals.length - closedWonDeals.length} Deals</span>
+            <span className="text-lg font-bold text-slate-900">{activeDeals.length} Deals</span>
           </div>
         </div>
 

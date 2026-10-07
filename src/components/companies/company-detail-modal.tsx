@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   X,
   ExternalLink,
@@ -22,7 +22,9 @@ import {
   Link2,
   Share2,
 } from 'lucide-react';
-import { Company } from '@/types/api';
+import { Company, CorporateSignal } from '@/types/api';
+import { apiClient } from '@/lib/api-client';
+import { errorMessage } from '@/components/shared/query-error';
 
 interface CompanyDetailModalProps {
   company: Company | null;
@@ -38,38 +40,35 @@ export default function CompanyDetailModal({
   onStartProspecting,
 }: CompanyDetailModalProps) {
   const [showEvidenceList, setShowEvidenceList] = useState(true);
+  const [signals, setSignals] = useState<CorporateSignal[] | null>(null);
+  const [signalsError, setSignalsError] = useState<string | null>(null);
+  const companyName = company?.name;
+
+  // The signals the platform really holds for this company. The panel used to show two observations written
+  // in the browser for every company (an ESG report, a news article, with dates and "95% confidence").
+  useEffect(() => {
+    if (!isOpen || !companyName) return;
+    let cancelled = false;
+    setSignals(null);
+    setSignalsError(null);
+    apiClient
+      .get('/signals', { params: { search: companyName, limit: 5 } })
+      .then((res: any) => {
+        if (cancelled) return;
+        if (!Array.isArray(res?.data)) throw new Error('Respons sinyal dari server tidak lengkap.');
+        setSignals(res.data);
+      })
+      .catch((err) => {
+        if (!cancelled) setSignalsError(errorMessage(err));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, companyName]);
 
   if (!isOpen || !company) return null;
 
   const isVerified = Boolean(company.website && company.website.trim() !== '');
-
-  // Dynamic Evidence Lineage Data customized per company
-  const evidenceList = [
-    {
-      id: 'obs-01',
-      date: '15 Jan 2026',
-      sourceType: 'BEI_REPORT',
-      sourceTitle: `Laporan Keberlanjutan & ESG ${company.name} 2025/2026`,
-      sourceUrl: company.website && company.website.trim() !== ''
-        ? company.website
-        : `https://www.google.com/search?q=${encodeURIComponent('Laporan Keuangan CSR ' + company.name)}`,
-      snippet: `${company.name} mengalokasikan anggaran Tanggung Jawab Sosial dan Lingkungan (TJSL) & ESG untuk pilar ${company.industry_sector || 'Pemberdayaan Masyarakat'}${company.partner_ngo ? ' melalui kemitraan dengan ' + company.partner_ngo : ''}.`,
-      confidence: 'High (95%)',
-      badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-    },
-    {
-      id: 'obs-02',
-      date: '04 Des 2025',
-      sourceType: 'NEWS_ARTICLE',
-      sourceTitle: `Kemitraan Strategis CSR ${company.name}`,
-      sourceUrl: company.website && company.website.trim() !== ''
-        ? company.website
-        : `https://www.google.com/search?q=${encodeURIComponent('Kemitraan CSR ' + company.name)}`,
-      snippet: `Divisi ${company.partner_ngo || 'CSR & ESG'} ${company.name} mengonfirmasi alokasi dana hibah dan program kemitraan sosial berkelanjutan di wilayah operasional prioritas.`,
-      confidence: 'Verified (90%)',
-      badgeColor: 'bg-blue-50 text-blue-800 border-blue-200',
-    },
-  ];
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-sm flex justify-end transition-opacity">
@@ -413,73 +412,74 @@ export default function CompanyDetailModal({
             </div>
           </div>
 
-          {/* NEW: Evidence Audit Trail & Lineage Trace Section */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50/60 overflow-hidden space-y-0">
+          {/* Signals the platform holds for this company */}
+          <div className="rounded-xl border border-slate-200 bg-slate-50/60 overflow-hidden">
             <div
               onClick={() => setShowEvidenceList(!showEvidenceList)}
               className="p-4 bg-white border-b border-slate-200/80 flex items-center justify-between cursor-pointer hover:bg-slate-50/80 transition-colors"
             >
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                <span className="text-xs font-bold text-slate-900">
-                  Evidence Audit Trail & Provenance
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
-                  {evidenceList.length} Historical Observations
-                </span>
+                <span className="text-xs font-bold text-slate-900">Sinyal CSR & Sumbernya</span>
+                {signals && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                    {signals.length} sinyal
+                  </span>
+                )}
               </div>
-              {showEvidenceList ? (
-                <ChevronUp className="w-4 h-4 text-slate-400" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-slate-400" />
-              )}
+              {showEvidenceList ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
             </div>
 
             {showEvidenceList && (
               <div className="p-4 space-y-3">
-                <p className="text-[11px] text-slate-500 font-medium">
-                  Setiap data estimasi budget & sinyal CSR di-bisa ditelusuri balik ke dokumen sumber asli tanpa di-overwrite:
-                </p>
-
-                {evidenceList.map((obs) => (
-                  <div
-                    key={obs.id}
-                    className="p-3.5 rounded-xl bg-white border border-slate-200/90 shadow-xs space-y-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                        <span className="text-xs font-bold text-slate-800">{obs.sourceTitle}</span>
+                {signalsError ? (
+                  <p className="text-xs text-rose-700 font-medium">Sinyal tidak dapat dimuat: {signalsError}</p>
+                ) : signals === null ? (
+                  <p className="text-xs text-slate-500">Memuat sinyal...</p>
+                ) : signals.length === 0 ? (
+                  <p className="text-xs text-slate-500">Belum ada sinyal CSR yang tercatat untuk perusahaan ini.</p>
+                ) : (
+                  signals.map((sig) => (
+                    <div key={sig.id} className="p-3.5 rounded-xl bg-white border border-slate-200/90 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                          <span className="text-xs font-bold text-slate-800 truncate">{sig.trigger_event || sig.source_type}</span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-slate-50 text-slate-700 border-slate-200 shrink-0">
+                          {sig.verification_status || 'UNVERIFIED'}
+                        </span>
                       </div>
-                      <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold border ${obs.badgeColor}`}
-                      >
-                        {obs.confidence}
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 italic leading-relaxed">
-                      "{obs.snippet}"
-                    </p>
-
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3 text-slate-400" />
-                        <span>{obs.date}</span>
+                      {sig.summary && (
+                        <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 leading-relaxed">
+                          {sig.summary}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-slate-400" />
+                          <span>
+                            {sig.published_date ? new Date(sig.published_date).toLocaleDateString('id-ID') : 'tanggal tidak tercatat'}
+                          </span>
+                        </div>
+                        {sig.source_url ? (
+                          <a
+                            href={sig.source_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1 hover:underline"
+                          >
+                            <Link2 className="w-3 h-3" />
+                            <span>Buka Sumber</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        ) : (
+                          <span className="text-slate-400">sumber tidak tercatat</span>
+                        )}
                       </div>
-                      <a
-                        href={obs.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1 hover:underline"
-                      >
-                        <Link2 className="w-3 h-3" />
-                        <span>Buka Sumber Asli</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -492,7 +492,7 @@ export default function CompanyDetailModal({
                 Registered:{' '}
                 {company.created_at
                   ? new Date(company.created_at).toLocaleDateString('id-ID')
-                  : '04 Sep 2026'}
+                  : '-'}
               </span>
             </div>
             <span>ID: {company.id.slice(0, 8)}...</span>

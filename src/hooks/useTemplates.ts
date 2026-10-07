@@ -14,21 +14,12 @@ export function useTemplates() {
   return useQuery<TenantTemplateData>({
     queryKey: ['tenant-templates'],
     queryFn: async (): Promise<TenantTemplateData> => {
-      try {
-        const response = (await apiClient.get('/settings/templates')) as unknown as { data: TenantTemplateData };
-        if (response && response.data) {
-          return response.data;
-        }
-      } catch (err) {
-        console.warn('API call failed or offline for templates:', err);
-      }
 
-      return {
-        org_id: '77123aaa-8819-4c12-99a1-00123456789a',
-        docx_s3_key: '',
-        pptx_s3_key: '',
-        brand_primary_color: '#047857',
-      };
+      const response = (await apiClient.get('/settings/templates')) as unknown as { data: TenantTemplateData };
+      if (response && response.data) {
+        return response.data;
+      }
+      throw new Error('Respons dari server tidak lengkap.');
     },
   });
 }
@@ -47,7 +38,7 @@ export function useUploadTemplate() {
       const res = await fetch(`${API_BASE_URL}/settings/templates/upload?type=${type}`, {
         method: 'POST',
         headers: {
-          Authorization: token ? `Bearer ${token}` : 'Bearer dev-token',
+          Authorization: token ? `Bearer ${token}` : '',
         },
         body: formData,
       });
@@ -75,7 +66,7 @@ export function useResetTemplate() {
       const res = await fetch(`${API_BASE_URL}/settings/templates/${type}`, {
         method: 'DELETE',
         headers: {
-          Authorization: token ? `Bearer ${token}` : 'Bearer dev-token',
+          Authorization: token ? `Bearer ${token}` : '',
         },
       });
 

@@ -1,5 +1,6 @@
 'use client';
 
+import QueryError from '@/components/shared/query-error';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import KanbanBoard from '@/components/pipeline/kanban-board';
@@ -91,6 +92,12 @@ export default function PipelinePage() {
 
   return (
     <div className="space-y-6">
+      {(updateStageMutation.isError || createDealMutation.isError) && (
+        <QueryError
+          title="Perubahan pipeline gagal. Kartu dikembalikan ke posisi semula."
+          error={updateStageMutation.error || createDealMutation.error}
+        />
+      )}
       {/* Header & Metrics Summary */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

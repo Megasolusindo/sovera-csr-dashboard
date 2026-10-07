@@ -1,5 +1,6 @@
 'use client';
 
+import QueryError from '@/components/shared/query-error';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -24,6 +25,7 @@ export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<unknown>(null);
 
   // Filters & Pagination
   const [search, setSearch] = useState('');
@@ -68,6 +70,7 @@ export default function CompaniesPage() {
   const fetchCompanies = useCallback(async () => {
     try {
       setLoading(true);
+      setLoadError(null);
 
       const response: any = await apiClient.get('/companies', {
         params: {
@@ -91,7 +94,11 @@ export default function CompaniesPage() {
         }
       }
     } catch (err) {
-      console.warn('API error fetching companies:', err);
+      // The table is emptied and the reason shown; a stale or empty table is not an answer.
+      console.error('API error fetching companies:', err);
+      setCompanies([]);
+      setTotal(0);
+      setLoadError(err);
     } finally {
       setLoading(false);
     }
@@ -107,6 +114,9 @@ export default function CompaniesPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      {loadError ? (
+        <QueryError title="Daftar perusahaan tidak dapat dimuat." error={loadError} onRetry={fetchCompanies} />
+      ) : null}
       
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

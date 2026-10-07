@@ -1,5 +1,6 @@
 'use client';
 
+import QueryError from '@/components/shared/query-error';
 import React, { useState } from 'react';
 import SignalFilterBar from '@/components/signals/signal-filter-bar';
 import SignalCard from '@/components/signals/signal-card';
@@ -74,6 +75,9 @@ export default function SignalsPage() {
 
   return (
     <div className="space-y-6">
+      {matchMutation.isError && (
+        <QueryError title="Pencocokan program untuk sinyal ini gagal." error={matchMutation.error} />
+      )}
       {/* Page Title & Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

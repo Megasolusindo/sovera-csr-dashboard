@@ -1,4 +1,5 @@
 import React from 'react';
+import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
@@ -98,27 +99,6 @@ const COMPANY_DATABASE: Record<string, CompanyData> = {
     ],
     lastUpdated: '15 September 2026',
     sources: ['Sustainability Report Bank Mandiri 2025'],
-  },
-  'corporate-demo': {
-    slug: 'corporate-demo',
-    name: 'Corporate (demo)',
-    ticker: 'DEMO',
-    sector: 'Teknologi & Multi-Industri',
-    province: 'DKI Jakarta',
-    address: 'Corporate Tower, Pacific Place Lt. 18, Jakarta Selatan',
-    website: 'https://www.corporate.com',
-    csrEmail: 'csr@corporate.com',
-    description: 'Corporate (demo) mengintegrasikan program Tanggung Jawab Sosial dan Lingkungan (TJSL) selaras pilar ESG & SDGs melalui verifikasi AI CSRmatics.',
-    tjslFocus: 'Pendidikan Berkualitas, Pelestarian Lingkungan, & Pemberdayaan Ekonomi Kerakyatan.',
-    csrPillars: [
-      { title: 'Corporate Education & Tech', desc: 'Beasiswa koding & pelatihan keterampilan digital.', asnaf: 'Fisabilillah' },
-      { title: 'Corporate Green Action', desc: 'Konservasi lingkungan & penanaman pohon.', asnaf: 'Maslahat Umum' },
-    ],
-    activePrograms: [
-      { title: 'Inkubasi Bisnis UMKM & Beasiswa Digital', budget: 'Rp 2.5 Miliar', location: 'Nasional & Wilayah Operasional' },
-    ],
-    lastUpdated: '15 September 2026',
-    sources: ['Portal Corporate (demo) 2026', 'CSRmatics Verified System'],
   },
   pertamina: {
     slug: 'pertamina',
@@ -275,27 +255,10 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
 }
 
 export default function ShortCompanyDetailPage({ params }: { params: { slug: string } }) {
-  const company = COMPANY_DATABASE[params.slug] || {
-    slug: params.slug,
-    name: `PT ${params.slug.toUpperCase().replace('-', ' ')} Tbk`,
-    ticker: 'TBK',
-    sector: 'Perusahaan Swasta / BUMN',
-    province: 'Indonesia',
-    address: 'Kantor Pusat Indonesia',
-    website: 'https://csrmatics.com',
-    csrEmail: 'contact@csrmatics.com',
-    description: `Profil alokasi dana CSR dan TJSL terverifikasi untuk ${params.slug.toUpperCase()} di platform CSRmatics.`,
-    tjslFocus: 'Pendidikan, Kesehatan, Lingkungan & Ekonomi',
-    csrPillars: [
-      { title: 'Pendidikan & Literasi', desc: 'Program beasiswa dan peningkatan sarana sekolah.', asnaf: 'Fisabilillah' },
-      { title: 'Pemberdayaan Masyarakat', desc: 'Bantuan modal dan pelatihan wirausaha desa.', asnaf: 'Fakir / Miskin' },
-    ],
-    activePrograms: [
-      { title: 'Program Pemberdayaan Komunitas 2026', budget: 'Rp 1.0 Miliar', location: 'Wilayah Operasional' },
-    ],
-    lastUpdated: '15 September 2026',
-    sources: ['Portal Resmi Perusahaan', 'Verified by CSRmatics'],
-  };
+  // An unknown slug is a 404. It used to render an invented company ("PT <SLUG> Tbk", Rp 1.0 Miliar,
+  // "Verified by CSRmatics") for any address, which search engines could index.
+  const company = COMPANY_DATABASE[params.slug];
+  if (!company) notFound();
 
   const jsonLd = {
     '@context': 'https://schema.org',

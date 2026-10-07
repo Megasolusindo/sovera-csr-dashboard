@@ -57,99 +57,6 @@ export const metadata: Metadata = {
   },
 };
 
-const SAMPLE_COMPANIES = [
-  {
-    slug: 'bca',
-    name: 'PT Bank Central Asia Tbk',
-    ticker: 'BBCA',
-    sector: 'Perbankan & Jasa Keuangan',
-    province: 'DKI Jakarta',
-    website: 'https://www.bca.co.id',
-    csrPillars: ['Bakti BCA', 'Pendidikan & Literasi', 'Environment & ESG'],
-    verified: true,
-  },
-  {
-    slug: 'bri',
-    name: 'PT Bank Rakyat Indonesia (Persero) Tbk',
-    ticker: 'BBRI',
-    sector: 'Perbankan BUMN',
-    province: 'DKI Jakarta',
-    website: 'https://www.bri.co.id',
-    csrPillars: ['Peduli BRI', 'Pemberdayaan UMKM', 'Beasiswa Desa'],
-    verified: true,
-  },
-  {
-    slug: 'bank-mandiri',
-    name: 'PT Bank Mandiri (Persero) Tbk',
-    ticker: 'BMRI',
-    sector: 'Perbankan BUMN',
-    province: 'DKI Jakarta',
-    website: 'https://www.bankmandiri.co.id',
-    csrPillars: ['Mandiri Bersama Mandiri', 'Inklusi Keuangan', 'Kesehatan'],
-    verified: true,
-  },
-  {
-    slug: 'corporate-demo',
-    name: 'Corporate (demo)',
-    ticker: 'DEMO',
-    sector: 'Teknologi & Multi-Industri',
-    province: 'DKI Jakarta',
-    website: 'https://www.corporate.com',
-    csrPillars: ['Pendidikan & Beasiswa', 'Pelestarian Lingkungan', 'Pemberdayaan UMKM'],
-    verified: true,
-  },
-  {
-    slug: 'pertamina',
-    name: 'PT Pertamina (Persero)',
-    ticker: 'BUMN',
-    sector: 'Energi & Migas BUMN',
-    province: 'DKI Jakarta',
-    website: 'https://www.pertamina.com',
-    csrPillars: ['Pertamina Hijau', 'Pertamina Cerdas', 'Desa Mandiri Energi'],
-    verified: true,
-  },
-  {
-    slug: 'telkom-indonesia',
-    name: 'PT Telkom Indonesia (Persero) Tbk',
-    ticker: 'TLKM',
-    sector: 'Telekomunikasi BUMN',
-    province: 'Jawa Barat',
-    website: 'https://www.telkom.co.id',
-    csrPillars: ['DigiStar', 'Internet Sekolah 3T', 'Digital Empowerment'],
-    verified: true,
-  },
-  {
-    slug: 'pln',
-    name: 'PT PLN (Persero)',
-    ticker: 'BUMN',
-    sector: 'Ketenagalistrikan BUMN',
-    province: 'DKI Jakarta',
-    website: 'https://www.pln.co.id',
-    csrPillars: ['PLN Peduli', 'Elektrifikasi Desa', 'Konservasi Lingkungan'],
-    verified: true,
-  },
-  {
-    slug: 'adaro-energy',
-    name: 'PT Adaro Energy Indonesia Tbk',
-    ticker: 'ADRO',
-    sector: 'Energi & Pertambangan',
-    province: 'Kalimantan Selatan',
-    website: 'https://www.adaro.com',
-    csrPillars: ['Adaro Nyalakan Ilmu', 'Air Bersih', 'Kesehatan Desa'],
-    verified: true,
-  },
-  {
-    slug: 'astra-international',
-    name: 'PT Astra International Tbk',
-    ticker: 'ASII',
-    sector: 'Otomotif & Konglomerasi',
-    province: 'DKI Jakarta',
-    website: 'https://www.astra.co.id',
-    csrPillars: ['Kampung Berseri Astra', 'Pendidikan', 'Kewirausahaan'],
-    verified: true,
-  },
-];
-
 // Server-side base URL for SSR fetches.
 const API_BASE_URL =
   process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api/v1';
@@ -166,8 +73,9 @@ type DirectoryCompany = {
 };
 
 // Fetch real companies from the public API, mapping to the shape the UI renders.
-// Falls back to the curated SAMPLE_COMPANIES if the API is unreachable.
-async function getCompanies(): Promise<{ companies: DirectoryCompany[]; total: number }> {
+// When the API is unreachable or empty the page says so; it no longer lists sample companies (one of them
+// was "Corporate (demo)") with invented CSR programs and a verified badge.
+async function getCompanies(): Promise<{ companies: DirectoryCompany[]; total: number; failed: boolean }> {
   try {
     const res = await fetch(`${API_BASE_URL}/companies?limit=60&offset=0`, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -184,15 +92,14 @@ async function getCompanies(): Promise<{ companies: DirectoryCompany[]; total: n
       csrPillars: r.csr_category ? [r.csr_category] : [],
       verified: r.website_status === 'VALID' || r.is_claimed === true,
     }));
-    if (companies.length === 0) return { companies: SAMPLE_COMPANIES, total: SAMPLE_COMPANIES.length };
-    return { companies, total };
+    return { companies, total, failed: false };
   } catch {
-    return { companies: SAMPLE_COMPANIES, total: SAMPLE_COMPANIES.length };
+    return { companies: [], total: 0, failed: true };
   }
 }
 
 export default async function DatabasePerusahaanPage() {
-  const { companies, total } = await getCompanies();
+  const { companies, total, failed } = await getCompanies();
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans relative overflow-x-hidden">
       
@@ -249,7 +156,7 @@ export default async function DatabasePerusahaanPage() {
         <div className="text-center space-y-4 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-emerald-400 text-xs font-semibold">
             <Building2 className="w-3.5 h-3.5" />
-            <span>Directory Terverifikasi {total.toLocaleString('id-ID')}+ Perusahaan</span>
+            <span>{failed ? 'Direktori Perusahaan' : `Direktori ${total.toLocaleString('id-ID')} Perusahaan`}</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight">
             Database Perusahaan CSR & TJSL Indonesia
@@ -280,6 +187,14 @@ export default async function DatabasePerusahaanPage() {
             Telekomunikasi
           </button>
         </div>
+
+        {(failed || companies.length === 0) && (
+          <div className="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 text-center text-sm text-slate-300">
+            {failed
+              ? 'Data perusahaan tidak dapat dimuat saat ini. Silakan coba lagi beberapa saat lagi.'
+              : 'Belum ada perusahaan yang dapat ditampilkan.'}
+          </div>
+        )}
 
         {/* Company Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

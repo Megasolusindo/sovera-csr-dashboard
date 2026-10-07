@@ -19,23 +19,12 @@ export function useSignals(params: GetSignalsParams = {}) {
   return useQuery<SignalsResponse>({
     queryKey: ['signals', params],
     queryFn: async (): Promise<SignalsResponse> => {
-      try {
-        const response = (await apiClient.get('/signals', { params })) as unknown as SignalsResponse;
-        if (response && Array.isArray(response.data)) {
-          return response;
-        }
-      } catch (err) {
-        console.error('Failed to fetch corporate signals from API:', err);
-      }
 
-      return {
-        data: [],
-        pagination: {
-          total: 0,
-          limit: params.limit || 20,
-          offset: params.offset || 0,
-        },
-      };
+      const response = (await apiClient.get('/signals', { params })) as unknown as SignalsResponse;
+      if (response && Array.isArray(response.data)) {
+        return response;
+      }
+      throw new Error('Respons dari server tidak lengkap.');
     },
     staleTime: 60 * 1000,
   });

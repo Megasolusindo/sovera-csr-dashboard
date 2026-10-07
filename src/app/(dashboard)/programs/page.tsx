@@ -1,5 +1,6 @@
 'use client';
 
+import QueryError from '@/components/shared/query-error';
 import React, { useState } from 'react';
 import { usePrograms, useCreateProgram, useUpdateProgram, useDeleteProgram } from '@/hooks/usePrograms';
 import { useAuth } from '@/context/AuthContext';
@@ -91,6 +92,12 @@ export default function ProgramsPage() {
 
   return (
     <div className="space-y-6">
+      {(createProgramMutation.isError || updateProgramMutation.isError || deleteProgramMutation.isError) && (
+        <QueryError
+          title="Perubahan program gagal. Tidak ada yang tersimpan."
+          error={createProgramMutation.error || updateProgramMutation.error || deleteProgramMutation.error}
+        />
+      )}
       {/* Page Header & Action CTA */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>

@@ -5,18 +5,21 @@ import { Building2, Heart, Search, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function InteractiveDemo() {
   const [demoMode, setDemoMode] = useState<'CORP_TO_NGO' | 'NGO_TO_CORP'>('CORP_TO_NGO');
-  const [demoQuery, setDemoQuery] = useState('PT Bank Central Asia Tbk');
+  const [demoQuery, setDemoQuery] = useState('PT Bank Contoh Tbk');
   const [selectedTab, setSelectedTab] = useState<'match' | 'profile' | 'proposal'>('match');
 
   return (
     <div className="space-y-8">
+      <p className="text-center text-[11px] font-semibold uppercase tracking-wider text-amber-400">
+        Ilustrasi alur kerja dengan data contoh, bukan data nyata
+      </p>
       {/* Directional Toggle Bar (Corporate -> NGO vs NGO -> Corporate) */}
       <div className="flex justify-center">
         <div className="inline-flex p-1.5 bg-slate-900 border border-slate-800 rounded-2xl shadow-lg">
           <button
             onClick={() => {
               setDemoMode('CORP_TO_NGO');
-              setDemoQuery('PT Bank Central Asia Tbk');
+              setDemoQuery('PT Bank Contoh Tbk');
             }}
             className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               demoMode === 'CORP_TO_NGO'
@@ -116,7 +119,7 @@ export default function InteractiveDemo() {
                   <p className="font-bold text-white text-base">{demoQuery}</p>
                   {demoMode === 'CORP_TO_NGO' ? (
                     <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                      BBCA
+                      BANK
                     </span>
                   ) : (
                     <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
@@ -145,7 +148,7 @@ export default function InteractiveDemo() {
                   <Sparkles className="w-4 h-4 text-emerald-400" />
                   {demoMode === 'CORP_TO_NGO' 
                     ? 'Rekomendasi Program NGO Cocok: Beasiswa Digital Berkelanjutan (Match 94.8%)' 
-                    : 'Rekomendasi Donor Korporasi Cocok: PT Bank Central Asia Tbk (Match 96.2%)'}
+                    : 'Rekomendasi Donor Korporasi Cocok: PT Bank Contoh Tbk (Match 96.2%)'}
                 </span>
                 <span className="text-slate-400 font-semibold">
                   {demoMode === 'CORP_TO_NGO' ? 'Potensi Anggaran: Rp 1,5 Miliar' : 'Estimasi Alokasi Pilar: Rp 500 Juta'}
@@ -153,8 +156,8 @@ export default function InteractiveDemo() {
               </div>
               <p className="text-xs text-slate-300 leading-relaxed pt-1">
                 {demoMode === 'CORP_TO_NGO' 
-                  ? 'Program "Bakti BCA Education & Digital Literacy" memiliki relevansi sangat tinggi dengan Program Beasiswa Digital milik Yayasan Literasi Nusantara (Asnaf: Fisabilillah/Fakir).'
-                  : 'Pilar CSR Bakti BCA saat ini memprioritaskan literasi digital di 12 provinsi target. Program Beasiswa Digital Anda memenuhi 100% kriteria penerima manfaat mereka.'}
+                  ? 'Program "Education & Digital Literacy" memiliki relevansi sangat tinggi dengan Program Beasiswa Digital milik Yayasan Literasi Nusantara (Asnaf: Fisabilillah/Fakir).'
+                  : 'Pilar CSR perusahaan contoh saat ini memprioritaskan literasi digital di 12 provinsi target. Program Beasiswa Digital Anda memenuhi 100% kriteria penerima manfaat mereka.'}
               </p>
             </div>
           )}
@@ -166,7 +169,7 @@ export default function InteractiveDemo() {
                   {demoMode === 'CORP_TO_NGO' ? 'Pilar Utama CSR' : 'Cakupan Wilayah'}
                 </span>
                 <span className="font-semibold text-white mt-1 block">
-                  {demoMode === 'CORP_TO_NGO' ? 'Bakti BCA, Pendidikan, Lingkungan' : 'Jawa Barat, Jawa Tengah, NTT'}
+                  {demoMode === 'CORP_TO_NGO' ? 'Pendidikan, Lingkungan' : 'Jawa Barat, Jawa Tengah, NTT'}
                 </span>
               </div>
               <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
@@ -193,8 +196,8 @@ export default function InteractiveDemo() {
               <span className="text-slate-400 font-mono text-[11px] block">Generated AI Executive Icebreaker:</span>
               <p className="text-slate-200 italic leading-relaxed bg-slate-950 p-3 rounded-lg border border-slate-800">
                 {demoMode === 'CORP_TO_NGO' 
-                  ? '"Yth. Tim Bakti BCA, seiring komitmen Bakti BCA dalam literasi digital, Yayasan Literasi Nusantara mengundang sinergi Program Beasiswa Digital Berkelanjutan untuk 500 penerima manfaat..."'
-                  : '"Yth. Head of Corporate Sustainability BCA, kami dari Yayasan Literasi Nusantara melihat keselarasan tinggi antara fokus Bakti BCA dan program 500 Beasiswa Digital Desa kami..."'}
+                  ? '"Yth. Tim CSR, seiring komitmen perusahaan Anda dalam literasi digital, Yayasan Literasi Nusantara mengundang sinergi Program Beasiswa Digital Berkelanjutan untuk 500 penerima manfaat..."'
+                  : '"Yth. Head of Corporate Sustainability, kami dari Yayasan Literasi Nusantara melihat keselarasan tinggi antara fokus CSR perusahaan Anda dan program 500 Beasiswa Digital Desa kami..."'}
               </p>
             </div>
           )}

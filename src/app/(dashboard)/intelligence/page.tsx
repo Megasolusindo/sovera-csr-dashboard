@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { apiClient } from '@/lib/api-client';
+import QueryError from '@/components/shared/query-error';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -42,19 +44,26 @@ export default function CSRIntelligencePage() {
   const [addedToast, setAddedToast] = useState<string | null>(null);
 
   // Queries
-  const { data: overviewData, isLoading: isOverviewLoading } = useIntelligenceOverview();
-  const { data: orgsData, isLoading: isOrgsLoading } = useRecommendedOrganizations({
+  const { data: overviewData, isLoading: isOverviewLoading, isError: isOverviewError, error: overviewError, refetch: refetchOverview } = useIntelligenceOverview();
+  const { data: orgsData, isLoading: isOrgsLoading, isError: isOrgsError, error: orgsError, refetch: refetchOrgs } = useRecommendedOrganizations({
     search: searchQuery,
     pillar: selectedPillar,
     region: selectedRegion,
   });
-  const { data: progsData } = useIntelligencePrograms({
+  const { data: progsData, isError: isProgsError, error: progsError, refetch: refetchProgs } = useIntelligencePrograms({
     search: searchQuery,
     pillar: selectedPillar,
   });
 
-  const handleAddToPipeline = (orgName: string) => {
-    setAddedToast(`Berhasil menambahkan ${orgName} ke Partnership Pipeline (Prospect Stage)`);
+  // Saves the organization to the tenant's saved items through the API. The toast used to claim "added to
+  // the Partnership Pipeline" without any request.
+  const handleAddToPipeline = async (org: { id: string; name: string }) => {
+    try {
+      await apiClient.post('/intelligence/saved', { item_type: 'ORGANIZATION', item_id: org.id });
+      setAddedToast(`${org.name} disimpan ke daftar organisasi tersimpan.`);
+    } catch (err: any) {
+      setAddedToast(`${org.name} gagal disimpan: ${err?.message || 'server tidak menjawab'}.`);
+    }
     setTimeout(() => setAddedToast(null), 4000);
   };
 
@@ -101,12 +110,24 @@ export default function CSRIntelligencePage() {
         </div>
       )}
 
+      {(isOverviewError || isOrgsError || isProgsError) && (
+        <QueryError
+          title="Sebagian data intelijen tidak dapat dimuat."
+          error={overviewError || orgsError || progsError}
+          onRetry={() => {
+            if (isOverviewError) refetchOverview();
+            if (isOrgsError) refetchOrgs();
+            if (isProgsError) refetchProgs();
+          }}
+        />
+      )}
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
             <div className="text-2xl font-extrabold text-slate-900">
-              {overviewData?.stats?.total_organizations?.toLocaleString() || '2,438'}
+              {overviewData?.stats?.total_organizations?.toLocaleString() ?? '-'}
             </div>
             <div className="text-xs text-slate-500 font-medium">Verified Organizations</div>
           </div>
@@ -118,7 +139,7 @@ export default function CSRIntelligencePage() {
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
             <div className="text-2xl font-extrabold text-slate-900">
-              {overviewData?.stats?.active_programs?.toLocaleString() || '816'}
+              {overviewData?.stats?.active_programs?.toLocaleString() ?? '-'}
             </div>
             <div className="text-xs text-slate-500 font-medium">Active NGO Programs</div>
           </div>
@@ -130,7 +151,7 @@ export default function CSRIntelligencePage() {
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
             <div className="text-2xl font-extrabold text-slate-900">
-              {overviewData?.stats?.new_opportunities?.toLocaleString() || '37'}
+              {overviewData?.stats?.new_opportunities?.toLocaleString() ?? '-'}
             </div>
             <div className="text-xs text-slate-500 font-medium">Open Partnership Opportunities</div>
           </div>
@@ -142,7 +163,7 @@ export default function CSRIntelligencePage() {
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
             <div className="text-2xl font-extrabold text-slate-900">
-              {overviewData?.stats?.recommended_partners?.toLocaleString() || '24'}
+              {overviewData?.stats?.recommended_partners?.toLocaleString() ?? '-'}
             </div>
             <div className="text-xs text-slate-500 font-medium">High Match Partners (&gt;85%)</div>
           </div>
@@ -311,11 +332,11 @@ export default function CSRIntelligencePage() {
 
                   <button
                     type="button"
-                    onClick={() => handleAddToPipeline(org.name)}
+                    onClick={() => handleAddToPipeline(org)}
                     className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Add to Pipeline</span>
+                    <span>Simpan</span>
                   </button>
                 </div>
               </div>

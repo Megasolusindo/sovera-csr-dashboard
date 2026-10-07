@@ -9,6 +9,9 @@ export default function OpportunitiesFeed() {
 
   return (
     <div className="space-y-8">
+      <p className="text-center text-[11px] font-semibold uppercase tracking-wider text-amber-400">
+        Ilustrasi format peluang dengan data contoh, bukan peluang nyata saat ini
+      </p>
       {/* Opportunity Tabs */}
       <div className="flex justify-center">
         <div className="p-1 bg-slate-900 border border-slate-800 rounded-xl flex items-center gap-2">
@@ -52,7 +55,7 @@ export default function OpportunitiesFeed() {
                 </div>
                 <p className="font-bold text-white text-base leading-snug">Beasiswa Coding & Digital Literacy Anak Desa</p>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Yayasan Aksara Nusantara • Kebutuhan Dana: Rp 350 Juta (Target: 200 Siswa SMKN di Jawa Barat).
+                  Yayasan Contoh A • Kebutuhan Dana: Rp 350 Juta (Target: 200 Siswa SMKN di Jawa Barat).
                 </p>
               </div>
               <div className="pt-2 flex items-center justify-between border-t border-slate-800/80">
@@ -75,7 +78,7 @@ export default function OpportunitiesFeed() {
                 </div>
                 <p className="font-bold text-white text-base leading-snug">Restorasi Mangrove & Pemberdayaan Nelayan Pesisir</p>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  LAZ Hijau Indonesia • Kebutuhan Dana: Rp 600 Juta (Target: 50.000 Bibit Mangrove di Muara Gembong).
+                  LAZ Contoh B • Kebutuhan Dana: Rp 600 Juta (Target: 50.000 Bibit Mangrove di Muara Gembong).
                 </p>
               </div>
               <div className="pt-2 flex items-center justify-between border-t border-slate-800/80">
@@ -98,7 +101,7 @@ export default function OpportunitiesFeed() {
                 </div>
                 <p className="font-bold text-white text-base leading-snug">Posyandu Pintar & Pencegahan Stunting Daerah 3T</p>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Yayasan Sehat Peduli • Kebutuhan Dana: Rp 450 Juta (Target: 15 Desa di NTT & Maluku).
+                  Yayasan Contoh C • Kebutuhan Dana: Rp 450 Juta (Target: 15 Desa di NTT & Maluku).
                 </p>
               </div>
               <div className="pt-2 flex items-center justify-between border-t border-slate-800/80">
@@ -123,7 +126,7 @@ export default function OpportunitiesFeed() {
                 </div>
                 <p className="font-bold text-white text-base leading-snug">Program Inklusi Keuangan & UMKM Wanita Desa</p>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  PT Bank Mandiri (Persero) Tbk • Alokasi CSR Terbuka: Rp 1.2 Miliar untuk NGO Pelaksana Terverifikasi.
+                  Perusahaan BUMN perbankan (contoh) • Alokasi CSR Terbuka: Rp 1.2 Miliar untuk NGO Pelaksana Terverifikasi.
                 </p>
               </div>
               <div className="pt-2 flex items-center justify-between border-t border-slate-800/80">
@@ -146,7 +149,7 @@ export default function OpportunitiesFeed() {
                 </div>
                 <p className="font-bold text-white text-base leading-snug">Infrastruktur Internet Sekolah Terpencil</p>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  PT Telkom Indonesia Tbk • Alokasi Terbuka: Rp 850 Juta untuk 30 Sekolah di Indonesia Timur.
+                  Perusahaan BUMN telekomunikasi (contoh) • Alokasi Terbuka: Rp 850 Juta untuk 30 Sekolah di Indonesia Timur.
                 </p>
               </div>
               <div className="pt-2 flex items-center justify-between border-t border-slate-800/80">
@@ -169,7 +172,7 @@ export default function OpportunitiesFeed() {
                 </div>
                 <p className="font-bold text-white text-base leading-snug">Program Pembinaan Desa Mandiri Energi</p>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  PT Adaro Energy Indonesia Tbk • Alokasi Terbuka: Rp 2.0 Miliar untuk Konservasi & Pemberdayaan.
+                  Perusahaan energi (contoh) • Alokasi Terbuka: Rp 2.0 Miliar untuk Konservasi & Pemberdayaan.
                 </p>
               </div>
               <div className="pt-2 flex items-center justify-between border-t border-slate-800/80">

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { CreditCard, FileText, RefreshCw, CheckCircle2, Clock, ExternalLink, Download } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import QueryError from '@/components/shared/query-error';
 
 interface Invoice {
   id: string;
@@ -22,42 +23,23 @@ interface Invoice {
 export default function TenantBillingPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const fetchInvoices = async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
       const res: any = await apiClient.get('/subscription/invoices');
-      if (res && res.data) {
-        setInvoices(res.data);
-      } else {
-        throw new Error('Empty response');
+      if (!res || !Array.isArray(res.data)) {
+        throw new Error('Respons faktur dari server tidak lengkap.');
       }
-    } catch (err) {
-      console.warn('API fetch error, fallback mock invoices:', err);
-      setInvoices([
-        {
-          id: 'inv-101',
-          invoice_number: 'INV/202609/001',
-          amount: 4900000,
-          status: 'PAID',
-          billing_cycle: 'MONTHLY',
-          due_date: '2026-09-20',
-          paid_at: '2026-09-12 14:22',
-          created_at: '2026-09-12',
-          plan: { code: 'PRO', name: 'Professional CSR Tier' },
-        },
-        {
-          id: 'inv-100',
-          invoice_number: 'INV/202608/089',
-          amount: 4900000,
-          status: 'PAID',
-          billing_cycle: 'MONTHLY',
-          due_date: '2026-08-20',
-          paid_at: '2026-08-12 10:15',
-          created_at: '2026-08-12',
-          plan: { code: 'PRO', name: 'Professional CSR Tier' },
-        },
-      ]);
+      setInvoices(res.data);
+    } catch (err: any) {
+      // No invoice is shown that the server did not send. This page used to show two PAID invoices that
+      // never existed whenever the request failed.
+      console.error('Failed to load invoices:', err);
+      setInvoices([]);
+      setLoadError(err?.message || 'Faktur tidak dapat dimuat.');
     } finally {
       setIsLoading(false);
     }
@@ -89,8 +71,16 @@ export default function TenantBillingPage() {
         </button>
       </div>
 
+      {loadError && <QueryError title="Faktur tidak dapat dimuat." error={{ message: loadError }} onRetry={fetchInvoices} />}
+
+      {!loadError && !isLoading && invoices.length === 0 && (
+        <div className="p-8 text-center text-sm text-slate-500 bg-white rounded-2xl border border-slate-200">
+          Belum ada faktur untuk organisasi ini.
+        </div>
+      )}
+
       {/* Invoices Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      <div className={`bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm ${invoices.length === 0 ? 'hidden' : ''}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider text-[10px]">
@@ -111,7 +101,7 @@ export default function TenantBillingPage() {
                     <FileText className="w-4 h-4 text-emerald-700" />
                     <span>{inv.invoice_number}</span>
                   </td>
-                  <td className="py-3.5 px-4 font-medium">{inv.plan?.name || inv.plan?.code || 'PRO'}</td>
+                  <td className="py-3.5 px-4 font-medium">{inv.plan?.name || inv.plan?.code || '-'}</td>
                   <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500">{inv.billing_cycle}</td>
                   <td className="py-3.5 px-4 font-mono font-bold text-emerald-700">{formatIDR(inv.amount)}</td>
                   <td className="py-3.5 px-4">
@@ -119,15 +109,17 @@ export default function TenantBillingPage() {
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
                         inv.status === 'PAID'
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                          : inv.status === 'PENDING'
+                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                            : 'bg-rose-50 text-rose-700 border-rose-200'
                       }`}
                     >
-                      {inv.status === 'PAID' ? 'LUNAS (MIDTRANS)' : 'PENDING'}
+                      {inv.status === 'PAID' ? 'LUNAS' : inv.status}
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-slate-500 font-mono text-[11px]">{inv.paid_at || inv.created_at}</td>
                   <td className="py-3.5 px-4 text-right">
-                    <button className="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition-colors inline-flex items-center gap-1">
+                    <button disabled title="Cetak invoice belum tersedia" className="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition-colors inline-flex items-center gap-1 opacity-50 cursor-not-allowed">
                       <Download className="w-3 h-3 text-slate-500" />
                       <span>Cetak Invoice</span>
                     </button>

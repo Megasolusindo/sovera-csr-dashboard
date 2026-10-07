@@ -98,7 +98,7 @@ export default function AIChatPage() {
       const token = localStorage.getItem('sovera_auth_token');
       if (token) return { Authorization: `Bearer ${token}` };
     }
-    return { Authorization: 'Bearer dev-token' };
+    return {};
   };
 
   // Fetch conversations list on mount

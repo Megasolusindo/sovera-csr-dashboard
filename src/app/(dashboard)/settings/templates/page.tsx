@@ -3,9 +3,10 @@
 import React from 'react';
 import { useTemplates, useUploadTemplate, useResetTemplate } from '@/hooks/useTemplates';
 import { FileSpreadsheet, FileText, Upload, RefreshCw, Sparkles, FolderKanban } from 'lucide-react';
+import QueryError from '@/components/shared/query-error';
 
 export default function TemplatesSettingsPage() {
-  const { data: templateData, isLoading } = useTemplates();
+  const { data: templateData, isLoading, isError, error, refetch } = useTemplates();
   const uploadMutation = useUploadTemplate();
   const resetMutation = useResetTemplate();
 
@@ -24,8 +25,16 @@ export default function TemplatesSettingsPage() {
 
       {isLoading ? (
         <div className="p-12 text-center text-slate-500 font-medium">Memuat Master Template Data...</div>
+      ) : isError ? (
+        <QueryError title="Master template tidak dapat dimuat." error={error} onRetry={() => refetch()} />
       ) : (
         <div className="space-y-6">
+          {(uploadMutation.isError || resetMutation.isError) && (
+            <QueryError
+              title="Perubahan template gagal."
+              error={uploadMutation.error || resetMutation.error}
+            />
+          )}
           <div className="bg-emerald-900 text-white p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">

@@ -1,19 +1,12 @@
 import { MetadataRoute } from 'next';
 import { getAllArticles } from '@/lib/mdx';
+import { listCompanySlugs } from '@/lib/company-profiles';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://csrmatics.com';
 
-  const companySlugs = [
-    'bca',
-    'bri',
-    'bank-mandiri',
-    'pertamina',
-    'telkom-indonesia',
-    'pln',
-    'adaro-energy',
-    'astra-international',
-  ];
+  // Only companies the API really has; the list used to be eight fixed names, three of which had no page.
+  const companySlugs = await listCompanySlugs();
 
   const programRoutes = [
     { kategori: 'pendidikan', slug: 'beasiswa-coding-anak-desa' },
@@ -33,13 +26,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
-  }));
-
-  const companyShortUrls = companySlugs.map((slug) => ({
-    url: `${baseUrl}/perusahaan/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.9,
   }));
 
   const programUrls = programRoutes.map((prog) => ({
@@ -101,7 +87,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.8,
     },
-    ...companyShortUrls,
     ...companyDbUrls,
     ...programUrls,
     ...regulasiUrls,

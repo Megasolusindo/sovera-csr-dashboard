@@ -26,7 +26,7 @@ export interface RecommendedOrg {
   logo_url: string;
   org_type: string;
   is_verified: boolean;
-  match_score: number;
+  match_score?: number; // absent: the API has no scoring model
   match_reasons: string[];
   focus_areas: string[];
   target_regions: string[];

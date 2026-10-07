@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, SEED_ACCOUNTS } from '@/context/AuthContext';
 import { UserRole } from '@/types/api';
+import { DEMO_MODE } from '@/lib/demo';
 import {
   ShieldCheck,
   Lock,
@@ -80,6 +81,8 @@ export default function LoginPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl relative z-10 px-4 sm:px-0">
         <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 shadow-2xl rounded-2xl p-6 sm:p-8">
           
+          {DEMO_MODE && (
+          <>
           {/* Quick Role Switcher Section for Demo */}
           <div className="mb-6 p-4 bg-slate-950/60 rounded-xl border border-slate-800">
             <div className="flex items-center justify-between mb-3">
@@ -180,6 +183,9 @@ export default function LoginPage() {
             </span>
             <div className="flex-grow border-t border-slate-800" />
           </div>
+
+          </>
+          )}
 
           {/* Alert Error */}
           {errorMsg && (

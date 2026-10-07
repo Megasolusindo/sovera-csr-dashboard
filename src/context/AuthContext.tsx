@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, UserRole, AuthResponse } from '@/types/api';
 import { apiClient } from '@/lib/api-client';
+import { DEMO_MODE } from '@/lib/demo';
 
 interface AuthContextType {
   user: User | null;
@@ -82,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Verify token with backend /auth/me if token exists
     if (savedToken) {
       // Mock/seed tokens are used for demo — keep cached user without backend verification
-      const isMockToken = savedToken.startsWith('mock-jwt-token-');
+      const isMockToken = DEMO_MODE && savedToken.startsWith('mock-jwt-token-');
 
       if (isMockToken) {
         // Already loaded from localStorage above — no backend call needed
@@ -126,10 +127,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return newUser;
       }
     } catch (apiErr: any) {
-      // Fallback for seed accounts in demo environment
-      const seedEntry = Object.entries(SEED_ACCOUNTS).find(
-        ([_, acc]) => acc.email.toLowerCase() === email.toLowerCase() && acc.pass === password
-      );
+      // Built-in demo roles may sign in without the API only in demo mode (NEXT_PUBLIC_DEMO_MODE).
+      // Otherwise a refused or failed login is an error, never a local session.
+      const seedEntry = DEMO_MODE
+        ? Object.entries(SEED_ACCOUNTS).find(
+            ([_, acc]) => acc.email.toLowerCase() === email.toLowerCase() && acc.pass === password
+          )
+        : undefined;
 
       if (seedEntry) {
         const [roleKey, acc] = seedEntry;
@@ -162,6 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const quickLogin = async (role: UserRole): Promise<User> => {
+    if (!DEMO_MODE) throw new Error('Login cepat hanya tersedia dalam mode demo.');
     const acc = SEED_ACCOUNTS[role];
     return login(acc.email, acc.pass);
   };

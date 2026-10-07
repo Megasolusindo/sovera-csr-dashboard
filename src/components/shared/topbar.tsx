@@ -15,6 +15,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { useAuth, SEED_ACCOUNTS } from '@/context/AuthContext';
+import { DEMO_MODE } from '@/lib/demo';
 import { UserRole } from '@/types/api';
 
 export default function Topbar() {
@@ -149,6 +150,8 @@ export default function Topbar() {
           {/* Role Switcher Dropdown */}
           {isOpenRoleMenu && (
             <div className="absolute right-0 top-12 w-80 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 z-50 animate-in fade-in space-y-2 max-h-[80vh] overflow-y-auto">
+              {DEMO_MODE && (
+              <>
               <div className="px-2 py-1 flex items-center justify-between border-b border-slate-100 pb-2">
                 <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-indigo-600" />
@@ -191,6 +194,9 @@ export default function Topbar() {
                   );
                 })}
               </div>
+
+              </>
+              )}
 
               <div className="pt-2 border-t border-slate-100">
                 <button

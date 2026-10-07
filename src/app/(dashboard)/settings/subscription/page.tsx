@@ -15,6 +15,7 @@ interface Plan {
   crawl_quota: number;
   ai_query_quota: number;
   max_user_seats: number;
+  trial_days?: number;
 }
 
 interface SubscriptionUsage {
@@ -22,6 +23,7 @@ interface SubscriptionUsage {
     status: string;
     billing_cycle: string;
     current_period_end: string;
+    trial_started_at?: string | null;
   };
   plan: Plan;
   usage: {
@@ -49,84 +51,32 @@ export default function TenantSubscriptionPage() {
   const [selectedCycle, setSelectedCycle] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
   const [isCheckingOut, setIsCheckingOut] = useState<string | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [mockCheckoutModal, setMockCheckoutModal] = useState<MockCheckoutData | null>(null);
   const [isSimulatingPayment, setIsSimulatingPayment] = useState(false);
   const [simulationSuccess, setSimulationSuccess] = useState(false);
 
   const fetchData = async () => {
     setIsLoading(true);
+    setLoadError(null);
     try {
       const [subRes, plansRes]: [any, any] = await Promise.all([
         apiClient.get('/subscription/me'),
         apiClient.get('/subscription/plans'),
       ]);
 
-      if (subRes && subRes.data) setData(subRes.data);
-      if (plansRes && plansRes.data) setPlans(plansRes.data);
-    } catch (err) {
-      console.warn('API fetch error, using fallback data:', err);
-      setData({
-        subscription: {
-          status: 'ACTIVE',
-          billing_cycle: 'MONTHLY',
-          current_period_end: '2026-10-14T12:00:00Z',
-        },
-        plan: {
-          id: 'p-pro',
-          code: 'PRO',
-          name: 'Professional CSR Tier',
-          description: 'Full Corporate Directory, ESG Index, AI Proposal Studio',
-          price_monthly: 4900000,
-          price_yearly: 49000000,
-          crawl_quota: 500,
-          ai_query_quota: 1000,
-          max_user_seats: 5,
-        },
-        usage: {
-          crawls_used: 42,
-          crawl_quota: 500,
-          ai_queries_used: 128,
-          ai_query_quota: 1000,
-          active_seats: 3,
-          max_seats: 5,
-        },
-      });
-
-      setPlans([
-        {
-          id: 'p-free',
-          code: 'FREE_TRIAL',
-          name: 'Free Trial',
-          description: '14-Day evaluation tier',
-          price_monthly: 0,
-          price_yearly: 0,
-          crawl_quota: 10,
-          ai_query_quota: 20,
-          max_user_seats: 1,
-        },
-        {
-          id: 'p-pro',
-          code: 'PRO',
-          name: 'Professional CSR Tier',
-          description: 'Full Corporate Directory, ESG Index, AI Proposal Studio',
-          price_monthly: 4900000,
-          price_yearly: 49000000,
-          crawl_quota: 500,
-          ai_query_quota: 1000,
-          max_user_seats: 5,
-        },
-        {
-          id: 'p-enterprise',
-          code: 'ENTERPRISE',
-          name: 'Enterprise Unlimited',
-          description: 'Dedicated Crawler Pipeline, Custom Taxonomies',
-          price_monthly: 14900000,
-          price_yearly: 149000000,
-          crawl_quota: 99999,
-          ai_query_quota: 99999,
-          max_user_seats: 999,
-        },
-      ]);
+      if (!subRes?.data || !Array.isArray(plansRes?.data)) {
+        throw new Error('Respons langganan dari server tidak lengkap.');
+      }
+      setData(subRes.data);
+      setPlans(plansRes.data);
+    } catch (err: any) {
+      // Nothing is invented: no plan, no usage and no price is shown unless the server sent it.
+      console.error('Failed to load the subscription:', err);
+      setData(null);
+      setPlans([]);
+      setLoadError(err?.message || 'Data langganan tidak dapat dimuat.');
     } finally {
       setIsLoading(false);
     }
@@ -139,42 +89,52 @@ export default function TenantSubscriptionPage() {
   const handleCheckout = async (planID: string) => {
     setIsCheckingOut(planID);
     setCheckoutError(null);
+    setCheckoutNotice(null);
     try {
       const res: any = await apiClient.post('/subscription/checkout', {
         plan_id: planID,
         billing_cycle: selectedCycle,
       });
 
-      if (res && res.data) {
-        const { snap_token, snap_redirect_url, order_id, invoice_number, gross_amount } = res.data;
+      const d = res?.data;
+      if (!d) throw new Error('Server tidak mengirim hasil checkout.');
 
-        if (snap_token && snap_token.startsWith('MOCK-')) {
-          // Open mock simulation modal in dev mode
-          setMockCheckoutModal({
-            order_id,
-            invoice_number,
-            gross_amount,
-            snap_token,
-            snap_redirect_url,
-          });
-        } else if (snap_token) {
-          // Real Midtrans token -> Try Snap popup
-          try {
-            await openSnapPayment(process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '', false, snap_token);
-            fetchData();
-          } catch (snapErr) {
-            console.warn('Snap JS error, fallback to redirect URL:', snapErr);
-            window.open(snap_redirect_url, '_blank');
-          }
-        } else {
+      // A trial or the free plan needs no payment: the server already changed the subscription.
+      if (d.action === 'TRIAL') {
+        const until = d.trial_ends_at
+          ? new Date(d.trial_ends_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+          : '';
+        setCheckoutNotice(`Masa percobaan paket ${d.plan_code} dimulai${until ? ` dan berakhir ${until}` : ''}. Setelah itu paket kembali ke FREE kecuali Anda berlangganan.`);
+        await fetchData();
+        return;
+      }
+      if (d.action === 'FREE') {
+        setCheckoutNotice('Paket Anda sekarang FREE.');
+        await fetchData();
+        return;
+      }
+
+      const { snap_token, snap_redirect_url, order_id, invoice_number, gross_amount } = d;
+      if (snap_token && snap_token.startsWith('MOCK-')) {
+        // Only a development API (PAYMENT_SIMULATION=true) returns this.
+        setMockCheckoutModal({ order_id, invoice_number, gross_amount, snap_token, snap_redirect_url });
+      } else if (snap_token) {
+        // Real Midtrans token -> Try Snap popup
+        try {
+          await openSnapPayment(process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '', false, snap_token);
+          fetchData();
+        } catch (snapErr) {
+          console.warn('Snap JS error, fallback to redirect URL:', snapErr);
           window.open(snap_redirect_url, '_blank');
         }
+      } else if (snap_redirect_url) {
+        window.open(snap_redirect_url, '_blank');
       } else {
-        throw new Error('Snap token not returned');
+        throw new Error('Server tidak mengirim tautan pembayaran.');
       }
     } catch (err: any) {
       console.error('Checkout error:', err);
-      setCheckoutError('Gagal membuat transaksi checkout. Silakan coba beberapa saat lagi.');
+      setCheckoutError(err?.message || 'Gagal membuat transaksi checkout. Silakan coba beberapa saat lagi.');
     } finally {
       setIsCheckingOut(null);
     }
@@ -225,7 +185,9 @@ export default function TenantSubscriptionPage() {
     return `Rp ${num.toLocaleString('id-ID')}`;
   };
 
-  const activePlanCode = data?.plan?.code || 'PRO';
+  const activePlanCode = data?.plan?.code;
+  const isTrialing = data?.subscription?.status === 'TRIALING';
+  const trialUsed = Boolean(data?.subscription?.trial_started_at);
 
   return (
     <div className="space-y-6 font-sans">
@@ -342,6 +304,32 @@ export default function TenantSubscriptionPage() {
         </div>
       )}
 
+      {loadError && (
+        <div className="p-5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold">Data langganan tidak dapat dimuat.</div>
+              <div className="text-xs mt-0.5">{loadError}</div>
+            </div>
+          </div>
+          <button
+            onClick={fetchData}
+            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-2 shrink-0"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Coba lagi</span>
+          </button>
+        </div>
+      )}
+
+      {checkoutNotice && (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-semibold flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>{checkoutNotice}</span>
+        </div>
+      )}
+
       {checkoutError && (
         <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-semibold flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
@@ -355,6 +343,7 @@ export default function TenantSubscriptionPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {plans.map((p) => {
             const isCurrent = p.code === activePlanCode;
+            const canTrial = (p.trial_days ?? 0) > 0 && !trialUsed && p.price_monthly > 0;
             const price = selectedCycle === 'YEARLY' ? p.price_yearly : p.price_monthly;
 
             return (
@@ -371,7 +360,7 @@ export default function TenantSubscriptionPage() {
                     <span className="text-sm font-bold text-slate-900 uppercase font-mono">{p.code}</span>
                     {isCurrent && (
                       <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-600 text-white">
-                        PAKET AKTIF
+                        {isTrialing ? 'MASA PERCOBAAN' : 'PAKET AKTIF'}
                       </span>
                     )}
                   </div>
@@ -401,9 +390,9 @@ export default function TenantSubscriptionPage() {
 
                 <button
                   onClick={() => handleCheckout(p.id)}
-                  disabled={isCurrent || isCheckingOut === p.id}
+                  disabled={(isCurrent && !isTrialing) || isCheckingOut === p.id}
                   className={`w-full py-3 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 ${
-                    isCurrent
+                    isCurrent && !isTrialing
                       ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
                       : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm'
                   }`}
@@ -413,12 +402,19 @@ export default function TenantSubscriptionPage() {
                       <RefreshCw className="w-4 h-4 animate-spin" />
                       <span>Menyiapkan Pembayaran...</span>
                     </>
-                  ) : isCurrent ? (
+                  ) : isCurrent && !isTrialing ? (
                     <span>Paket Saat Ini</span>
+                  ) : p.price_monthly === 0 ? (
+                    <span>Pilih Paket Gratis</span>
+                  ) : canTrial ? (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      <span>Coba Gratis {p.trial_days} Hari</span>
+                    </>
                   ) : (
                     <>
                       <CreditCard className="w-4 h-4" />
-                      <span>Bayar & Upgrade Paket</span>
+                      <span>{isCurrent ? 'Berlangganan Sekarang' : 'Bayar & Upgrade Paket'}</span>
                     </>
                   )}
                 </button>

@@ -129,7 +129,7 @@ export default function CSRIntelligencePage() {
             <div className="text-2xl font-extrabold text-slate-900">
               {overviewData?.stats?.total_organizations?.toLocaleString() ?? '-'}
             </div>
-            <div className="text-xs text-slate-500 font-medium">Verified Organizations</div>
+            <div className="text-xs text-slate-500 font-medium">Organisasi Tercatat</div>
           </div>
           <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold">
             <Building2 className="w-5 h-5" />
@@ -165,7 +165,7 @@ export default function CSRIntelligencePage() {
             <div className="text-2xl font-extrabold text-slate-900">
               {overviewData?.stats?.recommended_partners?.toLocaleString() ?? '-'}
             </div>
-            <div className="text-xs text-slate-500 font-medium">High Match Partners (&gt;85%)</div>
+            <div className="text-xs text-slate-500 font-medium">Organisasi Terverifikasi</div>
           </div>
           <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
             <Award className="w-5 h-5" />
@@ -297,19 +297,21 @@ export default function CSRIntelligencePage() {
                       </div>
                     </div>
 
-                    {/* Match Score Badge */}
-                    <div className="text-right flex-shrink-0">
-                      <div className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                        {org.match_score}% Match
+                    {/* A match score is shown only if the API sends one; it does not today. */}
+                    {typeof org.match_score === 'number' && (
+                      <div className="text-right flex-shrink-0">
+                        <div className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          {org.match_score}% Match
+                        </div>
                       </div>
-                      <span className="text-[10px] text-slate-400 block mt-1">Weighted Fit</span>
-                    </div>
+                    )}
                   </div>
 
                   {/* Why it matches breakdown */}
+                  {org.match_reasons && org.match_reasons.length > 0 && (
                   <div className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-1.5">
                     <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                      Why this organization matches:
+                      Data lembaga:
                     </div>
                     {org.match_reasons?.map((reason, idx) => (
                       <div key={idx} className="flex items-start gap-1.5 text-xs text-slate-700">
@@ -318,6 +320,7 @@ export default function CSRIntelligencePage() {
                       </div>
                     ))}
                   </div>
+                  )}
                 </div>
 
                 {/* Card Footer Actions */}

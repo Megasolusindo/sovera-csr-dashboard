@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, Building2, Radio, FolderKanban, BookOpen, 
   Settings, LogOut, Sparkles, Megaphone, Inbox, Search, Building, Handshake, Send,
-  ChevronDown, ChevronRight, FileSpreadsheet, ShieldCheck, Zap, CreditCard
+  ChevronDown, ChevronRight, FileSpreadsheet, ShieldCheck, Zap, CreditCard, FileText, Link2
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -19,6 +19,7 @@ const ngoNavItems = [
   { label: 'Programs', href: '/programs', icon: BookOpen },
   { label: 'Deal Pipeline', href: '/pipeline', icon: FolderKanban },
   { label: 'Proposal Terkirim', href: '/proposals/sent', icon: Send },
+  { label: 'Proposal Google Docs', href: '/proposals/google-docs', icon: FileText },
 ];
 
 // Navigation Items for Corporate / TJSL / ESG Units
@@ -31,12 +32,14 @@ const corporateNavItems = [
   { label: 'Programs', href: '/programs', icon: BookOpen },
   { label: 'Partnership Pipeline', href: '/pipeline', icon: FolderKanban },
   { label: 'Proposal Masuk', href: '/proposals/inbox', icon: Inbox },
+  { label: 'Proposal Google Docs', href: '/proposals/google-docs', icon: FileText },
 ];
 
 // Settings Sub-Menu Navigation Items
 const settingsSubItems = [
   { label: 'Profil Lembaga', href: '/settings/profile', icon: Building },
   { label: 'Master Template S3', href: '/settings/templates', icon: FileSpreadsheet },
+  { label: 'Integrasi', href: '/settings/integrations', icon: Link2 },
   { label: 'Akses Tim & RLS', href: '/settings/team', icon: ShieldCheck },
   { label: 'Langganan Enterprise', href: '/settings/subscription', icon: Zap },
   { label: 'Riwayat Invoicing', href: '/settings/billing', icon: CreditCard },

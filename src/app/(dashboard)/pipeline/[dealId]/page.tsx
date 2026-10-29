@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useDeals } from '@/hooks/useDeals';
 import { apiClient } from '@/lib/api-client';
 import QueryError, { errorMessage } from '@/components/shared/query-error';
 import { Sparkles, ArrowLeft, Download, Copy, CheckCircle2, FileText } from 'lucide-react';
+import DocHistory from '@/components/google-docs/doc-history';
 
 type Tab = 'icebreaker' | 'pitchdeck' | 'proposal';
 
@@ -123,6 +125,13 @@ export default function DealStudioPage() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            href={`/proposals/google-docs?deal_id=${encodeURIComponent(deal.id)}`}
+            className="px-3.5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm flex items-center gap-1.5"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Buat di Google Docs</span>
+          </Link>
           <button
             disabled={isExporting}
             onClick={() => handleExport('pptx')}
@@ -223,6 +232,15 @@ export default function DealStudioPage() {
             </p>
           )}
         </div>
+      )}
+
+      {activeTab === 'proposal' && (
+        <DocHistory
+          dealId={deal.id}
+          limit={5}
+          title="Dokumen Google Docs untuk deal ini"
+          emptyText="Belum ada dokumen Google Docs untuk deal ini. Klik Buat di Google Docs di atas."
+        />
       )}
     </div>
   );

@@ -165,3 +165,65 @@ export const CONNECT_ERROR_MESSAGES: Record<string, string> = {
 
 export const formatRupiah = (v: number) =>
   'Rp ' + Math.round(v || 0).toLocaleString('id-ID', { maximumFractionDigits: 0 });
+
+export interface GoogleDocJobPage {
+  jobs: GoogleDocJob[];
+  page: number;
+  limit: number;
+  total: number;
+}
+
+// History of generated documents, newest first, optionally for one deal.
+export function useGoogleDocJobs({ dealId, page = 1, limit = 10 }: { dealId?: string | null; page?: number; limit?: number }) {
+  return useQuery<GoogleDocJobPage, ApiError>({
+    queryKey: ['google-doc-jobs', dealId || null, page, limit],
+    queryFn: async () => {
+      const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+      if (dealId) params.set('deal_id', dealId);
+      const res = (await apiClient.get(`/proposals/google-docs?${params}`)) as unknown as {
+        data?: GoogleDocJob[];
+        meta?: { page: number; limit: number; total: number };
+      };
+      if (!Array.isArray(res?.data)) throw new Error('Respons dari server tidak lengkap.');
+      return { jobs: res.data, page: res.meta?.page ?? page, limit: res.meta?.limit ?? limit, total: res.meta?.total ?? res.data.length };
+    },
+    retry: (count, err) => apiErrorCode(err) !== 'FEATURE_DISABLED' && count < 2,
+    // Keep refreshing while a listed job is still running.
+    refetchInterval: (query) =>
+      query.state.data?.jobs.some((j) => j.status === 'queued' || j.status === 'processing') ? 5000 : false,
+  });
+}
+
+// Drafts the program summary with the deal's AI pitch (POST /deals/:id/generate-pitch). That
+// endpoint returns a Markdown proposal, not budget items.
+export function useDraftSummaryWithAI() {
+  return useMutation<string, ApiError, string>({
+    mutationFn: async (dealId) => {
+      const res = (await apiClient.post(`/deals/${dealId}/generate-pitch`, {
+        tone: 'ZAKAT_WAQF_INSTITUTION',
+        custom_notes: '',
+      })) as unknown as { proposal_markdown?: string };
+      const text = markdownToPlain(res?.proposal_markdown || '');
+      if (!text) throw new Error('AI tidak mengirim draf proposal.');
+      return text;
+    },
+  });
+}
+
+// Google Docs receives plain text: Markdown markers would show up literally in the document.
+export function markdownToPlain(md: string): string {
+  return md
+    .replace(/\r\n/g, '\n')
+    .replace(/```[\s\S]*?```/g, (block) => block.replace(/```\w*\n?/g, ''))
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^\s*[-*+]\s+/gm, '• ')
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/(\*\*|__)(.+?)\1/g, '$2')
+    .replace(/(^|[^*\w])[*_]([^*_\n]+)[*_](?=[^*\w]|$)/g, '$1$2')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^>\s?/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+    .slice(0, 20000);
+}

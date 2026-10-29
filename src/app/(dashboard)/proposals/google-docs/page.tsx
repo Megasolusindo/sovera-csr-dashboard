@@ -3,17 +3,22 @@
 import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { FileText, Loader2, RotateCcw, Save, CheckCircle2, AlertTriangle, Link2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { FileText, Loader2, RotateCcw, Save, CheckCircle2, AlertTriangle, Link2, Sparkles } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useDeals } from '@/hooks/useDeals';
 import BudgetTable, { BudgetRow, MAX_BUDGET_ITEMS, newBudgetRow } from '@/components/google-docs/budget-table';
 import PreviewPanel, { PreviewState } from '@/components/google-docs/preview-panel';
+import DocHistory from '@/components/google-docs/doc-history';
+import { errorMessage } from '@/components/shared/query-error';
 import {
   apiErrorCode,
   GOOGLE_ERROR_MESSAGES,
   GoogleDocRequest,
   JOB_TIMEOUT_MS,
+  markdownToPlain,
   useCreateGoogleDoc,
+  useDraftSummaryWithAI,
   useGoogleDocJob,
   useGoogleIntegration,
 } from '@/hooks/useGoogleDocs';
@@ -100,6 +105,10 @@ function GoogleDocsGenerator() {
   const { data: deals } = useDeals();
   const integration = useGoogleIntegration();
   const create = useCreateGoogleDoc();
+  const draftAI = useDraftSummaryWithAI();
+  const queryClient = useQueryClient();
+  const deal = dealId ? deals?.find((d) => d.id === dealId) : undefined;
+  const [aiNote, setAiNote] = useState<string | null>(null);
 
   const [form, setForm] = useState<FormState>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -153,13 +162,15 @@ function GoogleDocsGenerator() {
     if (data.status === 'completed') {
       setPreview({ kind: 'done', job: data, reloadKey: Date.now() });
       setTab('preview');
+      queryClient.invalidateQueries({ queryKey: ['google-doc-jobs'] });
     } else if (data.status === 'failed') {
       setPreview({ kind: 'failed', code: data.error_code, message: data.error_message });
       setTab('preview');
+      queryClient.invalidateQueries({ queryKey: ['google-doc-jobs'] });
     } else if (data.status !== preview.status) {
       setPreview({ kind: 'waiting', status: data.status });
     }
-  }, [job.data, job.isError, job.error, preview]);
+  }, [job.data, job.isError, job.error, preview, queryClient]);
 
   // Stop waiting after the timeout; the job may still finish and appear in the history.
   useEffect(() => {
@@ -192,6 +203,34 @@ function GoogleDocsGenerator() {
       onError: (err) => setPreview({ kind: 'failed', code: apiErrorCode(err), message: err.message }),
     });
   }, [form, dealId, create]);
+
+  // Fills the program summary from the deal's AI proposal draft: the one already saved by AI
+  // Proposal Studio when there is one, otherwise a new one. Typed text is only replaced on request.
+  const fillSummaryWithAI = (regenerate: boolean) => {
+    if (!dealId) return;
+    if (form.program_summary.trim() && !window.confirm('Ganti ringkasan program yang sudah diisi dengan draf AI?')) return;
+    setAiNote(null);
+    const saved = markdownToPlain(deal?.generated_proposal || '');
+    if (saved && !regenerate) {
+      set('program_summary', saved);
+      setAiNote('Diisi dari draf AI yang tersimpan di deal ini. Periksa dan sunting sebelum membuat dokumen.');
+      return;
+    }
+    draftAI.mutate(dealId, {
+      onSuccess: (text) => {
+        set('program_summary', text);
+        setAiNote('Draf AI baru dimuat. Periksa dan sunting sebelum membuat dokumen.');
+      },
+      onError: (err) => {
+        const code = apiErrorCode(err);
+        setAiNote(
+          code === 'TENANT_RATE_LIMIT_EXCEEDED'
+            ? 'Batas penggunaan AI tercapai. Coba lagi dalam satu menit.'
+            : `Draf AI gagal dibuat: ${errorMessage(err)}`,
+        );
+      },
+    });
+  };
 
   const saveDraft = () => {
     writeStorage(draftKey(user?.org_id), JSON.stringify(form));
@@ -299,9 +338,34 @@ function GoogleDocsGenerator() {
           {errors.company_name && <p className="text-[11px] text-rose-600 mt-1">{errors.company_name}</p>}
         </div>
         <div>
-          <label htmlFor="program_summary" className="block text-xs font-semibold text-slate-700 mb-1">
-            Ringkasan program
-          </label>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <label htmlFor="program_summary" className="block text-xs font-semibold text-slate-700">
+              Ringkasan program
+            </label>
+            {dealId && (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => fillSummaryWithAI(false)}
+                  disabled={draftAI.isPending}
+                  className="px-2 py-1 rounded-lg bg-violet-50 border border-violet-200 hover:bg-violet-100 text-violet-800 text-[11px] font-semibold flex items-center gap-1 disabled:opacity-50"
+                >
+                  {draftAI.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                  {draftAI.isPending ? 'Menyusun...' : 'Isi dengan AI'}
+                </button>
+                {deal?.generated_proposal && (
+                  <button
+                    type="button"
+                    onClick={() => fillSummaryWithAI(true)}
+                    disabled={draftAI.isPending}
+                    className="px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-[11px] font-semibold disabled:opacity-50"
+                  >
+                    Draf baru
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <textarea
             id="program_summary"
             className={`${fieldClass} min-h-[110px]`}
@@ -310,6 +374,12 @@ function GoogleDocsGenerator() {
             placeholder="Latar belakang, tujuan, dan kegiatan utama program."
           />
           {errors.program_summary && <p className="text-[11px] text-rose-600 mt-1">{errors.program_summary}</p>}
+          {aiNote && <p className="text-[11px] text-violet-700 mt-1">{aiNote}</p>}
+          {!dealId && (
+            <p className="text-[11px] text-slate-400 mt-1">
+              Buka generator dari AI Proposal Studio di Deal Pipeline untuk mengisi ringkasan dengan AI.
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor="target_beneficiaries" className="block text-xs font-semibold text-slate-700 mb-1">
@@ -427,6 +497,8 @@ function GoogleDocsGenerator() {
           {previewPanel}
         </div>
       </div>
+
+      <DocHistory dealId={dealId} title={dealId ? 'Riwayat dokumen untuk deal ini' : 'Riwayat dokumen'} />
     </div>
   );
 }

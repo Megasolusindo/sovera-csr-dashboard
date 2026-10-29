@@ -194,36 +194,36 @@ export function useGoogleDocJobs({ dealId, page = 1, limit = 10 }: { dealId?: st
   });
 }
 
-// Drafts the program summary with the deal's AI pitch (POST /deals/:id/generate-pitch). That
-// endpoint returns a Markdown proposal, not budget items.
-export function useDraftSummaryWithAI() {
-  return useMutation<string, ApiError, string>({
+export interface ProposalFieldsDraft {
+  program_summary: string;
+  target_beneficiaries: string;
+  budget_items: BudgetItemInput[];
+  model: string;
+}
+
+// Drafts the program summary, target beneficiaries and estimated budget items of a deal's proposal
+// with Gemini (POST /deals/:id/draft-proposal-fields), from the deal's real program and signal only.
+// Nothing is stored; the user reviews the draft.
+export function useDraftProposalFields() {
+  return useMutation<ProposalFieldsDraft, ApiError, string>({
     mutationFn: async (dealId) => {
-      const res = (await apiClient.post(`/deals/${dealId}/generate-pitch`, {
-        tone: 'ZAKAT_WAQF_INSTITUTION',
-        custom_notes: '',
-      })) as unknown as { proposal_markdown?: string };
-      const text = markdownToPlain(res?.proposal_markdown || '');
-      if (!text) throw new Error('AI tidak mengirim draf proposal.');
-      return text;
+      const res = (await apiClient.post(`/deals/${dealId}/draft-proposal-fields`, {})) as unknown as {
+        data?: ProposalFieldsDraft;
+      };
+      if (!res?.data || typeof res.data.program_summary !== 'string' || !Array.isArray(res.data.budget_items)) {
+        throw new Error('Respons dari server tidak lengkap.');
+      }
+      return res.data;
     },
   });
 }
 
-// Google Docs receives plain text: Markdown markers would show up literally in the document.
-export function markdownToPlain(md: string): string {
-  return md
-    .replace(/\r\n/g, '\n')
-    .replace(/```[\s\S]*?```/g, (block) => block.replace(/```\w*\n?/g, ''))
-    .replace(/^#{1,6}\s+/gm, '')
-    .replace(/^\s*[-*+]\s+/gm, '• ')
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-    .replace(/(\*\*|__)(.+?)\1/g, '$2')
-    .replace(/(^|[^*\w])[*_]([^*_\n]+)[*_](?=[^*\w]|$)/g, '$1$2')
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/^>\s?/gm, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
-    .slice(0, 20000);
-}
+export const AI_DRAFT_ERROR_MESSAGES: Record<string, string> = {
+  PROGRAM_REQUIRED: 'Deal ini belum punya program target. Pilih program di Deal Pipeline terlebih dahulu.',
+  PROGRAM_NOT_FOUND: 'Program target deal ini sudah tidak ada. Pilih program lain di Deal Pipeline.',
+  AI_NOT_CONFIGURED: 'Layanan AI belum dikonfigurasi di server.',
+  AI_QUOTA_EXHAUSTED: 'Kuota AI harian habis. Coba lagi nanti.',
+  AI_GENERATION_FAILED: 'AI gagal menyusun draf. Coba lagi.',
+  AI_DRAFT_INVALID: 'Draf AI tidak memenuhi format formulir. Coba lagi.',
+  TENANT_RATE_LIMIT_EXCEEDED: 'Batas penggunaan AI tercapai. Coba lagi dalam satu menit.',
+};

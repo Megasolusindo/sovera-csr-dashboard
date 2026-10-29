@@ -16,9 +16,9 @@ import {
   GOOGLE_ERROR_MESSAGES,
   GoogleDocRequest,
   JOB_TIMEOUT_MS,
-  markdownToPlain,
   useCreateGoogleDoc,
-  useDraftSummaryWithAI,
+  useDraftProposalFields,
+  AI_DRAFT_ERROR_MESSAGES,
   useGoogleDocJob,
   useGoogleIntegration,
 } from '@/hooks/useGoogleDocs';
@@ -105,9 +105,8 @@ function GoogleDocsGenerator() {
   const { data: deals } = useDeals();
   const integration = useGoogleIntegration();
   const create = useCreateGoogleDoc();
-  const draftAI = useDraftSummaryWithAI();
+  const draftAI = useDraftProposalFields();
   const queryClient = useQueryClient();
-  const deal = dealId ? deals?.find((d) => d.id === dealId) : undefined;
   const [aiNote, setAiNote] = useState<string | null>(null);
 
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -204,30 +203,37 @@ function GoogleDocsGenerator() {
     });
   }, [form, dealId, create]);
 
-  // Fills the program summary from the deal's AI proposal draft: the one already saved by AI
-  // Proposal Studio when there is one, otherwise a new one. Typed text is only replaced on request.
-  const fillSummaryWithAI = (regenerate: boolean) => {
+  // Fills the summary, beneficiaries and budget table with an AI draft of the deal's proposal.
+  // Typed content is only replaced after confirmation; budget figures are estimates to review.
+  const fillFormWithAI = () => {
     if (!dealId) return;
-    if (form.program_summary.trim() && !window.confirm('Ganti ringkasan program yang sudah diisi dengan draf AI?')) return;
+    const hasContent =
+      form.program_summary.trim() !== '' ||
+      form.target_beneficiaries.trim() !== '' ||
+      form.rows.some((r) => r.description.trim() !== '' || r.unit_price.trim() !== '');
+    if (hasContent && !window.confirm('Ganti ringkasan, penerima manfaat, dan rincian anggaran yang sudah diisi dengan draf AI?')) return;
     setAiNote(null);
-    const saved = markdownToPlain(deal?.generated_proposal || '');
-    if (saved && !regenerate) {
-      set('program_summary', saved);
-      setAiNote('Diisi dari draf AI yang tersimpan di deal ini. Periksa dan sunting sebelum membuat dokumen.');
-      return;
-    }
     draftAI.mutate(dealId, {
-      onSuccess: (text) => {
-        set('program_summary', text);
-        setAiNote('Draf AI baru dimuat. Periksa dan sunting sebelum membuat dokumen.');
+      onSuccess: (d) => {
+        setForm((f) => ({
+          ...f,
+          program_summary: d.program_summary,
+          target_beneficiaries: d.target_beneficiaries,
+          rows: d.budget_items.map((it) => ({
+            ...newBudgetRow(),
+            description: it.description,
+            quantity: String(it.quantity),
+            unit_price: String(it.unit_price),
+          })),
+        }));
+        setErrors({});
+        setAiNote(
+          `Draf AI dimuat (${d.budget_items.length} item anggaran). Angka anggaran adalah estimasi: periksa dan sunting sebelum membuat dokumen.`,
+        );
       },
       onError: (err) => {
         const code = apiErrorCode(err);
-        setAiNote(
-          code === 'TENANT_RATE_LIMIT_EXCEEDED'
-            ? 'Batas penggunaan AI tercapai. Coba lagi dalam satu menit.'
-            : `Draf AI gagal dibuat: ${errorMessage(err)}`,
-        );
+        setAiNote((code && AI_DRAFT_ERROR_MESSAGES[code]) || `Draf AI gagal dibuat: ${errorMessage(err)}`);
       },
     });
   };
@@ -309,6 +315,33 @@ function GoogleDocsGenerator() {
       )}
 
       <fieldset disabled={busy} className="space-y-4">
+        {dealId ? (
+          <div className="p-3 rounded-xl bg-violet-50 border border-violet-200">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs text-violet-900 flex-1 min-w-[180px]">
+                Susun ringkasan, penerima manfaat, dan estimasi anggaran dari program target dan data perusahaan deal ini.
+              </p>
+              <button
+                type="button"
+                onClick={fillFormWithAI}
+                disabled={draftAI.isPending}
+                className="px-3 py-1.5 rounded-lg bg-violet-700 hover:bg-violet-800 text-white text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {draftAI.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                {draftAI.isPending ? 'Menyusun...' : 'Isi formulir dengan AI'}
+              </button>
+            </div>
+            {aiNote && (
+              <p className="text-[11px] text-violet-800 mt-2" role="status">
+                {aiNote}
+              </p>
+            )}
+          </div>
+        ) : (
+          <p className="text-[11px] text-slate-400">
+            Buka generator dari AI Proposal Studio di Deal Pipeline untuk mengisi formulir dengan AI.
+          </p>
+        )}
         <div>
           <label htmlFor="proposal_title" className="block text-xs font-semibold text-slate-700 mb-1">
             Judul proposal <span className="text-rose-600">*</span>
@@ -338,34 +371,9 @@ function GoogleDocsGenerator() {
           {errors.company_name && <p className="text-[11px] text-rose-600 mt-1">{errors.company_name}</p>}
         </div>
         <div>
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <label htmlFor="program_summary" className="block text-xs font-semibold text-slate-700">
-              Ringkasan program
-            </label>
-            {dealId && (
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => fillSummaryWithAI(false)}
-                  disabled={draftAI.isPending}
-                  className="px-2 py-1 rounded-lg bg-violet-50 border border-violet-200 hover:bg-violet-100 text-violet-800 text-[11px] font-semibold flex items-center gap-1 disabled:opacity-50"
-                >
-                  {draftAI.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                  {draftAI.isPending ? 'Menyusun...' : 'Isi dengan AI'}
-                </button>
-                {deal?.generated_proposal && (
-                  <button
-                    type="button"
-                    onClick={() => fillSummaryWithAI(true)}
-                    disabled={draftAI.isPending}
-                    className="px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 text-[11px] font-semibold disabled:opacity-50"
-                  >
-                    Draf baru
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          <label htmlFor="program_summary" className="block text-xs font-semibold text-slate-700 mb-1">
+            Ringkasan program
+          </label>
           <textarea
             id="program_summary"
             className={`${fieldClass} min-h-[110px]`}
@@ -374,12 +382,6 @@ function GoogleDocsGenerator() {
             placeholder="Latar belakang, tujuan, dan kegiatan utama program."
           />
           {errors.program_summary && <p className="text-[11px] text-rose-600 mt-1">{errors.program_summary}</p>}
-          {aiNote && <p className="text-[11px] text-violet-700 mt-1">{aiNote}</p>}
-          {!dealId && (
-            <p className="text-[11px] text-slate-400 mt-1">
-              Buka generator dari AI Proposal Studio di Deal Pipeline untuk mengisi ringkasan dengan AI.
-            </p>
-          )}
         </div>
         <div>
           <label htmlFor="target_beneficiaries" className="block text-xs font-semibold text-slate-700 mb-1">

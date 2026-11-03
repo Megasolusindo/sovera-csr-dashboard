@@ -84,26 +84,14 @@ jobs:
             echo "==> Pulling latest Docker image from GHCR..."
             docker compose pull
 
-            echo "==> Clearing any old container binding to port 3000..."
-            OLD_CONTAINERS=$(docker ps -aq --filter "publish=3000")
-            if [ -n "$OLD_CONTAINERS" ]; then
-              echo "==> Removing existing container on port 3000: $OLD_CONTAINERS"
-              docker rm -f $OLD_CONTAINERS || true
-            fi
-            docker rm -f sovera_csr_dashboard 2>/dev/null || true
+            echo "==> Cleaning up previous containers..."
+            docker rm -f sovera-csr-dashboard sovera_csr_dashboard 2>/dev/null || true
 
-            echo "==> Starting new container with docker compose..."
+            echo "==> Starting new container with docker compose on port 3004..."
             docker compose up -d --force-recreate
 
-            echo "==> Checking running docker containers and ports:"
-            docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Ports}}"
-
-            echo "==> Checking Nginx proxy_pass configurations:"
-            grep -rn "proxy_pass" /etc/nginx/ 2>/dev/null || true
-            grep -rn "csrmatics.com" /etc/nginx/ 2>/dev/null || true
-
-            echo "==> Testing local curl to port 3000 on server:"
-            curl -I http://127.0.0.1:3000/as-csr || true
+            echo "==> Testing local curl to port 3004 on server:"
+            curl -I http://127.0.0.1:3004/as-csr || true
 
             echo "==> Cleaning old unused images..."
             docker image prune -f

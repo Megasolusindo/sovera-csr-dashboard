@@ -1,10 +1,10 @@
 services:
   dashboard:
     image: ghcr.io/megasolusindo/sovera-csr-dashboard:latest
-    container_name: sovera_csr_dashboard
+    container_name: sovera-csr-dashboard
     restart: always
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3004:3000"
     environment:
       - NODE_ENV=production
       - PORT=3000

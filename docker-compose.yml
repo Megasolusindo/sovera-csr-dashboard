@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  dashboard:
+    image: ghcr.io/megasolusindo/sovera-csr-dashboard:latest
+    container_name: sovera_csr_dashboard
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000

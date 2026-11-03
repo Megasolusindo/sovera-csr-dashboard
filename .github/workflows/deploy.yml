@@ -84,8 +84,16 @@ jobs:
             echo "==> Pulling latest Docker image from GHCR..."
             docker compose pull
 
-            echo "==> Re-creating container..."
-            docker compose up -d
+            echo "==> Clearing any old container binding to port 3000..."
+            OLD_CONTAINERS=$(docker ps -aq --filter "publish=3000")
+            if [ -n "$OLD_CONTAINERS" ]; then
+              echo "==> Removing existing container on port 3000: $OLD_CONTAINERS"
+              docker rm -f $OLD_CONTAINERS || true
+            fi
+            docker rm -f sovera_csr_dashboard 2>/dev/null || true
+
+            echo "==> Starting new container with docker compose..."
+            docker compose up -d --force-recreate
 
             echo "==> Cleaning old unused images..."
             docker image prune -f

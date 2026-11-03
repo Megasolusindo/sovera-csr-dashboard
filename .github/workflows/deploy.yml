@@ -95,6 +95,16 @@ jobs:
             echo "==> Starting new container with docker compose..."
             docker compose up -d --force-recreate
 
+            echo "==> Checking running docker containers and ports:"
+            docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Ports}}"
+
+            echo "==> Checking Nginx proxy_pass configurations:"
+            grep -rn "proxy_pass" /etc/nginx/ 2>/dev/null || true
+            grep -rn "csrmatics.com" /etc/nginx/ 2>/dev/null || true
+
+            echo "==> Testing local curl to port 3000 on server:"
+            curl -I http://127.0.0.1:3000/as-csr || true
+
             echo "==> Cleaning old unused images..."
             docker image prune -f
 

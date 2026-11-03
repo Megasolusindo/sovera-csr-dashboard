@@ -32,10 +32,20 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(targetUrl, 301);
   }
 
-  // 3. User already logged in -> /as-ngo & /as-csr do not function, redirect to /dashboard
-  const authToken = request.cookies.get("sovera_auth_token")?.value;
-  if (authToken && (request.nextUrl.pathname === "/as-ngo" || request.nextUrl.pathname === "/as-csr")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  // 3. Simulation role handlers for /as-ngo & /as-csr
+  if (request.nextUrl.pathname === "/as-csr" || request.nextUrl.pathname === "/as-ngo") {
+    const authToken = request.cookies.get("sovera_auth_token")?.value;
+    if (authToken) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    const targetPersona = request.nextUrl.pathname === "/as-csr" ? "csr" : "ngo";
+    const res = NextResponse.redirect(new URL("/", request.url));
+    res.cookies.set("viewAs", targetPersona, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      sameSite: "lax",
+    });
+    return res;
   }
 
   // 4. Cross-persona redirection for /untuk-ngo and /untuk-korporasi based on viewAs cookie

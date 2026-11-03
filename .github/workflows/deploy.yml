@@ -1,4 +1,4 @@
-name: Build & Push Docker Image
+name: Build, Push & Deploy
 
 on:
   push:
@@ -41,3 +41,40 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_BASE_URL=https://api.csrmatics.com/api/v1
             NEXT_PUBLIC_APP_ENV=production
+
+  deploy:
+    name: Deploy to Production
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy via SSH & Docker Compose
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_ACTOR: ${{ github.actor }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          envs: GHCR_TOKEN,GHCR_ACTOR
+          script: |
+            set -e
+            echo "==> Navigating to project directory: ${{ secrets.TARGET_DIR }}"
+            cd ${{ secrets.TARGET_DIR }}
+
+            echo "==> Logging in to GHCR on server..."
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_ACTOR" --password-stdin
+
+            echo "==> Pulling latest Docker image from GHCR..."
+            docker compose pull
+
+            echo "==> Re-creating container..."
+            docker compose up -d
+
+            echo "==> Cleaning old unused images..."
+            docker image prune -f
+
+            echo "==> Deployment completed successfully!"

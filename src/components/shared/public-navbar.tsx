@@ -90,14 +90,11 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
           {viewAs !== 'ngo' && (
             <Link
               href="/untuk-korporasi"
-              className={`flex items-center gap-1.5 whitespace-nowrap transition-colors ${
+              className={`transition-colors whitespace-nowrap ${
                 isCorporateActive ? 'text-indigo-300 font-bold' : 'hover:text-indigo-300'
               }`}
             >
-              <span>Solusi Korporasi</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                3.000+
-              </span>
+              Solusi Korporasi
             </Link>
           )}
 
@@ -105,14 +102,11 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
           {viewAs !== 'csr' && (
             <Link
               href="/untuk-ngo"
-              className={`flex items-center gap-1.5 whitespace-nowrap transition-colors ${
+              className={`transition-colors whitespace-nowrap ${
                 isNgoActive ? 'text-emerald-400 font-bold' : 'hover:text-emerald-400'
               }`}
             >
-              <span>Solusi NGO</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                1.200+
-              </span>
+              Solusi NGO
             </Link>
           )}
 
@@ -200,24 +194,18 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
             {viewAs !== 'ngo' && (
               <Link
                 href="/untuk-korporasi"
-                className="flex items-center justify-between text-indigo-300 hover:text-indigo-200 py-1 transition-colors"
+                className="text-indigo-300 hover:text-indigo-200 py-1 transition-colors"
               >
-                <span>Solusi Korporasi</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  3.000+
-                </span>
+                Solusi Korporasi
               </Link>
             )}
 
             {viewAs !== 'csr' && (
               <Link
                 href="/untuk-ngo"
-                className="flex items-center justify-between text-emerald-400 hover:text-emerald-300 py-1 transition-colors"
+                className="text-emerald-400 hover:text-emerald-300 py-1 transition-colors"
               >
-                <span>Solusi NGO</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  1.200+
-                </span>
+                Solusi NGO
               </Link>
             )}
 

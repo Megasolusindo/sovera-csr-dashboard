@@ -37,6 +37,7 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
   const isBlogActive = pathname.startsWith('/blog');
   const isPricingActive = pathname.startsWith('/pricing');
   const isDirectoryActive = pathname.startsWith('/database-perusahaan');
+  const isNgoDirectoryActive = pathname.startsWith('/database-lembaga');
   const isCorporateActive = pathname.startsWith('/untuk-korporasi');
   const isNgoActive = pathname.startsWith('/untuk-ngo');
 
@@ -110,14 +111,29 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
             </Link>
           )}
 
-          <Link
-            href="/database-perusahaan"
-            className={`transition-colors whitespace-nowrap ${
-              isDirectoryActive ? 'text-emerald-400 font-semibold' : 'hover:text-emerald-400'
-            }`}
-          >
-            Database Perusahaan
-          </Link>
+          {/* Database Perusahaan: tampil ketika viewAs === 'ngo' atau mode netral (disembunyikan saat viewAs === 'csr') */}
+          {viewAs !== 'csr' && (
+            <Link
+              href="/database-perusahaan"
+              className={`transition-colors whitespace-nowrap ${
+                isDirectoryActive ? 'text-emerald-400 font-semibold' : 'hover:text-emerald-400'
+              }`}
+            >
+              Database Perusahaan
+            </Link>
+          )}
+
+          {/* Database Lembaga: tampil ketika viewAs === 'csr' atau mode netral (disembunyikan saat viewAs === 'ngo') */}
+          {viewAs !== 'ngo' && (
+            <Link
+              href="/database-lembaga"
+              className={`transition-colors whitespace-nowrap ${
+                isNgoDirectoryActive ? 'text-emerald-400 font-semibold' : 'hover:text-emerald-400'
+              }`}
+            >
+              Database Lembaga
+            </Link>
+          )}
 
           <Link
             href="/blog"
@@ -209,12 +225,29 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
               </Link>
             )}
 
-            <Link
-              href="/database-perusahaan"
-              className="text-slate-300 hover:text-emerald-400 py-1 transition-colors"
-            >
-              Database Perusahaan
-            </Link>
+            {/* Database Perusahaan: tampil ketika viewAs === 'ngo' atau mode netral */}
+            {viewAs !== 'csr' && (
+              <Link
+                href="/database-perusahaan"
+                className={`py-1 transition-colors ${
+                  isDirectoryActive ? 'text-emerald-400 font-semibold' : 'text-slate-300 hover:text-emerald-400'
+                }`}
+              >
+                Database Perusahaan
+              </Link>
+            )}
+
+            {/* Database Lembaga: tampil ketika viewAs === 'csr' atau mode netral */}
+            {viewAs !== 'ngo' && (
+              <Link
+                href="/database-lembaga"
+                className={`py-1 transition-colors ${
+                  isNgoDirectoryActive ? 'text-emerald-400 font-semibold' : 'text-slate-300 hover:text-emerald-400'
+                }`}
+              >
+                Database Lembaga
+              </Link>
+            )}
 
             <Link
               href="/blog"

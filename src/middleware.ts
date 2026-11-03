@@ -32,9 +32,24 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(targetUrl, 301);
   }
 
+  // 3. User already logged in -> /as-ngo & /as-csr do not function, redirect to /dashboard
+  const authToken = request.cookies.get("sovera_auth_token")?.value;
+  if (authToken && (request.nextUrl.pathname === "/as-ngo" || request.nextUrl.pathname === "/as-csr")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // 4. Cross-persona redirection for /untuk-ngo and /untuk-korporasi based on viewAs cookie
+  const viewAs = request.cookies.get("viewAs")?.value;
+  if (viewAs === "csr" && request.nextUrl.pathname.startsWith("/untuk-ngo")) {
+    return NextResponse.redirect(new URL("/untuk-korporasi", request.url));
+  }
+  if (viewAs === "ngo" && request.nextUrl.pathname.startsWith("/untuk-korporasi")) {
+    return NextResponse.redirect(new URL("/untuk-ngo", request.url));
+  }
+
   const response = NextResponse.next();
 
-  // 3. HTTP Response Canonical Header Injection: Link: <https://csrmatics.com/...>; rel="canonical"
+  // 5. HTTP Response Canonical Header Injection: Link: <https://csrmatics.com/...>; rel="canonical"
   const canonicalUrl = `https://csrmatics.com${request.nextUrl.pathname}${request.nextUrl.search}`;
   response.headers.set("Link", `<${canonicalUrl}>; rel="canonical"`);
 

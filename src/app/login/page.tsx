@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, SEED_ACCOUNTS } from '@/context/AuthContext';
 import { UserRole } from '@/types/api';
@@ -16,11 +16,24 @@ import {
   UserCheck,
   Briefcase,
   Target,
+  Heart,
 } from 'lucide-react';
+
+function getViewAsCookie(): 'ngo' | 'csr' | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)viewAs=([^;]*)/);
+  return match ? (match[1] as 'ngo' | 'csr') : null;
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, quickLogin } = useAuth();
+
+  const [viewAs, setViewAs] = useState<'ngo' | 'csr' | null>(null);
+
+  useEffect(() => {
+    setViewAs(getViewAsCookie());
+  }, []);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -66,15 +79,37 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-4 backdrop-blur-sm">
-          <ShieldCheck className="w-4 h-4" />
-          <span>CSRmatics Enterprise Multi-Tenant RBAC</span>
+        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 backdrop-blur-sm ${
+          viewAs === 'csr'
+            ? 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400'
+            : 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+        }`}>
+          {viewAs === 'csr' ? (
+            <>
+              <Building2 className="w-4 h-4" />
+              <span>Portal Masuk Korporasi & TJSL</span>
+            </>
+          ) : viewAs === 'ngo' ? (
+            <>
+              <Heart className="w-4 h-4" />
+              <span>Portal Masuk Mitra NGO & Yayasan</span>
+            </>
+          ) : (
+            <>
+              <ShieldCheck className="w-4 h-4" />
+              <span>CSRmatics Enterprise Multi-Tenant RBAC</span>
+            </>
+          )}
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-emerald-400 bg-clip-text text-transparent">
           CSRmatics Intelligence Platform
         </h1>
         <p className="mt-2 text-sm text-slate-400">
-          Masuk ke portal B2B Fundraising & CSR Matching Engine
+          {viewAs === 'csr'
+            ? 'Masuk ke portal TJSL & CSR Intelligence Korporasi'
+            : viewAs === 'ngo'
+            ? 'Masuk ke portal B2B Fundraising & Matching Program NGO'
+            : 'Masuk ke portal B2B Fundraising & CSR Matching Engine'}
         </p>
       </div>
 
@@ -86,94 +121,226 @@ export default function LoginPage() {
           {/* Quick Role Switcher Section for Demo */}
           <div className="mb-6 p-4 bg-slate-950/60 rounded-xl border border-slate-800">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+              <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                viewAs === 'csr' ? 'text-indigo-400' : 'text-emerald-400'
+              }`}>
                 <Sparkles className="w-3.5 h-3.5" />
-                Quick Login Switcher (Demo RBAC)
+                {viewAs === 'csr'
+                  ? 'Quick Login (Akun Demo Korporasi / TJSL)'
+                  : viewAs === 'ngo'
+                  ? 'Quick Login (Akun Demo NGO / LAZ)'
+                  : 'Quick Login Switcher (Demo RBAC)'}
               </span>
               <span className="text-[10px] text-slate-500">Seed Accounts</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-              {/* ORG_ADMIN */}
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => handleQuickLogin('ORG_ADMIN')}
-                className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-emerald-950/40 hover:border-emerald-500/40 text-left transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-emerald-400">
-                    <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>ORG_ADMIN</span>
+            {viewAs === 'csr' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {/* CORP_ADMIN */}
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('CORP_ADMIN')}
+                  className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-indigo-950/40 hover:border-indigo-500/40 text-left transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-indigo-400">
+                      <Building2 className="w-3.5 h-3.5 text-indigo-500" />
+                      <span>CORP_ADMIN</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1">Corporate Admin</div>
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-1">Akses Penuh Tim</div>
-                </div>
-                <div className="text-[10px] text-emerald-500/80 font-mono mt-2 flex items-center justify-between">
-                  <span>admin@laz.id</span>
-                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </button>
+                  <div className="text-[10px] text-indigo-400/80 font-mono mt-2 flex items-center justify-between">
+                    <span>admin@corporate.com</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
 
-              {/* DIRECTOR */}
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => handleQuickLogin('DIRECTOR')}
-                className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-teal-950/40 hover:border-teal-500/40 text-left transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-teal-400">
-                    <Briefcase className="w-3.5 h-3.5 text-teal-500" />
-                    <span>DIRECTOR</span>
+                {/* CSR_MANAGER */}
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('CSR_MANAGER')}
+                  className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-blue-950/40 hover:border-blue-500/40 text-left transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-blue-400">
+                      <Briefcase className="w-3.5 h-3.5 text-blue-500" />
+                      <span>CSR_MANAGER</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1">CSR Manager</div>
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-1">Program & Deal Review</div>
-                </div>
-                <div className="text-[10px] text-teal-500/80 font-mono mt-2 flex items-center justify-between">
-                  <span>director@laz.id</span>
-                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </button>
+                  <div className="text-[10px] text-blue-400/80 font-mono mt-2 flex items-center justify-between">
+                    <span>csr@corporate.com</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
 
-              {/* FUNDRAISER */}
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => handleQuickLogin('FUNDRAISER')}
-                className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-cyan-950/40 hover:border-cyan-500/40 text-left transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-cyan-400">
-                    <Target className="w-3.5 h-3.5 text-cyan-500" />
-                    <span>FUNDRAISER</span>
+                {/* REVIEWER */}
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('REVIEWER')}
+                  className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-purple-950/40 hover:border-purple-500/40 text-left transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-purple-400">
+                      <UserCheck className="w-3.5 h-3.5 text-purple-500" />
+                      <span>REVIEWER</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1">Proposal Assessor</div>
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-1">Personal Pipeline</div>
-                </div>
-                <div className="text-[10px] text-cyan-500/80 font-mono mt-2 flex items-center justify-between">
-                  <span>fundraiser@laz.id</span>
-                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </button>
+                  <div className="text-[10px] text-purple-400/80 font-mono mt-2 flex items-center justify-between">
+                    <span>reviewer@corporate.com</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+              </div>
+            ) : viewAs === 'ngo' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {/* ORG_ADMIN */}
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('ORG_ADMIN')}
+                  className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-emerald-950/40 hover:border-emerald-500/40 text-left transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-emerald-400">
+                      <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>ORG_ADMIN</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1">Akses Penuh Tim</div>
+                  </div>
+                  <div className="text-[10px] text-emerald-500/80 font-mono mt-2 flex items-center justify-between">
+                    <span>admin@laz.id</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
 
-              {/* CORP_ADMIN */}
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={() => handleQuickLogin('CORP_ADMIN')}
-                className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-blue-950/40 hover:border-blue-500/40 text-left transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-blue-400">
-                    <Building2 className="w-3.5 h-3.5 text-blue-500" />
-                    <span>CORP_ADMIN</span>
+                {/* DIRECTOR */}
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('DIRECTOR')}
+                  className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-teal-950/40 hover:border-teal-500/40 text-left transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-teal-400">
+                      <Briefcase className="w-3.5 h-3.5 text-teal-500" />
+                      <span>DIRECTOR</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1">Program & Deal Review</div>
                   </div>
-                  <div className="text-[11px] text-slate-400 mt-1">Corporate Demo</div>
-                </div>
-                <div className="text-[10px] text-blue-500/80 font-mono mt-2 flex items-center justify-between">
-                  <span>admin@corporate.com</span>
-                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </button>
-            </div>
+                  <div className="text-[10px] text-teal-500/80 font-mono mt-2 flex items-center justify-between">
+                    <span>director@laz.id</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+
+                {/* FUNDRAISER */}
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('FUNDRAISER')}
+                  className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-cyan-950/40 hover:border-cyan-500/40 text-left transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-cyan-400">
+                      <Target className="w-3.5 h-3.5 text-cyan-500" />
+                      <span>FUNDRAISER</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1">Personal Pipeline</div>
+                  </div>
+                  <div className="text-[10px] text-cyan-500/80 font-mono mt-2 flex items-center justify-between">
+                    <span>fundraiser@laz.id</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                {/* ORG_ADMIN */}
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('ORG_ADMIN')}
+                  className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-emerald-950/40 hover:border-emerald-500/40 text-left transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-emerald-400">
+                      <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>ORG_ADMIN</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1">Akses Penuh Tim</div>
+                  </div>
+                  <div className="text-[10px] text-emerald-500/80 font-mono mt-2 flex items-center justify-between">
+                    <span>admin@laz.id</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+
+                {/* DIRECTOR */}
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('DIRECTOR')}
+                  className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-teal-950/40 hover:border-teal-500/40 text-left transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-teal-400">
+                      <Briefcase className="w-3.5 h-3.5 text-teal-500" />
+                      <span>DIRECTOR</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1">Program & Deal Review</div>
+                  </div>
+                  <div className="text-[10px] text-teal-500/80 font-mono mt-2 flex items-center justify-between">
+                    <span>director@laz.id</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+
+                {/* FUNDRAISER */}
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('FUNDRAISER')}
+                  className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-cyan-950/40 hover:border-cyan-500/40 text-left transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-cyan-400">
+                      <Target className="w-3.5 h-3.5 text-cyan-500" />
+                      <span>FUNDRAISER</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1">Personal Pipeline</div>
+                  </div>
+                  <div className="text-[10px] text-cyan-500/80 font-mono mt-2 flex items-center justify-between">
+                    <span>fundraiser@laz.id</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+
+                {/* CORP_ADMIN */}
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickLogin('CORP_ADMIN')}
+                  className="group p-3 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-blue-950/40 hover:border-blue-500/40 text-left transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 group-hover:text-blue-400">
+                      <Building2 className="w-3.5 h-3.5 text-blue-500" />
+                      <span>CORP_ADMIN</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1">Corporate Demo</div>
+                  </div>
+                  <div className="text-[10px] text-blue-500/80 font-mono mt-2 flex items-center justify-between">
+                    <span>admin@corporate.com</span>
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="relative flex py-2 items-center mb-6">

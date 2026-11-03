@@ -75,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
+        document.cookie = `sovera_auth_token=${savedToken}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
       } catch (e) {
         console.error('Failed to parse cached user:', e);
       }
@@ -101,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // If real token invalid, clear cache and force re-login
             localStorage.removeItem('sovera_auth_token');
             localStorage.removeItem('sovera_auth_user');
+            document.cookie = 'sovera_auth_token=; path=/; max-age=0; SameSite=Lax';
             setToken(null);
             setUser(null);
           })
@@ -123,6 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         localStorage.setItem('sovera_auth_token', newToken);
         localStorage.setItem('sovera_auth_user', JSON.stringify(newUser));
+        document.cookie = `sovera_auth_token=${newToken}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
 
         return newUser;
       }
@@ -156,6 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(mockUser);
         localStorage.setItem('sovera_auth_token', mockToken);
         localStorage.setItem('sovera_auth_user', JSON.stringify(mockUser));
+        document.cookie = `sovera_auth_token=${mockToken}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
         return mockUser;
       }
 
@@ -174,6 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     localStorage.removeItem('sovera_auth_token');
     localStorage.removeItem('sovera_auth_user');
+    document.cookie = 'sovera_auth_token=; path=/; max-age=0; SameSite=Lax';
     setToken(null);
     setUser(null);
     window.location.href = '/login';

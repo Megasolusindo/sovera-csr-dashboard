@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import {
   Sparkles,
   Building2,
@@ -61,6 +62,9 @@ async function getPublicStats(): Promise<PublicStats | null> {
 
 export default async function LandingPage() {
   const stats = await getPublicStats();
+  const cookieStore = cookies();
+  const viewAs = cookieStore.get('viewAs')?.value; // 'ngo' | 'csr' | undefined
+
   // Labels fall back to neutral copy if the API is unreachable, never to invented numbers.
   const companiesLabel = stats ? roundDown(stats.companies) : 'Ribuan';
   const orgsLabel = stats ? roundDown(stats.organizations) : 'Ratusan';
@@ -80,30 +84,40 @@ export default async function LandingPage() {
           
           {/* Logo & Brand */}
           <Link href="/" className="flex items-center gap-3 group mr-6 lg:mr-10 shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center font-bold shadow-lg shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
-              <Sparkles className="w-5 h-5 text-emerald-200" />
+            <div className={`w-10 h-10 rounded-xl ${
+              viewAs === 'csr'
+                ? 'bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-indigo-600/20'
+                : 'bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-emerald-600/20'
+            } text-white flex items-center justify-center font-bold shadow-lg group-hover:scale-105 transition-transform shrink-0`}>
+              <Sparkles className={`w-5 h-5 ${viewAs === 'csr' ? 'text-indigo-200' : 'text-emerald-200'}`} />
             </div>
             <div className="flex flex-col justify-center">
               <span className="font-extrabold text-xl tracking-tight text-white block leading-none">
                 CSRmatics
               </span>
-              <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-400 uppercase tracking-wider block mt-1 whitespace-nowrap">
-                Two-Sided CSR Platform
+              <span className={`text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider block mt-1 whitespace-nowrap ${
+                viewAs === 'csr' ? 'text-indigo-400' : 'text-emerald-400'
+              }`}>
+                {viewAs === 'csr' ? 'Corporate CSR Portal' : viewAs === 'ngo' ? 'NGO Partnership Portal' : 'Two-Sided CSR Platform'}
               </span>
             </div>
           </Link>
 
-          {/* 2-Sided Navigation Links */}
+          {/* Navigation Links */}
           <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
             <a href="#features" className="hover:text-emerald-400 transition-colors whitespace-nowrap">Platform</a>
-            <Link href="/untuk-korporasi" className="hover:text-indigo-300 flex items-center gap-1.5 whitespace-nowrap">
-              <span>For Corporates</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">{companiesLabel}</span>
-            </Link>
-            <Link href="/untuk-ngo" className="hover:text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
-              <span>For NGOs</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{orgsLabel}</span>
-            </Link>
+            {viewAs !== 'ngo' && (
+              <Link href="/untuk-korporasi" className="hover:text-indigo-300 flex items-center gap-1.5 whitespace-nowrap">
+                <span>{viewAs === 'csr' ? 'Solusi Korporasi' : 'For Corporates'}</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">{companiesLabel}</span>
+              </Link>
+            )}
+            {viewAs !== 'csr' && (
+              <Link href="/untuk-ngo" className="hover:text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
+                <span>{viewAs === 'ngo' ? 'Solusi NGO' : 'For NGOs'}</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{orgsLabel}</span>
+              </Link>
+            )}
             <a href="#opportunities" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 whitespace-nowrap">
               <span>Opportunities</span>
               <span className="relative flex h-2 w-2">
@@ -118,27 +132,49 @@ export default async function LandingPage() {
 
           {/* Action CTAs */}
           <div className="flex items-center gap-2.5">
-            <Link
-              href="/login"
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all border border-transparent hover:border-slate-700"
-            >
-              Masuk
-            </Link>
-            <Link
-              href="/untuk-korporasi"
-              className="hidden sm:flex px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-950/80 hover:bg-indigo-900/80 text-indigo-200 border border-indigo-700/50 transition-all items-center gap-1.5"
-            >
-              <Building2 className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Join Korporasi</span>
-            </Link>
-            <Link
-              href="/untuk-ngo"
-              className="px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-lg shadow-emerald-700/25 transition-all flex items-center gap-1.5"
-            >
-              <Heart className="w-3.5 h-3.5 text-emerald-200" />
-              <span>Join NGO</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            {viewAs === 'csr' ? (
+              <Link
+                href="/login"
+                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-1.5"
+              >
+                <Building2 className="w-3.5 h-3.5 text-indigo-200" />
+                <span>Login</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : viewAs === 'ngo' ? (
+              <Link
+                href="/login"
+                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-lg shadow-emerald-700/25 transition-all flex items-center gap-1.5"
+              >
+                <Heart className="w-3.5 h-3.5 text-emerald-200" />
+                <span>Login</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all border border-transparent hover:border-slate-700"
+                >
+                  Masuk
+                </Link>
+                <Link
+                  href="/untuk-korporasi"
+                  className="hidden sm:flex px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-950/80 hover:bg-indigo-900/80 text-indigo-200 border border-indigo-700/50 transition-all items-center gap-1.5"
+                >
+                  <Building2 className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Join Korporasi</span>
+                </Link>
+                <Link
+                  href="/untuk-ngo"
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-lg shadow-emerald-700/25 transition-all flex items-center gap-1.5"
+                >
+                  <Heart className="w-3.5 h-3.5 text-emerald-200" />
+                  <span>Join NGO</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </>
+            )}
           </div>
 
         </div>
@@ -147,12 +183,24 @@ export default async function LandingPage() {
       {/* 2. Hero Section */}
       <section className="pt-16 pb-20 px-6 max-w-7xl mx-auto text-center space-y-8 relative">
         
-        {/* Two-Sided Platform Pill Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-950/80 border border-emerald-700/40 text-emerald-300 text-xs font-semibold backdrop-blur-md shadow-inner">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-          <span>✦ 2-Sided CSR Partnership Platform</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-        </div>
+        {/* Platform Pill Badge */}
+        {viewAs === 'csr' ? (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-950/80 border border-indigo-700/40 text-indigo-300 text-xs font-semibold backdrop-blur-md shadow-inner">
+            <Building2 className="w-3.5 h-3.5 text-indigo-400" />
+            <span>✦ Platform Intelijen CSR & TJSL Korporasi</span>
+          </div>
+        ) : viewAs === 'ngo' ? (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-950/80 border border-emerald-700/40 text-emerald-300 text-xs font-semibold backdrop-blur-md shadow-inner">
+            <Heart className="w-3.5 h-3.5 text-emerald-400" />
+            <span>✦ Platform Kemitraan Khusus NGO & Yayasan Sosial</span>
+          </div>
+        ) : (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-950/80 border border-emerald-700/40 text-emerald-300 text-xs font-semibold backdrop-blur-md shadow-inner">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <span>✦ 2-Sided CSR Partnership Platform</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          </div>
+        )}
 
         {/* Hero Main Headline */}
         <div className="max-w-4xl mx-auto space-y-5">
@@ -167,25 +215,61 @@ export default async function LandingPage() {
           </p>
         </div>
 
-        {/* Dual Split Persona CTAs */}
-        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
-          <Link
-            href="/untuk-korporasi"
-            className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 hover:shadow-indigo-500/50 transition-all flex items-center justify-center gap-2 border border-indigo-400/30 group"
-          >
-            <Building2 className="w-4 h-4 text-indigo-200 group-hover:scale-110 transition-transform" />
-            <span>Saya Korporasi</span>
-            <ArrowRight className="w-4 h-4 text-indigo-200 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <Link
-            href="/untuk-ngo"
-            className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/30 hover:shadow-emerald-500/50 transition-all flex items-center justify-center gap-2 border border-emerald-400/30 group"
-          >
-            <Heart className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
-            <span>Saya NGO / Yayasan</span>
-            <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
+        {/* Persona CTAs */}
+        {viewAs === 'csr' ? (
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
+            <Link
+              href="/login"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 hover:shadow-indigo-500/50 transition-all flex items-center justify-center gap-2 border border-indigo-400/30 group"
+            >
+              <Building2 className="w-4 h-4 text-indigo-200 group-hover:scale-110 transition-transform" />
+              <span>Masuk ke Portal CSR</span>
+              <ArrowRight className="w-4 h-4 text-indigo-200 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/untuk-korporasi"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800 text-slate-300 font-bold text-sm border border-slate-800 transition-all flex items-center justify-center gap-2"
+            >
+              <span>Pelajari Solusi Korporasi</span>
+            </Link>
+          </div>
+        ) : viewAs === 'ngo' ? (
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
+            <Link
+              href="/login"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/30 hover:shadow-emerald-500/50 transition-all flex items-center justify-center gap-2 border border-emerald-400/30 group"
+            >
+              <Heart className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
+              <span>Masuk ke Portal NGO</span>
+              <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/untuk-ngo"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800 text-slate-300 font-bold text-sm border border-slate-800 transition-all flex items-center justify-center gap-2"
+            >
+              <span>Pelajari Solusi NGO</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
+            <Link
+              href="/untuk-korporasi"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 hover:shadow-indigo-500/50 transition-all flex items-center justify-center gap-2 border border-indigo-400/30 group"
+            >
+              <Building2 className="w-4 h-4 text-indigo-200 group-hover:scale-110 transition-transform" />
+              <span>Saya Korporasi</span>
+              <ArrowRight className="w-4 h-4 text-indigo-200 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/untuk-ngo"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/30 hover:shadow-emerald-500/50 transition-all flex items-center justify-center gap-2 border border-emerald-400/30 group"
+            >
+              <Heart className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
+              <span>Saya NGO / Yayasan</span>
+              <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        )}
 
         {/* Balanced Two-Sided Live Metrics Cards */}
         <div className="pt-10 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto text-left">
@@ -658,20 +742,42 @@ export default async function LandingPage() {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/untuk-korporasi"
-              className="px-5 py-2.5 rounded-xl bg-indigo-950/80 hover:bg-indigo-900/80 text-indigo-200 font-bold text-xs border border-indigo-700/50 transition-colors flex items-center gap-1.5"
-            >
-              <Building2 className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Daftar Mitra Korporasi</span>
-            </Link>
-            <Link
-              href="/untuk-ngo"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-bold text-xs shadow-lg shadow-emerald-700/20 transition-colors flex items-center gap-1.5"
-            >
-              <Heart className="w-3.5 h-3.5 text-emerald-200" />
-              <span>Daftar Mitra NGO</span>
-            </Link>
+            {viewAs === 'csr' ? (
+              <Link
+                href="/login"
+                className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition-colors flex items-center gap-2"
+              >
+                <Building2 className="w-4 h-4 text-indigo-200" />
+                <span>Masuk ke Portal CSR</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : viewAs === 'ngo' ? (
+              <Link
+                href="/login"
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-bold text-xs shadow-lg shadow-emerald-700/20 transition-colors flex items-center gap-2"
+              >
+                <Heart className="w-4 h-4 text-emerald-200" />
+                <span>Masuk ke Portal NGO</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/untuk-korporasi"
+                  className="px-5 py-2.5 rounded-xl bg-indigo-950/80 hover:bg-indigo-900/80 text-indigo-200 font-bold text-xs border border-indigo-700/50 transition-colors flex items-center gap-1.5"
+                >
+                  <Building2 className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Daftar Mitra Korporasi</span>
+                </Link>
+                <Link
+                  href="/untuk-ngo"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-bold text-xs shadow-lg shadow-emerald-700/20 transition-colors flex items-center gap-1.5"
+                >
+                  <Heart className="w-3.5 h-3.5 text-emerald-200" />
+                  <span>Daftar Mitra NGO</span>
+                </Link>
+              </>
+            )}
           </div>
 
         </div>

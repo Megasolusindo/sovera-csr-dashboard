@@ -47,9 +47,18 @@ const getApiBaseUrl = () => {
   return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api/v1';
 };
 
+// Helper to read viewAs cookie in client component
+function getViewAsCookie(): 'ngo' | 'csr' | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)viewAs=([^;]*)/);
+  return match ? (match[1] as 'ngo' | 'csr') : null;
+}
+
 function PricingContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  const [viewAs, setViewAs] = useState<'ngo' | 'csr' | null>(null);
 
   // Read initial persona from URL query param (?persona=corporate | ?persona=ngo)
   const initialPersona = (searchParams.get('persona') === 'corporate' ? 'CORPORATE' : 'NGO') as 'NGO' | 'CORPORATE';
@@ -62,6 +71,7 @@ function PricingContent() {
 
   // Sync state with URL without full page reload & save preference to Session Storage
   const handlePersonaChange = (persona: 'NGO' | 'CORPORATE') => {
+    if (viewAs) return; // Do not allow manual switching when locked by viewAs cookie
     setSelectedPersona(persona);
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('csrmatics_user_persona', persona);
@@ -71,19 +81,27 @@ function PricingContent() {
     router.replace(`/pricing?${newParams.toString()}`, { scroll: false });
   };
 
-  // Sync persona reactively from URL query param (?persona=corporate) or Session Storage
+  // Sync persona reactively from viewAs cookie, or fallback to URL query param / Session Storage
   useEffect(() => {
-    const personaParam = searchParams.get('persona');
-    if (personaParam) {
-      if (personaParam.toLowerCase() === 'corporate') {
-        setSelectedPersona('CORPORATE');
-      } else if (personaParam.toLowerCase() === 'ngo') {
-        setSelectedPersona('NGO');
-      }
-    } else if (typeof window !== 'undefined') {
-      const savedPersona = sessionStorage.getItem('csrmatics_user_persona');
-      if (savedPersona === 'CORPORATE' || savedPersona === 'NGO') {
-        setSelectedPersona(savedPersona);
+    const v = getViewAsCookie();
+    setViewAs(v);
+    if (v === 'csr') {
+      setSelectedPersona('CORPORATE');
+    } else if (v === 'ngo') {
+      setSelectedPersona('NGO');
+    } else {
+      const personaParam = searchParams.get('persona');
+      if (personaParam) {
+        if (personaParam.toLowerCase() === 'corporate') {
+          setSelectedPersona('CORPORATE');
+        } else if (personaParam.toLowerCase() === 'ngo') {
+          setSelectedPersona('NGO');
+        }
+      } else if (typeof window !== 'undefined') {
+        const savedPersona = sessionStorage.getItem('csrmatics_user_persona');
+        if (savedPersona === 'CORPORATE' || savedPersona === 'NGO') {
+          setSelectedPersona(savedPersona);
+        }
       }
     }
   }, [searchParams]);
@@ -158,16 +176,26 @@ function PricingContent() {
               <span className="font-extrabold text-xl tracking-tight text-white block leading-none">
                 CSRmatics
               </span>
-              <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-400 uppercase tracking-wider block mt-1 whitespace-nowrap">
-                Two-Sided CSR Platform
+              <span className={`text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider block mt-1 whitespace-nowrap ${
+                viewAs === 'csr' ? 'text-indigo-400' : 'text-emerald-400'
+              }`}>
+                {viewAs === 'csr' ? 'Corporate CSR Portal' : viewAs === 'ngo' ? 'NGO Partnership Portal' : 'Two-Sided CSR Platform'}
               </span>
             </div>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
             <Link href="/#features" className="hover:text-emerald-400 transition-colors">Platform</Link>
-            <Link href="/untuk-korporasi" className="hover:text-indigo-300 transition-colors">For Corporates</Link>
-            <Link href="/untuk-ngo" className="hover:text-emerald-400 transition-colors">For NGOs</Link>
+            {viewAs !== 'ngo' && (
+              <Link href="/untuk-korporasi" className="hover:text-indigo-300 transition-colors">
+                {viewAs === 'csr' ? 'Solusi Korporasi' : 'For Corporates'}
+              </Link>
+            )}
+            {viewAs !== 'csr' && (
+              <Link href="/untuk-ngo" className="hover:text-emerald-400 transition-colors">
+                {viewAs === 'ngo' ? 'Solusi NGO' : 'For NGOs'}
+              </Link>
+            )}
             <Link href="/#opportunities" className="hover:text-emerald-400 transition-colors">Opportunities</Link>
             <Link href="/#how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</Link>
             <Link href="/blog" className="hover:text-emerald-400 transition-colors">Blog</Link>
@@ -175,18 +203,34 @@ function PricingContent() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-transparent hover:border-slate-700"
-            >
-              Masuk Sesi
-            </Link>
-            <Link
-              href="/login"
-              className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-lg shadow-emerald-700/25 transition-all"
-            >
-              Daftar Sekarang
-            </Link>
+            {viewAs ? (
+              <Link
+                href="/login"
+                className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white shadow-lg transition-all flex items-center gap-1.5 ${
+                  viewAs === 'csr'
+                    ? 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30'
+                    : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 shadow-emerald-700/25'
+                }`}
+              >
+                <span>Login</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-all border border-transparent hover:border-slate-700"
+                >
+                  Masuk Sesi
+                </Link>
+                <Link
+                  href="/login"
+                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-lg shadow-emerald-700/25 transition-all"
+                >
+                  Daftar Sekarang
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -215,36 +259,38 @@ function PricingContent() {
           )}
         </div>
 
-        {/* 1. SEGMENTED CONTROLLER SWITCH (Persona Selector) */}
-        <div className="max-w-xl mx-auto">
-          <div className="p-1.5 bg-slate-900/90 rounded-2xl border border-slate-800 flex items-center gap-2 shadow-2xl backdrop-blur-md">
-            <button
-              type="button"
-              onClick={() => handlePersonaChange('NGO')}
-              className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center gap-2.5 ${
-                selectedPersona === 'NGO'
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-700/30'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-              }`}
-            >
-              <Heart className={`w-4 h-4 ${selectedPersona === 'NGO' ? 'text-emerald-200' : 'text-slate-500'}`} />
-              <span>🤝 Lembaga Sosial / NGO</span>
-            </button>
+        {/* 1. SEGMENTED CONTROLLER SWITCH (Persona Selector) - Hidden if viewAs cookie exists */}
+        {!viewAs && (
+          <div className="max-w-xl mx-auto">
+            <div className="p-1.5 bg-slate-900/90 rounded-2xl border border-slate-800 flex items-center gap-2 shadow-2xl backdrop-blur-md">
+              <button
+                type="button"
+                onClick={() => handlePersonaChange('NGO')}
+                className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center gap-2.5 ${
+                  selectedPersona === 'NGO'
+                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-700/30'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                }`}
+              >
+                <Heart className={`w-4 h-4 ${selectedPersona === 'NGO' ? 'text-emerald-200' : 'text-slate-500'}`} />
+                <span>🤝 Lembaga Sosial / NGO</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handlePersonaChange('CORPORATE')}
-              className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center gap-2.5 ${
-                selectedPersona === 'CORPORATE'
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-700/30'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-              }`}
-            >
-              <Building2 className={`w-4 h-4 ${selectedPersona === 'CORPORATE' ? 'text-indigo-200' : 'text-slate-500'}`} />
-              <span>🏢 Perusahaan / TJSL</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => handlePersonaChange('CORPORATE')}
+                className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center gap-2.5 ${
+                  selectedPersona === 'CORPORATE'
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-700/30'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                }`}
+              >
+                <Building2 className={`w-4 h-4 ${selectedPersona === 'CORPORATE' ? 'text-indigo-200' : 'text-slate-500'}`} />
+                <span>🏢 Perusahaan / TJSL</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Header & Billing Cycle */}
         <div className="text-center space-y-3">

@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import {
   Building2,
   Sparkles,
@@ -61,6 +63,13 @@ export const metadata: Metadata = {
 };
 
 export default function UntukKorporasiPage() {
+  const cookieStore = cookies();
+  const viewAs = cookieStore.get('viewAs')?.value;
+
+  if (viewAs === 'ngo') {
+    redirect('/untuk-ngo');
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans relative overflow-x-hidden">
       
@@ -71,8 +80,8 @@ export default function UntukKorporasiPage() {
       <header className="sticky top-0 z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-800/60">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center font-bold shadow-lg">
-              <Sparkles className="w-5 h-5 text-emerald-200" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center font-bold shadow-lg shadow-indigo-600/20">
+              <Sparkles className="w-5 h-5 text-indigo-200" />
             </div>
             <div>
               <span className="font-extrabold text-xl tracking-tight text-white block leading-none">
@@ -86,26 +95,42 @@ export default function UntukKorporasiPage() {
 
           <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
             <Link href="/" className="hover:text-emerald-400">Home</Link>
-            <Link href="/untuk-korporasi" className="text-indigo-400 font-bold">For Corporates</Link>
-            <Link href="/untuk-ngo" className="hover:text-emerald-400">For NGOs</Link>
+            <Link href="/untuk-korporasi" className="text-indigo-400 font-bold">
+              {viewAs === 'csr' ? 'Solusi Korporasi' : 'For Corporates'}
+            </Link>
+            {viewAs !== 'csr' && (
+              <Link href="/untuk-ngo" className="hover:text-emerald-400">For NGOs</Link>
+            )}
             <Link href="/database-perusahaan" className="hover:text-emerald-400">Corporate Directory</Link>
             <Link href="/blog" className="hover:text-emerald-400">Blog</Link>
             <Link href="/pricing" className="hover:text-emerald-400">Pricing</Link>
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700"
-            >
-              Masuk Sesi
-            </Link>
-            <Link
-              href="/pricing"
-              className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30"
-            >
-              Coba Solusi Korporasi
-            </Link>
+            {viewAs === 'csr' ? (
+              <Link
+                href="/login"
+                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 flex items-center gap-1.5"
+              >
+                <span>Login</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700"
+                >
+                  Masuk Sesi
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30"
+                >
+                  Coba Solusi Korporasi
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -127,10 +152,10 @@ export default function UntukKorporasiPage() {
           </p>
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/pricing"
+              href={viewAs === 'csr' ? '/login' : '/pricing'}
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-sm shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2"
             >
-              <span>Jadwalkan Konsultasi Korporasi</span>
+              <span>{viewAs === 'csr' ? 'Masuk ke Portal CSR' : 'Jadwalkan Konsultasi Korporasi'}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link

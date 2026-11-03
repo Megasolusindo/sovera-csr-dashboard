@@ -11,13 +11,13 @@ import {
 } from 'lucide-react';
 
 interface PublicNavbarProps {
-  initialViewAs?: 'csr' | 'ngo' | null;
+  initialViewAs?: 'csr' | 'ngo' | string | null;
 }
 
 export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [viewAs, setViewAs] = useState<'csr' | 'ngo' | null>(initialViewAs || null);
+  const [viewAs, setViewAs] = useState<'csr' | 'ngo' | string | null>(initialViewAs || null);
 
   useEffect(() => {
     // If not supplied from server, check document.cookie on mount

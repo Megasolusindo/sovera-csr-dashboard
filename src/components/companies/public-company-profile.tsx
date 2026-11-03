@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { PublicNavbar } from '@/components/shared/public-navbar';
 import { Building2, Sparkles, Globe, ArrowRight, ChevronRight, Info } from 'lucide-react';
 import { lookupCompanyProfile } from '@/lib/company-profiles';
 
@@ -39,28 +41,14 @@ export default async function PublicCompanyProfile({ slug }: { slug: string }) {
     ],
   };
 
+  const cookieStore = cookies();
+  const viewAs = cookieStore.get('viewAs')?.value as 'csr' | 'ngo' | undefined;
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans relative overflow-x-hidden">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-slate-950/80 border-b border-slate-800/60">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center shadow-lg">
-              <Sparkles className="w-5 h-5 text-emerald-200" />
-            </div>
-            <span className="font-extrabold text-xl tracking-tight text-white">CSRmatics</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white border border-slate-800">
-              Masuk
-            </Link>
-            <Link href="/pricing" className="px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg">
-              Ajukan Kemitraan
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PublicNavbar initialViewAs={viewAs} />
 
       <main className="py-12 px-6 max-w-5xl mx-auto space-y-8">
         <nav className="flex items-center gap-2 text-xs text-slate-400">

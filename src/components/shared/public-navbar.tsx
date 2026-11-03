@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Sparkles,
-  Building2,
-  Heart,
   Menu,
   X,
   ArrowRight,
@@ -151,76 +149,32 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
           </Link>
         </nav>
 
-        {/* Desktop Action CTAs */}
-        <div className="hidden lg:flex items-center gap-2.5">
-          {viewAs === 'csr' ? (
-            <>
-              <Link
-                href="/login"
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all border border-transparent hover:border-slate-700"
-              >
-                Masuk
-              </Link>
-              <Link
-                href="/untuk-korporasi"
-                className="px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-1.5 border border-indigo-400/30"
-              >
-                <Building2 className="w-3.5 h-3.5 text-indigo-200" />
-                <span>Masuk Korporasi</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </>
-          ) : viewAs === 'ngo' ? (
-            <>
-              <Link
-                href="/login"
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all border border-transparent hover:border-slate-700"
-              >
-                Masuk
-              </Link>
-              <Link
-                href="/untuk-ngo"
-                className="px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-lg shadow-emerald-700/25 transition-all flex items-center gap-1.5 border border-emerald-400/30"
-              >
-                <Heart className="w-3.5 h-3.5 text-emerald-200" />
-                <span>Masuk NGO</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 transition-all border border-transparent hover:border-slate-700"
-              >
-                Masuk
-              </Link>
-              <Link
-                href="/untuk-korporasi"
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-950/80 hover:bg-indigo-900/80 text-indigo-200 border border-indigo-700/50 transition-all flex items-center gap-1.5"
-              >
-                <Building2 className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Join Korporasi</span>
-              </Link>
-              <Link
-                href="/untuk-ngo"
-                className="px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white shadow-lg shadow-emerald-700/25 transition-all flex items-center gap-1.5"
-              >
-                <Heart className="w-3.5 h-3.5 text-emerald-200" />
-                <span>Join NGO</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </>
-          )}
+        {/* Desktop Action CTA */}
+        <div className="hidden lg:flex items-center">
+          <Link
+            href="/login"
+            className={`px-4 py-2 rounded-xl text-xs font-bold text-white shadow-md transition-all flex items-center gap-1.5 border ${
+              viewAs === 'csr'
+                ? 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30 border-indigo-400/30 hover:scale-[1.02]'
+                : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-700/25 border-emerald-400/30 hover:scale-[1.02]'
+            }`}
+          >
+            <span>Login</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
         {/* Mobile Hamburger Button */}
         <div className="flex lg:hidden items-center gap-2">
           <Link
             href="/login"
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-200 hover:bg-slate-800 border border-slate-700"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold text-white transition-all ${
+              viewAs === 'csr'
+                ? 'bg-indigo-600 hover:bg-indigo-500'
+                : 'bg-emerald-600 hover:bg-emerald-500'
+            }`}
           >
-            Masuk
+            Login
           </Link>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -290,42 +244,19 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
             </Link>
           </div>
 
-          {/* Mobile CTA Buttons */}
-          <div className="pt-3 border-t border-slate-800/80 flex flex-col gap-2.5">
-            {viewAs === 'csr' ? (
-              <Link
-                href="/untuk-korporasi"
-                className="w-full py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all"
-              >
-                <Building2 className="w-4 h-4 text-indigo-200" />
-                <span>Masuk Portal Korporasi</span>
-              </Link>
-            ) : viewAs === 'ngo' ? (
-              <Link
-                href="/untuk-ngo"
-                className="w-full py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-700/25 flex items-center justify-center gap-2 transition-all"
-              >
-                <Heart className="w-4 h-4 text-emerald-200" />
-                <span>Masuk Portal NGO</span>
-              </Link>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <Link
-                  href="/untuk-korporasi"
-                  className="py-2.5 px-3 rounded-xl text-xs font-bold bg-indigo-950/90 text-indigo-200 border border-indigo-700/50 flex items-center justify-center gap-1.5 text-center"
-                >
-                  <Building2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                  <span>Korporasi</span>
-                </Link>
-                <Link
-                  href="/untuk-ngo"
-                  className="py-2.5 px-3 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-1.5 text-center shadow-md shadow-emerald-700/20"
-                >
-                  <Heart className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
-                  <span>Join NGO</span>
-                </Link>
-              </div>
-            )}
+          {/* Mobile CTA Button */}
+          <div className="pt-3 border-t border-slate-800/80">
+            <Link
+              href="/login"
+              className={`w-full py-2.5 rounded-xl text-xs font-bold text-white shadow-lg flex items-center justify-center gap-2 transition-all ${
+                viewAs === 'csr'
+                  ? 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/25'
+                  : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-700/25'
+              }`}
+            >
+              <span>Login</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       )}

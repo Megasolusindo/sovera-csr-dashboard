@@ -39,7 +39,8 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
     const targetPersona = request.nextUrl.pathname === "/as-csr" ? "csr" : "ngo";
-    const res = NextResponse.redirect(new URL("/", request.url));
+    const redirectTo = request.nextUrl.searchParams.get("redirect") || "/";
+    const res = NextResponse.redirect(new URL(redirectTo, request.url));
     res.cookies.set("viewAs", targetPersona, {
       path: "/",
       maxAge: 60 * 60 * 24 * 30, // 30 days
@@ -48,7 +49,15 @@ export function middleware(request: NextRequest) {
     return res;
   }
 
-  // 4. Cross-persona redirection for /untuk-ngo and /untuk-korporasi based on viewAs cookie
+  // 4. Automatic redirect from root '/' to '/platform' if viewAs cookie is not set
+  if (request.nextUrl.pathname === "/") {
+    const viewAs = request.cookies.get("viewAs")?.value;
+    if (!viewAs) {
+      return NextResponse.redirect(new URL("/platform", request.url));
+    }
+  }
+
+  // 5. Cross-persona redirection for /untuk-ngo and /untuk-korporasi based on viewAs cookie
   const viewAs = request.cookies.get("viewAs")?.value;
   if (viewAs === "csr" && request.nextUrl.pathname.startsWith("/untuk-ngo")) {
     return NextResponse.redirect(new URL("/untuk-korporasi", request.url));

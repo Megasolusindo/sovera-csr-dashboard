@@ -36,6 +36,7 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
 
   const isBlogActive = pathname.startsWith('/blog');
   const isPricingActive = pathname.startsWith('/pricing');
+  const isPlatformActive = pathname.startsWith('/platform');
   const isDirectoryActive = pathname.startsWith('/database-perusahaan');
   const isNgoDirectoryActive = pathname.startsWith('/database-lembaga');
   const isCorporateActive = pathname.startsWith('/untuk-korporasi');
@@ -85,6 +86,15 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
             className="hover:text-emerald-400 transition-colors whitespace-nowrap"
           >
             Beranda
+          </Link>
+
+          <Link
+            href="/platform"
+            className={`transition-colors whitespace-nowrap ${
+              isPlatformActive ? 'text-emerald-400 font-semibold' : 'hover:text-emerald-400'
+            }`}
+          >
+            Platform
           </Link>
 
           {/* Solusi Korporasi: disembunyikan jika persona NGO */}
@@ -205,6 +215,15 @@ export function PublicNavbar({ initialViewAs }: PublicNavbarProps) {
               className="text-slate-300 hover:text-emerald-400 py-1 transition-colors"
             >
               Beranda
+            </Link>
+
+            <Link
+              href="/platform"
+              className={`py-1 transition-colors ${
+                isPlatformActive ? 'text-emerald-400 font-semibold' : 'text-slate-300 hover:text-emerald-400'
+              }`}
+            >
+              Platform
             </Link>
 
             {viewAs !== 'ngo' && (

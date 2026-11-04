@@ -13,7 +13,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  const response = NextResponse.redirect(new URL('/', request.url));
+  const redirectTo = request.nextUrl.searchParams.get('redirect') || '/';
+  const response = NextResponse.redirect(new URL(redirectTo, request.url));
   response.cookies.set('viewAs', 'ngo', {
     path: '/',
     maxAge: 60 * 60 * 24 * 30, // 30 days

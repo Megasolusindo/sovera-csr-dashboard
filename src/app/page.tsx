@@ -61,10 +61,17 @@ async function getPublicStats(): Promise<PublicStats | null> {
   }
 }
 
+import { redirect } from 'next/navigation';
+
 export default async function LandingPage() {
-  const stats = await getPublicStats();
   const cookieStore = cookies();
   const viewAs = cookieStore.get('viewAs')?.value; // 'ngo' | 'csr' | undefined
+
+  if (!viewAs) {
+    redirect('/platform');
+  }
+
+  const stats = await getPublicStats();
 
   // Labels fall back to neutral copy if the API is unreachable, never to invented numbers.
   const companiesLabel = stats ? roundDown(stats.companies) : 'Ribuan';
